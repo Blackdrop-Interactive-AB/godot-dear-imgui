@@ -1,6 +1,6 @@
 #include "native_imgui.h"
 #include "scene/resources/mesh.h"
-
+#include "../../core/os/os.h"
 
 /*
 void imgui_native::_bind_methods() {
@@ -28,12 +28,19 @@ imgui_native::~imgui_native() {
  
 
 void native_imgui::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("testrender"), &native_imgui::_process);
+	ClassDB::bind_method(D_METHOD("testrender", "delta", "rid"), &native_imgui::_process); 
 }
 
 void native_imgui::_process(float delta, RID parent) {
 	bool truebool = true;
-	
+
+	auto io = ImGui::GetIO();
+	Vector2 godot_mouse_pos = OS::get_singleton()->get_mouse_position();
+
+	ImVec2 mousePos(godot_mouse_pos.x, godot_mouse_pos.y);
+	io.MousePos = mousePos;
+
+	io.MouseDown[(int)ImGuiMouseButton_Left] = (bool)OS::get_singleton()->get_mouse_button_state();
 	ImGui::NewFrame();
 	ImGui::Begin("Test");
 	ImGui::Text("ABOUT THIS DEMO:");
@@ -60,8 +67,7 @@ void native_imgui::_process(float delta, RID parent) {
 	
 	Render(delta, nullptr, get_canvas_item());
 }
-
-
+ 
 
 Vector<Array> native_imgui::extract_imgui_data() {
 	ImDrawData *draw_dat = ImGui::GetDrawData();
@@ -77,12 +83,19 @@ Vector<Array> native_imgui::extract_imgui_data() {
 
 		Array temp;
 		temp.resize(ArrayMesh::ARRAY_MAX);
-	
+		
 
 		Vector<Vector2> vertices;
 		Vector<Color> colors;
 		Vector<Vector2> uvs;
 		Vector<int> indices;
+
+		for (uint32_t j = 0; j < list->CmdBuffer.Size; j++) {
+
+			ImDrawCmd drawCmd = list->CmdBuffer[j];
+			VisualServer->canvas_item_set_custom_rect(get_canvas_item(), true, Rect2(drawCmd.ClipRect.x, drawCmd.ClipRect.y, drawCmd.ClipRect.z - drawCmd.ClipRect.x, drawCmd.ClipRect.w - drawCmd.ClipRect.y));
+		}
+
 
 		for (uint32_t j = 0; j < list->VtxBuffer.size(); j++) {
 			// vertex pos
@@ -91,10 +104,10 @@ Vector<Array> native_imgui::extract_imgui_data() {
 
 			// vertex colour
 			ImU32 im_col = list->VtxBuffer[j].col;
-			uint8_t R = (im_col & 0xFF) / 255;
-			uint8_t G = ((im_col >> 8) & 0xFF) / 255;
-			uint8_t B = ((im_col >> 16) & 0xFF) / 255;
-			uint8_t A = ((im_col >> 24) & 0xFF) / 255;
+			float R = (im_col & 0xFF) / 255.0;
+			float G = ((im_col >> 8) & 0xFF) / 255.0;
+			float B = ((im_col >> 16) & 0xFF) / 255.0;
+			float A = ((im_col >> 24) & 0xFF) / 255.0;
 			Color godot_col(R, G, B, A);
 			// Vertex uv
 			ImVec2 im_uv = list->VtxBuffer[j].uv;
@@ -117,6 +130,7 @@ Vector<Array> native_imgui::extract_imgui_data() {
 
 		arrays.push_back(temp);
 
+		
 	}
 
 	
@@ -126,6 +140,15 @@ Vector<Array> native_imgui::extract_imgui_data() {
 }
 
 void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
+
+	auto io = ImGui::GetIO();
+	Vector2 godot_mouse_pos = OS::get_singleton()->get_mouse_position();
+	io.WantSetMousePos;
+	ImVec2 mousePos(godot_mouse_pos.x, godot_mouse_pos.y);
+	io.MousePos = mousePos;
+	print_line(vformat("mouse button state: %d.", OS::get_singleton()->get_mouse_button_state()).c_str());
+
+	print_line(vformat("mousepos X: %d. Y: %d.", io.MousePos.x, io.MousePos.y).c_str());
 
 	Vector<Array> arrays = extract_imgui_data();
 	for (uint32_t i = 0; i < arrays.size(); i++) {
@@ -159,23 +182,27 @@ native_imgui::native_imgui() {
 	context = ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
 	ImGui::SetCurrentContext(context);
-
+	ImGui::StyleColorsDark();
 	io.Fonts->AddFontDefault();
-
-	
+	io.MouseDrawCursor = true;
+	io.BackendFlags = 0;
+	io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
+	//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+	io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	int width, height, bytesPerPixel;
 	unsigned char *pixels = NULL;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
 
 
-	PoolByteArray test;
+	PoolByteArray textureDataRaw;
 
 	for (uint32_t i = 0; i < width * height * bytesPerPixel; i++) {
-		test.push_back(pixels[i]);
+		textureDataRaw.push_back(pixels[i]);
 	}
 
-	Image img(width, height, false, Image::Format::FORMAT_RGBA8, test); 
+	Image img(width, height, false, Image::Format::FORMAT_RGBA8, textureDataRaw); 
 
 	imgtex.create_from_image(img.duplicate(), 0);
 
@@ -189,3 +216,9 @@ native_imgui::native_imgui() {
 	io.DisplaySize.y = GLOBAL_GET("display/window/size/height");
 
 }
+/*
+		VisualServer.CanvasItemSetCustomRect(child, true,
+			new Godot.Rect2(drawCmd.ClipRect.X,
+				drawCmd.ClipRect.Y,
+				drawCmd.ClipRect.Z - drawCmd.ClipRect.X,
+				drawCmd.ClipRect.W - drawCmd.ClipRect.Y)); */
