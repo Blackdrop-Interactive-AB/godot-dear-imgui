@@ -5,7 +5,7 @@
 
 #include "core/reference.h"
 
-#include "servers/rendering_server.h"
+#include "../../servers/visual_server.h"
 
 #include "core/vector.h"
 #include "scene/2d/node_2d.h"
@@ -15,7 +15,7 @@ class native_imgui : public Node2D {
 
 	int count;
 	uint32_t *fontTextureId = nullptr;
-	RenderingServer *VisualServer;
+	VisualServer *VisualServer;
 	List<RID> children;
 	List<ArrayMesh*> meshes;
 	Dictionary loadedTextures;

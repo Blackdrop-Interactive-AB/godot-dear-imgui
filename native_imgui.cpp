@@ -71,17 +71,21 @@ void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
 	Vector<Vector2> uvs;
 	Vector<int> indices;
 
+	int factor = 100;
+
 	// First face
-	vertices.push_back(Vector2(0, 0));
-	vertices.push_back(Vector2(1, 0));
-	vertices.push_back(Vector2(1, 1));
+	vertices.push_back(Vector2(0, 0) * factor);
+	vertices.push_back(Vector2(1, 0) * factor);
+	vertices.push_back(Vector2(1, 1) * factor);
 
 	// Second face	
-	vertices.push_back(Vector2(1, 1));
-	vertices.push_back(Vector2(0, 1));
-	vertices.push_back(Vector2(1, 0));
+	vertices.push_back(Vector2(1, 1) * factor);
+	vertices.push_back(Vector2(0, 1) * factor);
+	vertices.push_back(Vector2(0, 0) * factor);
 
-	for (uint32_t i = 0; i < 6; i++)
+	
+
+	for (uint32_t i = 0; i < vertices.size(); i++)
 		indices.push_back(i);
 	
 	VisualServer->canvas_item_set_parent(newChild, parent);
@@ -95,7 +99,8 @@ void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
 	 
 	mesh.add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, arrays);
 	 
-	
+;
+
 	//VisualServer->canvas_item_clear(newChild);
 	VisualServer->canvas_item_set_clip(newChild, true); 
 
@@ -189,10 +194,11 @@ void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
 }
 
 void native_imgui::RebuildFontAtlas() {
+	/*
 	ImGuiIO &io = ImGui::GetIO();
 	int width, height, bytesPerPixel;
 	uint8_t * pixels = nullptr;
-	PackedByteArray p_data;
+	//PackedByteArray p_data;
 
 
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
@@ -212,12 +218,13 @@ void native_imgui::RebuildFontAtlas() {
 	
 	io.Fonts->SetTexID(ImTextureID(100));
 	io.Fonts->ClearTexData();
+	*/
 
 }
 
 native_imgui::native_imgui() {
 	count = 0;
-	this->VisualServer = RenderingServer::get_singleton();
+	this->VisualServer = VisualServer::get_singleton();
  
 
 	print_line("Setting up IMGUI");	
