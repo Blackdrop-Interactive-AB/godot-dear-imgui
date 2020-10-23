@@ -59,17 +59,57 @@ void native_imgui::_process(float delta, RID parent) {
 	ImGui::Render();
 	ImDrawData *draw_data = ImGui::GetDrawData();
 
-	Render(delta, draw_data, parent);
+	Render(delta, draw_data, get_canvas_item());
 }
 
-void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) { 
+void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
+
+
+
+	Vector<Vector2> vertices;
+	Vector<Color> colors;
+	Vector<Vector2> uvs;
+	Vector<int> indices;
+
+	// First face
+	vertices.push_back(Vector2(0, 0));
+	vertices.push_back(Vector2(1, 0));
+	vertices.push_back(Vector2(1, 1));
+
+	// Second face	
+	vertices.push_back(Vector2(1, 1));
+	vertices.push_back(Vector2(0, 1));
+	vertices.push_back(Vector2(1, 0));
+
+	for (uint32_t i = 0; i < 6; i++)
+		indices.push_back(i);
+	
+	VisualServer->canvas_item_set_parent(newChild, parent);
+	VisualServer->canvas_item_set_draw_index(newChild, 0);
+
+
+
+	arrays.resize(ArrayMesh::ARRAY_MAX);
+	arrays[(int)ArrayMesh::ArrayType::ARRAY_VERTEX] = vertices;
+	arrays[(int)ArrayMesh::ArrayType::ARRAY_INDEX] = indices;
+	 
+	mesh.add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, arrays);
+	 
+	
+	//VisualServer->canvas_item_clear(newChild);
+	VisualServer->canvas_item_set_clip(newChild, true); 
+
+	VisualServer->canvas_item_add_mesh(newChild, mesh.get_rid(), Transform2D(), Color(1.0, 1.0, 1.0, 1.0));
+
+	update();
+
+	/*
 	// Let's process the data
 	uint32_t neededNodes = 0;
 	for (uint32_t i = 0; i < draw_data->CmdListsCount; i++) {
 		neededNodes += draw_data->CmdLists[i]->CmdBuffer.Size;
 	}
  
-
 	while (children.size() < neededNodes) {
 		RID newChild = VisualServer->canvas_item_create();
 		VisualServer->canvas_item_set_parent(newChild, parent);
@@ -95,7 +135,6 @@ void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
 		// Build the vertexes from ImGui
 		for (int i = 0; i < cmdList->VtxBuffer.Size; i++) {
 			auto v = cmdList->VtxBuffer[i];
-			print_line(vformat("x %d. y %d", v.pos.x, v.pos.y));
 			vertices.push_back(Vector2(v.pos.x, v.pos.y));
 			// need to reverse the color bytes
 			unsigned int c0 = 255;
@@ -107,7 +146,9 @@ void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
 			unsigned int c3 = 255;
 			((v.col >> 24) & 0xFF);
 			colors.push_back(Color(c0, c1, c2, c3));
-			uvs.push_back(Vector2(v.uv.x, v.uv.y));
+
+			print_line(vformat("x %d. y %d w %d", v.uv.x, v.uv.y, c3));
+			uvs.push_back(Vector2(1, v.uv.y));
 		}
 	
 		for (int cmdi = 0; cmdi < cmdList->CmdBuffer.Size; cmdi++) {
@@ -140,11 +181,11 @@ void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
 			VisualServer->canvas_item_set_clip(child, true);
 			VisualServer->canvas_item_set_custom_rect(child, true, Rect2(drawCmd.ClipRect.x, drawCmd.ClipRect.y, drawCmd.ClipRect.z - drawCmd.ClipRect.x, drawCmd.ClipRect.w - drawCmd.ClipRect.y));
 			
-			VisualServer->canvas_item_add_mesh(child, mesh.get_rid(), get_transform(), Color(1.0, 1.0, 1.0));
+			VisualServer->canvas_item_add_mesh(child, mesh.get_rid(), get_transform(), Color(1.0, 1.0, 1.0), VisualServer->get_test_texture());
 	
 		}
 	}
-	
+	*/
 }
 
 void native_imgui::RebuildFontAtlas() {
@@ -186,7 +227,8 @@ native_imgui::native_imgui() {
 	ImGuiIO &io = ImGui::GetIO();
 	io.Fonts->AddFontDefault();
 
-
+	
+	newChild = VisualServer->canvas_item_create();
 
 	int width, height;
 	unsigned char *pixels = NULL;

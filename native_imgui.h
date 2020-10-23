@@ -20,9 +20,13 @@ class native_imgui : public Node2D {
 	List<ArrayMesh*> meshes;
 	Dictionary loadedTextures;
 	ImageTexture imgtex;
-
+	RID newChild;
 	ImGuiContext *context;
 
+
+	ArrayMesh mesh;
+
+	Array arrays;
 
 protected:
 	static void _bind_methods();
