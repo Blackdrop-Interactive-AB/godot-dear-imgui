@@ -33,17 +33,24 @@ void native_imgui::_bind_methods() {
 
 void native_imgui::_process(float delta, RID parent) {
 	bool truebool = true;
+	ImGuiIO &io = ImGui::GetIO();
 
-	auto io = ImGui::GetIO();
 	Vector2 godot_mouse_pos = OS::get_singleton()->get_mouse_position();
-
 	ImVec2 mousePos(godot_mouse_pos.x, godot_mouse_pos.y);
-	io.MousePos = mousePos;
 
-	io.MouseDown[(int)ImGuiMouseButton_Left] = (bool)OS::get_singleton()->get_mouse_button_state();
+
+	io.MousePos = mousePos;
+	io.MouseDown[0] = OS::get_singleton()->get_mouse_button_state() == 1 ? true : false;
+	io.MouseDown[1] = OS::get_singleton()->get_mouse_button_state() == 2 ? true : false;
+
+	print_line(vformat("mouse button state: %d.", OS::get_singleton()->get_mouse_button_state()).c_str());
+	print_line(vformat("mousepos X: %d. Y: %d.", io.MouseDelta.x, io.MouseDelta.y).c_str());
+
 	ImGui::NewFrame();
-	ImGui::Begin("Test");
-	ImGui::Text("ABOUT THIS DEMO:");
+
+	ImGui::Begin("Test", &truebool);
+	if (ImGui::Button("Another Window"))
+		ImGui::Text("ABOUT THIS DEMO:");
 	ImGui::BulletText("Sections below are demonstrating many aspects of the library.");
 	ImGui::BulletText("The \"Examples\" menu above leads to more demo contents.");
 	ImGui::BulletText("The \"Tools\" menu above gives access to: About Box, Style Editor,\n"
@@ -64,7 +71,10 @@ void native_imgui::_process(float delta, RID parent) {
 	ImGui::EndFrame(); 
 
 	ImGui::Render(); 
-	
+
+	print_line(vformat("mouse click pos X: %d. Y: %d.", io.MouseClickedPos[0].x, io.MouseClickedPos[0].y).c_str());
+	if (io.WantCaptureMouse)
+		print_line("kiss");
 	Render(delta, nullptr, get_canvas_item());
 }
  
@@ -75,6 +85,7 @@ Vector<Array> native_imgui::extract_imgui_data() {
 	// validate data
 	if (!draw_dat->Valid) print_error("IMGUI: DRAW DATA NOT VALID");
 
+	draw_dat->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
 	
 	Vector<Array> arrays;
 	// How many meshes
@@ -140,16 +151,6 @@ Vector<Array> native_imgui::extract_imgui_data() {
 }
 
 void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
-
-	auto io = ImGui::GetIO();
-	Vector2 godot_mouse_pos = OS::get_singleton()->get_mouse_position();
-	io.WantSetMousePos;
-	ImVec2 mousePos(godot_mouse_pos.x, godot_mouse_pos.y);
-	io.MousePos = mousePos;
-	print_line(vformat("mouse button state: %d.", OS::get_singleton()->get_mouse_button_state()).c_str());
-
-	print_line(vformat("mousepos X: %d. Y: %d.", io.MousePos.x, io.MousePos.y).c_str());
-
 	Vector<Array> arrays = extract_imgui_data();
 	for (uint32_t i = 0; i < arrays.size(); i++) {
 		Vector<Color> temp = arrays[i][ArrayMesh::ARRAY_COLOR];
@@ -187,10 +188,11 @@ native_imgui::native_imgui() {
 	io.MouseDrawCursor = true;
 	io.BackendFlags = 0;
 	io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
-	//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-	io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+	io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+	//io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+	
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
+	io.DeltaTime = 1.0f / 60.0f;   
 	int width, height, bytesPerPixel;
 	unsigned char *pixels = NULL;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
