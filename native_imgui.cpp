@@ -53,6 +53,8 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat", "label", "value", "step", "fastStep", "format"), &native_imgui::InputFloat);
 	ClassDB::bind_method(D_METHOD("ImGui_SameLine"), &native_imgui::SameLine);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker3", "label", "Vector3"), &native_imgui::ColorPicker3);
+	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit3", "label", "Vector3"), &native_imgui::ColorEdit3);
+ 
 }
 
 void native_imgui::process_imgui() {
@@ -240,10 +242,10 @@ float native_imgui::DragFloat(String label, float value, float speed, float min,
 
 }
 
-Vector3 native_imgui::ColorPicker3(String label, Vector3 color) {
-	float test[3] = { color.x, color.y, color.z };
+Color native_imgui::ColorPicker3(String label, Color color) {
+	float test[3] = { color.r, color.g, color.b };
 	ImGui::ColorPicker3(convertStringToChar(label), test);
-	return Vector3(test[0], test[1], test[2]);
+	return Color(test[0], test[1], test[2]);
 }
 
 bool  native_imgui::ArrowButton(String label, int dir) {
@@ -267,10 +269,17 @@ void native_imgui::CloseCurrentPopup() {
 	ImGui::CloseCurrentPopup();
 }
 
-bool native_imgui::ColorButton(String desc_id, Vector3 vec) {
-	ImVec4 _vec(vec.x, vec.y, vec.z, 1.0);
+bool native_imgui::ColorButton(String desc_id, Color vec) {
+	ImVec4 _vec(vec.r, vec.g, vec.b, 1.0);
 	bool newState = ImGui::ColorButton(convertStringToChar(desc_id), _vec);
 	return handleButtonDic(desc_id, newState);
+}
+
+Color native_imgui::ColorEdit3(String label, Color vec) {
+	float _vec[3] = { vec.r, vec.g, vec.b };
+	ImGui::ColorEdit3(convertStringToChar(label), _vec);
+
+	return Color(_vec[0], _vec[1], _vec[2]);
 }
 
 void native_imgui::RebuildFontAtlas() {

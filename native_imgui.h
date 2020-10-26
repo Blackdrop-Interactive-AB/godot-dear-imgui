@@ -63,13 +63,15 @@ public:
 	float InputFloat(String label, float value, float step, float faststep, String format);
 	void SameLine();
 	float DragFloat(String label, float value, float speed, float min, float max, String format, float power); // Too many args for bind_method
-	Vector3 ColorPicker3(String label, Vector3 color);
+	
 	bool ArrowButton(String label, int dir);
 	void Bullet();
 	void CalcItemWidth();
 	bool CheckBox(String label, bool val);
 	void CloseCurrentPopup();
-	bool ColorButton(String desc_id, Vector3 vec);
+	Color ColorPicker3(String label, Color color);
+	bool ColorButton(String desc_id, Color vec);
+	Color ColorEdit3(String label, Color vec);
 };
 
 #endif
