@@ -151,15 +151,24 @@ Vector<Array> native_imgui::extract_imgui_data() {
 }
 
 void native_imgui::Render(float delta, ImDrawData *draw_data, RID parent) {
+
+
+	while (mesh.get_surface_count() > 0) {
+		mesh.surface_remove(0);
+	}
+
+
+	ImGuiIO &io = ImGui::GetIO();
 	Vector<Array> arrays = extract_imgui_data();
 	for (uint32_t i = 0; i < arrays.size(); i++) {
 		Vector<Color> temp = arrays[i][ArrayMesh::ARRAY_COLOR];
 		mesh.add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, arrays[i]);
 
-
 		VisualServer->canvas_item_clear(get_canvas_item());
+	 
+		io.Fonts->ClearTexData();
 		VisualServer->canvas_item_set_clip(get_canvas_item(), true); 
-
+		
 		VisualServer->canvas_item_add_mesh(get_canvas_item(), mesh.get_rid(), Transform2D(), Color(), imgtex.get_rid());
 
 	}
@@ -188,7 +197,7 @@ native_imgui::native_imgui() {
 	io.MouseDrawCursor = true;
 	io.BackendFlags = 0;
 	io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
-	io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+	//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 	//io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 	
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
