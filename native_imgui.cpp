@@ -182,7 +182,7 @@ void native_imgui::setvalue(String field, RID parent) {
 }
 
 void native_imgui::Begin(String name, bool open) {
-	ImGui::Begin(convertStringToChar(name), &open, ImGuiWindowFlags_Popup); // ImGuiWindowFlags_Popup Bör tas bort 
+	ImGui::Begin(convertStringToChar(name), &open); // ImGuiWindowFlags_Popup Bör tas bort 
 }
 
 bool native_imgui::BeginChild(unsigned int ImGuiID, Vector2 vec, bool border) {
