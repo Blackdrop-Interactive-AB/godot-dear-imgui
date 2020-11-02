@@ -57,6 +57,15 @@ public:
 	void EndCombo();
 	bool BeginPopup(String str_id); // problem med flags
 	void EndPopup();
+	bool BeginPopupContextItem(String str_id);
+	bool BeginPopupContexVoid(String str_id);
+	bool BeginPopupContextWindow(String str_id);
+	void BeginGroup(); // Assertion failed: window->Flags & ImGuiWindowFlags_Popup
+	void EndGroup();
+	bool BeginPopupModal(String label, bool open); // problem med flags
+	bool BeginTabBar(String str_id); // Assertion failed: window->Flags & ImGuiWindowFlags_Popup
+	bool BeginTabBarItem(String label, bool open);
+	void EndTabBar();
 	bool Button(String text, Vector2 size);
 	void Text(String text);
 	void BulletText(String text);

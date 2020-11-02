@@ -42,6 +42,15 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton"), &native_imgui::ArrowButton);
 	ClassDB::bind_method(D_METHOD("ImGui_Bullet"), &native_imgui::Bullet);
 	ClassDB::bind_method(D_METHOD("ImGui_Button", "text", "size"), &native_imgui::Button);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginGroup"), &native_imgui::BeginGroup);
+	ClassDB::bind_method(D_METHOD("ImGui_EndGroup"), &native_imgui::EndGroup);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextItem", "str_id"), &native_imgui::BeginPopupContextItem);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextVoid", "str_id"), &native_imgui::BeginPopupContexVoid);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextWindow", "str_id"), &native_imgui::BeginPopupContextWindow);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupModal", "lable", "open"), &native_imgui::BeginPopupModal);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginTabBar", "str_id"), &native_imgui::BeginTabBar);
+	ClassDB::bind_method(D_METHOD("ImGui_EndTabBar"), &native_imgui::EndTabBar);
+	ClassDB::bind_method(D_METHOD("BeginTabBarItem"), &native_imgui::BeginTabBarItem);
 	ClassDB::bind_method(D_METHOD("ImGui_CheckBox", "label", "value"), &native_imgui::CheckBox);
 	ClassDB::bind_method(D_METHOD("ImGui_CloseCurrentPopup"), &native_imgui::CloseCurrentPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorButton", "desc_id", "color"), &native_imgui::ColorButton);
@@ -173,7 +182,7 @@ void native_imgui::setvalue(String field, RID parent) {
 }
 
 void native_imgui::Begin(String name, bool open) {
-	ImGui::Begin(convertStringToChar(name), &open);
+	ImGui::Begin(convertStringToChar(name), &open, ImGuiWindowFlags_Popup); // ImGuiWindowFlags_Popup Bör tas bort 
 }
 
 bool native_imgui::BeginChild(unsigned int ImGuiID, Vector2 vec, bool border) {
@@ -206,6 +215,44 @@ bool native_imgui::BeginPopup(String str_id) {
 
 void native_imgui::EndPopup() {
 	ImGui::EndPopup();
+}
+
+bool native_imgui::BeginPopupContextItem(String str_id) {
+	return ImGui::BeginPopupContextItem(convertStringToChar(str_id));
+}
+
+bool native_imgui::BeginPopupContexVoid(String str_id) {
+	return ImGui::BeginPopupContextVoid(convertStringToChar(str_id));
+}
+
+bool native_imgui::BeginPopupContextWindow(String str_id) {
+	return ImGui::BeginPopupContextWindow(convertStringToChar(str_id));
+}
+
+void  native_imgui::BeginGroup() {
+	ImGui::BeginGroup();
+}
+
+void native_imgui::EndGroup() {
+	ImGui::EndGroup();
+}
+
+bool native_imgui::BeginPopupModal(String label, bool open) {
+	ImGui::BeginPopupModal(convertStringToChar(label), &open);
+	return open;
+}
+
+bool native_imgui::BeginTabBar(String str_id) {
+	return ImGui::BeginTabBar(convertStringToChar(str_id));
+}
+
+bool native_imgui::BeginTabBarItem(String label, bool open) {
+	ImGui::BeginTabItem(convertStringToChar(label), &open);
+	return open;
+}
+
+void native_imgui::EndTabBar() {
+	ImGui::EndTabBar();
 }
 
 bool native_imgui::Button(String text, Vector2 size) {
