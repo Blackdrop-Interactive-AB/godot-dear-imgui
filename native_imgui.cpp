@@ -69,6 +69,25 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_CloseCurrentPopup"), &native_imgui::CloseCurrentPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorButton", "desc_id", "color"), &native_imgui::ColorButton);
 	ClassDB::bind_method(D_METHOD("ImGui_CalcItemWidth"), &native_imgui::CalcItemWidth);
+	//ClassDB::bind_method(D_METHOD("ImGui_DragFloat"), &native_imgui::DragFloat); Seems like max args are 5.
+
+	ClassDB::bind_method(D_METHOD("ImGui_GetClipBoardtext"), &native_imgui::GetClipboardText);
+
+	ClassDB::bind_method(D_METHOD("ImGui_GetColumnIndex"), &native_imgui::GetColumnIndex);
+	ClassDB::bind_method(D_METHOD("ImGui_GetID"), &native_imgui::GetID);
+	ClassDB::bind_method(D_METHOD("ImGui_Indent"), &native_imgui::Indent);
+	ClassDB::bind_method(D_METHOD("ImGui_InputDouble", "label", "value", "step", "fastStep", "format"), &native_imgui::InputDouble);
+	ClassDB::bind_method(D_METHOD("ImGui_InputFloat", "label", "value", "format"), &native_imgui::InputFloat);
+	ClassDB::bind_method(D_METHOD("ImGui_InputFloat2", "label", "value", "format"), &native_imgui::InputFloat2);
+	ClassDB::bind_method(D_METHOD("ImGui_InputFloat3", "label", "value", "format"), &native_imgui::InputFloat3);
+	ClassDB::bind_method(D_METHOD("ImGui_InputFloat4", "label", "value", "format"), &native_imgui::InputFloat4);
+
+	ClassDB::bind_method(D_METHOD("ImGui_InputInt", "label", "value", "step", "fastStep"), &native_imgui::InputInt);
+	ClassDB::bind_method(D_METHOD("ImGui_InputInt2", "label", "value", "step", "fastStep"), &native_imgui::InputInt2);
+	ClassDB::bind_method(D_METHOD("ImGui_InputInt3", "label", "value", "step", "fastStep"), &native_imgui::InputInt3);
+	/*ClassDB::bind_method(D_METHOD("ImGui_InputInt4", "label", "value", "step", "fastStep", "format"), &native_imgui::InputInt4);*/
+
+	ClassDB::bind_method(D_METHOD("ImGui_Dummy"), &native_imgui::Dummy);
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_BulletText", "text"), &native_imgui::BulletText);
 	ClassDB::bind_method(D_METHOD("ImGui_End"), &native_imgui::End);
@@ -81,13 +100,12 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_MenuItem", "label", "shortcut", "selected", "enabled"), &native_imgui::MenuItem);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMenu"), &native_imgui::EndMenu);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMainMenuBar"), &native_imgui::EndMainMenuBar);
-	ClassDB::bind_method(D_METHOD("ImGui_InputFloat", "label", "value", "step", "fastStep", "format"), &native_imgui::InputFloat);
 	ClassDB::bind_method(D_METHOD("ImGui_SameLine"), &native_imgui::SameLine);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker3", "label", "Vector3"), &native_imgui::ColorPicker3);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit3", "label", "Vector3"), &native_imgui::ColorEdit3);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker4", "label", "Vector4"), &native_imgui::ColorPicker3);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit4", "label", "Vector4"), &native_imgui::ColorEdit3);
- 
+	
 }
 
 void native_imgui::process_imgui() {
@@ -335,7 +353,11 @@ bool native_imgui::CheckboxFlags(String label, uint32_t flags, uint32_t flags_va
 
 bool native_imgui::CollapsingHeader(String label) {
 	return ImGui::CollapsingHeader(convertStringToChar(label));
-	ImGui::ColorEdit3
+}
+
+double native_imgui::InputDouble(String label, double value, double step, double faststep, String format) {
+	ImGui::InputDouble(convertStringToChar(label), &value, step, faststep, convertStringToChar(format));
+	return value;
 }
 
 void native_imgui::Text(String text) {
@@ -405,14 +427,75 @@ float native_imgui::InputFloat(String label, float value, float step, float fast
 	return value;
 }
 
+Vector2 native_imgui::InputFloat2(String label, Vector2 value, String format) {
+	float _vec[2] = { value.x, value.y };
+	ImGui::InputFloat2(convertStringToChar(label), _vec, convertStringToChar(format));
+	return Vector2(_vec[0], _vec[1]);
+}
+
+Vector3 native_imgui::InputFloat3(String label, Vector3 value, String format) {
+	float _vec[3] = { value.x, value.y, value.z };
+	ImGui::InputFloat3(convertStringToChar(label), _vec, convertStringToChar(format));
+	return Vector3(_vec[0], _vec[1], _vec[2]);
+}
+
+Color native_imgui::InputFloat4(String label, Color value, String format) {
+	float _vec[4] = { value.r, value.g, value.b, value.a };
+	ImGui::InputFloat4(convertStringToChar(label), _vec, convertStringToChar(format));
+	return Color(_vec[0], _vec[1], _vec[2], _vec[3]);
+}
+
+int native_imgui::InputInt(String label, int value, int step, int step_fast) {
+	ImGui::InputInt(convertStringToChar(label), &value, step, step_fast);
+	return value;
+}
+
+Vector2 native_imgui::InputInt2(String label, Vector2 value, int step, int step_fast) {
+	int _vec[2] = {value.x, value.y};
+	ImGui::InputInt2(convertStringToChar(label), _vec, step);
+	return Vector2(_vec[0], _vec[1]);
+}
+
+Vector3 native_imgui::InputInt3(String label, Vector3 value, int step, int step_fast) {
+	int _vec[3] = { value.x, value.y, value.z };
+	ImGui::InputInt3(convertStringToChar(label), _vec, step);
+	return Vector3(_vec[0], _vec[1], _vec[2]);
+}
+/*
+int native_imgui::InputInt4(String label, Vector4 value, int step, int step_fast) {
+	int _vec[4] = { value.x, value.y, value.z, value.w };
+	ImGui::InputInt3(convertStringToChar(label), _vec, step);
+	return Vector3(_vec[0], _vec[1], _vec[3], _vec[]);
+}
+*/
+
 void native_imgui::SameLine() {
 	ImGui::SameLine();
 }
 
-float native_imgui::DragFloat(String label, float value, float speed, float min, float max, String format, float power) {
-	ImGui::DragFloat(convertStringToChar(label), &value, speed, min, max, convertStringToChar(format), power);
+float native_imgui::DragFloat(String label, float value, float speed, float min, float max, float power) {
+	ImGui::DragFloat(convertStringToChar(label), &value, speed, min, max, "asf", 0.0f);
 	return value;
+}
 
+void native_imgui::Dummy(Vector2 vec) {
+	ImGui::Dummy(Vector2ToImVec(vec));
+}
+
+String native_imgui::GetClipboardText() {
+	return String(ImGui::GetClipboardText());
+}
+
+uint32_t native_imgui::GetColumnIndex() {
+	return ImGui::GetColumnIndex();
+}
+
+int native_imgui::GetID(String id) {
+	return ImGui::GetID(convertStringToChar(id));
+}
+
+void native_imgui::Indent(float indent_width) {
+	ImGui::Indent();
 }
 
 Color native_imgui::ColorPicker3(String label, Color color) {

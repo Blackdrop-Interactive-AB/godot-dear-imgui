@@ -91,6 +91,21 @@ public:
 	Color ColorPicker4(String label, Color color);
 	Color ColorEdit3(String label, Color vec);
 	Color ColorEdit4(String label, Color vec);
+	float DragFloat(String label, float value, float speed, float min, float max, float power);
+	void Dummy(Vector2 vec);
+	String GetClipboardText();
+	uint32_t GetColumnIndex();
+	int GetID(String id);
+	void Indent(float indent_width);
+	double InputDouble(String label, double value, double step, double faststep, String format);
+	float InputFloat(String label, float value, float step, float faststep, String format);
+	Vector2 InputFloat2(String label, Vector2 value, String format);
+	Vector3 InputFloat3(String label, Vector3 value, String format);
+	Color InputFloat4(String label, Color, String format);
+	int InputInt(String label, int value, int step, int step_fast);
+	Vector2 InputInt2(String label, Vector2 value, int step, int step_fast);
+	Vector3 InputInt3(String label, Vector3 value, int step, int step_fast);
+	/*Vector4 InputInt4(String label, int value, Vector4 step, int step_fast); */
 	void Text(String text);
 	void BulletText(String text);
 	void End();
@@ -103,9 +118,8 @@ public:
 	void EndMainMenuBar();
 	void EndMenu();
 	bool MenuItem(String label, String shortcut, bool  selected, bool enabled);
-	float InputFloat(String label, float value, float step, float faststep, String format);
 	void SameLine();
-	float DragFloat(String label, float value, float speed, float min, float max, String format, float power); // Too many args for bind_method
+	//float DragFloat(String label, float value, float speed, float min, float max, String format, float power); // Too many args for bind_method
 	bool ArrowButton(String label, int dir);
 	void Bullet();
 };
