@@ -25,15 +25,21 @@ inline const char *native_imgui::convertStringToChar(String string) {
 	return string.utf8().get_data();
 }
 
-inline ImVec2 native_imgui::ImVec2ToVector2(Vector2& vec) {
+inline ImVec2 native_imgui::ImVec2ToVector2(const Vector2& vec) {
 	return ImVec2(vec.x, vec.y);
 }
 
 void native_imgui::_bind_methods() { 
 	ClassDB::bind_method(D_METHOD("ImGui_Begin", "name", "open"), &native_imgui::Begin);
-
+	ClassDB::bind_method(D_METHOD("ImGui_BeginChild", "ImGuiID", "size", "border"), &native_imgui::BeginChild);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginChildFrame", "ImGuiID", "size"), &native_imgui::BeginChildFrame);
+	ClassDB::bind_method(D_METHOD("ImGui_EndChildFrame"), &native_imgui::EndChildFrame);
+	ClassDB::bind_method(D_METHOD("ImGui_EndChild"), &native_imgui::EndChild);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginCombo", "label", "preview"), &native_imgui::BeginCombo);
+	ClassDB::bind_method(D_METHOD("ImGui_EndCombo"), &native_imgui::EndCombo);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginPopup", "str_id"), &native_imgui::BeginPopup);
+	ClassDB::bind_method(D_METHOD("ImGui_EndPopup"), &native_imgui::EndPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton"), &native_imgui::ArrowButton);
-
 	ClassDB::bind_method(D_METHOD("ImGui_Bullet"), &native_imgui::Bullet);
 	ClassDB::bind_method(D_METHOD("ImGui_Button", "text", "size"), &native_imgui::Button);
 	ClassDB::bind_method(D_METHOD("ImGui_CheckBox", "label", "value"), &native_imgui::CheckBox);
@@ -48,12 +54,15 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_EndFrame"), &native_imgui::EndFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_NewFrame"), &native_imgui::NewFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginMenu"), &native_imgui::BeginMenu);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginMainMenuBar"), &native_imgui::BeginMainMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_MenuItem", "label", "shortcut", "selected", "enabled"), &native_imgui::MenuItem);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMenu"), &native_imgui::EndMenu);
+	ClassDB::bind_method(D_METHOD("ImGui_EndMainMenuBar"), &native_imgui::EndMainMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat", "label", "value", "step", "fastStep", "format"), &native_imgui::InputFloat);
 	ClassDB::bind_method(D_METHOD("ImGui_SameLine"), &native_imgui::SameLine);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker3", "label", "Vector3"), &native_imgui::ColorPicker3);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit3", "label", "Vector3"), &native_imgui::ColorEdit3);
+
  
 }
 
@@ -167,6 +176,38 @@ void native_imgui::Begin(String name, bool open) {
 	ImGui::Begin(convertStringToChar(name), &open);
 }
 
+bool native_imgui::BeginChild(unsigned int ImGuiID, Vector2 vec, bool border) {
+	return ImGui::BeginChild(ImGuiID, ImVec2ToVector2(vec), border);
+}
+
+void native_imgui::EndChild() {
+	ImGui::EndChild();
+}
+
+bool native_imgui::BeginChildFrame(unsigned int ImGuiID, Vector2 vec) {
+	return ImGui::BeginChildFrame(ImGuiID, ImVec2ToVector2(vec));
+}
+
+void native_imgui::EndChildFrame() {
+	ImGui::EndChildFrame();
+}
+
+bool native_imgui::BeginCombo(String label, String preview) {
+	return ImGui::BeginCombo(convertStringToChar(label), convertStringToChar(preview));
+}
+
+void native_imgui::EndCombo() {
+	ImGui::EndCombo();
+}
+
+bool native_imgui::BeginPopup(String str_id) {
+	return ImGui::BeginPopup(convertStringToChar(str_id), ImGuiWindowFlags_Popup);
+}
+
+void native_imgui::EndPopup() {
+	ImGui::EndPopup();
+}
+
 bool native_imgui::Button(String text, Vector2 size) {
 	bool newState = ImGui::Button(convertStringToChar(text), ImVec2ToVector2(size));
 
@@ -214,6 +255,14 @@ void native_imgui::BeginMenu(String name) {
 	ImGui::BeginMenu(convertStringToChar(name));
 }
 
+void native_imgui::BeginMainMenuBar() {
+	ImGui::BeginMainMenuBar();
+}
+
+void native_imgui::EndMainMenuBar() {
+	ImGui::EndMainMenuBar();
+}
+
 void native_imgui::EndMenu() {
 	ImGui::EndMenu();
 }
@@ -246,6 +295,7 @@ Color native_imgui::ColorPicker3(String label, Color color) {
 	float test[3] = { color.r, color.g, color.b };
 	ImGui::ColorPicker3(convertStringToChar(label), test);
 	return Color(test[0], test[1], test[2]);
+	
 }
 
 bool  native_imgui::ArrowButton(String label, int dir) {

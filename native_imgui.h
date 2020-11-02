@@ -32,7 +32,7 @@ class native_imgui : public Node2D {
 
 	bool handleButtonDic(String label, bool newState);
 	inline const char *convertStringToChar(String string);
-	inline ImVec2 ImVec2ToVector2(Vector2& vec);
+	inline ImVec2 ImVec2ToVector2(const Vector2& vec);
 
 protected:
 	static void _bind_methods();
@@ -49,6 +49,14 @@ public:
 
 	/*IMGUI WRAPPER */
 	void Begin(String name, bool open);
+	bool BeginChild(unsigned int ImGuiID, Vector2 vec, bool border);
+	void EndChild();
+	bool BeginChildFrame(unsigned int ImGuiID, Vector2 vec);
+	void EndChildFrame();
+	bool BeginCombo(String label, String preview); // Problem med flags
+	void EndCombo();
+	bool BeginPopup(String str_id); // problem med flags
+	void EndPopup();
 	bool Button(String text, Vector2 size);
 	void Text(String text);
 	void BulletText(String text);
@@ -58,6 +66,8 @@ public:
 	void EndFrame();
 	void NewFrame();
 	void BeginMenu(String name);
+	void BeginMainMenuBar();
+	void EndMainMenuBar();
 	void EndMenu();
 	bool MenuItem(String label, String shortcut, bool  selected, bool enabled);
 	float InputFloat(String label, float value, float step, float faststep, String format);
