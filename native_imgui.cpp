@@ -40,7 +40,6 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopup", "str_id"), &native_imgui::BeginPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_EndPopup"), &native_imgui::EndPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton"), &native_imgui::ArrowButton);
-	ClassDB::bind_method(D_METHOD("ImGui_Bullet"), &native_imgui::Bullet);
 	ClassDB::bind_method(D_METHOD("ImGui_Button", "text", "size"), &native_imgui::Button);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginGroup"), &native_imgui::BeginGroup);
 	ClassDB::bind_method(D_METHOD("ImGui_EndGroup"), &native_imgui::EndGroup);
@@ -51,6 +50,14 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTabBar", "str_id"), &native_imgui::BeginTabBar);
 	ClassDB::bind_method(D_METHOD("ImGui_EndTabBar"), &native_imgui::EndTabBar);
 	ClassDB::bind_method(D_METHOD("BeginTabBarItem"), &native_imgui::BeginTabBarItem);
+	ClassDB::bind_method(D_METHOD("BeginTooltip"), &native_imgui::BeginTooltip);
+	ClassDB::bind_method(D_METHOD("ImGui_Bullet"), &native_imgui::Bullet);
+ 
+
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletTextV", &native_imgui::BulletTextV, MethodInfo("BulletTextV"));
+	
+
+	ClassDB::bind_method(D_METHOD("EndTabBarItem"), &native_imgui::EndTabBarItem);
 	ClassDB::bind_method(D_METHOD("ImGui_CheckBox", "label", "value"), &native_imgui::CheckBox);
 	ClassDB::bind_method(D_METHOD("ImGui_CloseCurrentPopup"), &native_imgui::CloseCurrentPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorButton", "desc_id", "color"), &native_imgui::ColorButton);
@@ -71,7 +78,6 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_SameLine"), &native_imgui::SameLine);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker3", "label", "Vector3"), &native_imgui::ColorPicker3);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit3", "label", "Vector3"), &native_imgui::ColorEdit3);
-
  
 }
 
@@ -251,8 +257,38 @@ bool native_imgui::BeginTabBarItem(String label, bool open) {
 	return open;
 }
 
+void native_imgui::EndTabBarItem() {
+	ImGui::EndTabItem();
+}
+
 void native_imgui::EndTabBar() {
 	ImGui::EndTabBar();
+}
+
+void native_imgui::BeginTooltip() {
+	ImGui::BeginTooltip();
+}
+
+
+Variant native_imgui::BulletTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	for (uint32_t i = 0; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+	ImGui::BulletTextV(convertStringToChar(arg), (char*)convertStringToChar(arg));
+	
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
 }
 
 bool native_imgui::Button(String text, Vector2 size) {

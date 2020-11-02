@@ -1,6 +1,8 @@
 #ifndef NATIVE_IMGUI_H
 #define NATIVE_IMGUI_H
 
+#include <stdarg.h>
+
 #include "imgui.h"
 
 #include "core/reference.h"
@@ -65,7 +67,10 @@ public:
 	bool BeginPopupModal(String label, bool open); // problem med flags
 	bool BeginTabBar(String str_id); // Assertion failed: window->Flags & ImGuiWindowFlags_Popup
 	bool BeginTabBarItem(String label, bool open);
+	void EndTabBarItem();
 	void EndTabBar();
+	void BeginTooltip();
+	Variant native_imgui::BulletTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	bool Button(String text, Vector2 size);
 	void Text(String text);
 	void BulletText(String text);
