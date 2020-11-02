@@ -55,7 +55,7 @@ void native_imgui::_bind_methods() {
  
 
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletTextV", &native_imgui::BulletTextV, MethodInfo("BulletTextV"));
-	
+	ClassDB::bind_method(D_METHOD("ImGui_CalcListClipping"), &native_imgui::CalcListClipping);
 
 	ClassDB::bind_method(D_METHOD("EndTabBarItem"), &native_imgui::EndTabBarItem);
 	ClassDB::bind_method(D_METHOD("ImGui_CheckBox", "label", "value"), &native_imgui::CheckBox);
@@ -295,6 +295,17 @@ bool native_imgui::Button(String text, Vector2 size) {
 	bool newState = ImGui::Button(convertStringToChar(text), ImVec2ToVector2(size));
 
 	return handleButtonDic(text, newState);
+}
+
+Array native_imgui::CalcListClipping(uint32_t item_count, uint32_t item_height) {
+	int out_item_display_start, out_item_display_end;
+	ImGui::CalcListClipping(item_count, item_height, &out_item_display_start, &out_item_display_end);
+
+	Array result;
+	result.push_back(out_item_display_start);
+	result.push_back(out_item_display_end);
+
+	return result;
 }
 
 void native_imgui::Text(String text) {

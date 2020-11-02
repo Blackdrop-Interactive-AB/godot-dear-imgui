@@ -72,6 +72,7 @@ public:
 	void BeginTooltip();
 	Variant native_imgui::BulletTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	bool Button(String text, Vector2 size);
+	Array CalcListClipping(uint32_t item_count, uint32_t item_height);
 	void Text(String text);
 	void BulletText(String text);
 	void End();
