@@ -25,9 +25,14 @@ inline const char *native_imgui::convertStringToChar(String string) {
 	return string.utf8().get_data();
 }
 
-inline ImVec2 native_imgui::ImVec2ToVector2(const Vector2& vec) {
+inline ImVec2 native_imgui::Vector2ToImVec(const Vector2 &vec) {
 	return ImVec2(vec.x, vec.y);
 }
+
+inline Vector2 native_imgui::ImVec2ToVector2(const ImVec2 &vec) {
+	return Vector2(vec.x, vec.y);
+}
+
 
 void native_imgui::_bind_methods() { 
 	ClassDB::bind_method(D_METHOD("ImGui_Begin", "name", "open"), &native_imgui::Begin);
@@ -39,7 +44,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_EndCombo"), &native_imgui::EndCombo);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopup", "str_id"), &native_imgui::BeginPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_EndPopup"), &native_imgui::EndPopup);
-	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton"), &native_imgui::ArrowButton);
+	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton", "label", "int dir"), &native_imgui::ArrowButton);
 	ClassDB::bind_method(D_METHOD("ImGui_Button", "text", "size"), &native_imgui::Button);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginGroup"), &native_imgui::BeginGroup);
 	ClassDB::bind_method(D_METHOD("ImGui_EndGroup"), &native_imgui::EndGroup);
@@ -49,14 +54,16 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupModal", "lable", "open"), &native_imgui::BeginPopupModal);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTabBar", "str_id"), &native_imgui::BeginTabBar);
 	ClassDB::bind_method(D_METHOD("ImGui_EndTabBar"), &native_imgui::EndTabBar);
-	ClassDB::bind_method(D_METHOD("BeginTabBarItem"), &native_imgui::BeginTabBarItem);
+	ClassDB::bind_method(D_METHOD("BeginTabBarItem", "label", "open"), &native_imgui::BeginTabBarItem);
 	ClassDB::bind_method(D_METHOD("BeginTooltip"), &native_imgui::BeginTooltip);
 	ClassDB::bind_method(D_METHOD("ImGui_Bullet"), &native_imgui::Bullet);
- 
-
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletTextV", &native_imgui::BulletTextV, MethodInfo("BulletTextV"));
-	ClassDB::bind_method(D_METHOD("ImGui_CalcListClipping"), &native_imgui::CalcListClipping);
-
+	ClassDB::bind_method(D_METHOD("ImGui_CalcListClipping", "item count", "item height"), &native_imgui::CalcListClipping);
+	ClassDB::bind_method(D_METHOD("ImGui_CalcTextSize", "text", "end char"), &native_imgui::CalcTextSize);
+	ClassDB::bind_method(D_METHOD("ImGui_CaptureKeyboardFromApp", "bool"), &native_imgui::CaptureKeyboardFromApp);
+	ClassDB::bind_method(D_METHOD("ImGui_CaptureMouseFromApp", "bool"), &native_imgui::CaptureMouseFromApp);
+	ClassDB::bind_method(D_METHOD("ImGui_CheckboxFlags", "label"), &native_imgui::CheckboxFlags);
+	ClassDB::bind_method(D_METHOD("ImGui_CollapsingHeader", "label"), &native_imgui::CollapsingHeader);
 	ClassDB::bind_method(D_METHOD("EndTabBarItem"), &native_imgui::EndTabBarItem);
 	ClassDB::bind_method(D_METHOD("ImGui_CheckBox", "label", "value"), &native_imgui::CheckBox);
 	ClassDB::bind_method(D_METHOD("ImGui_CloseCurrentPopup"), &native_imgui::CloseCurrentPopup);
@@ -78,6 +85,8 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_SameLine"), &native_imgui::SameLine);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker3", "label", "Vector3"), &native_imgui::ColorPicker3);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit3", "label", "Vector3"), &native_imgui::ColorEdit3);
+	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker4", "label", "Vector4"), &native_imgui::ColorPicker3);
+	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit4", "label", "Vector4"), &native_imgui::ColorEdit3);
  
 }
 
@@ -192,7 +201,7 @@ void native_imgui::Begin(String name, bool open) {
 }
 
 bool native_imgui::BeginChild(unsigned int ImGuiID, Vector2 vec, bool border) {
-	return ImGui::BeginChild(ImGuiID, ImVec2ToVector2(vec), border);
+	return ImGui::BeginChild(ImGuiID, Vector2ToImVec(vec), border);
 }
 
 void native_imgui::EndChild() {
@@ -200,7 +209,7 @@ void native_imgui::EndChild() {
 }
 
 bool native_imgui::BeginChildFrame(unsigned int ImGuiID, Vector2 vec) {
-	return ImGui::BeginChildFrame(ImGuiID, ImVec2ToVector2(vec));
+	return ImGui::BeginChildFrame(ImGuiID, Vector2ToImVec(vec));
 }
 
 void native_imgui::EndChildFrame() {
@@ -292,7 +301,7 @@ Variant native_imgui::BulletTextV(const Variant **p_args, int p_argcount, Varian
 }
 
 bool native_imgui::Button(String text, Vector2 size) {
-	bool newState = ImGui::Button(convertStringToChar(text), ImVec2ToVector2(size));
+	bool newState = ImGui::Button(convertStringToChar(text), Vector2ToImVec(size));
 
 	return handleButtonDic(text, newState);
 }
@@ -306,6 +315,27 @@ Array native_imgui::CalcListClipping(uint32_t item_count, uint32_t item_height) 
 	result.push_back(out_item_display_end);
 
 	return result;
+}
+
+Vector2 native_imgui::CalcTextSize(String text, String end) {
+	return ImVec2ToVector2(ImGui::CalcTextSize(convertStringToChar(text), convertStringToChar(end)));
+}
+
+void native_imgui::CaptureKeyboardFromApp(bool capture) {
+	ImGui::CaptureKeyboardFromApp(capture);
+}
+
+void native_imgui::CaptureMouseFromApp(bool capture) {
+	ImGui::CaptureMouseFromApp(capture);
+}
+
+bool native_imgui::CheckboxFlags(String label, uint32_t flags, uint32_t flags_value) {
+	return handleButtonDic(label, ImGui::CheckboxFlags(convertStringToChar(label), &flags, flags_value));
+}
+
+bool native_imgui::CollapsingHeader(String label) {
+	return ImGui::CollapsingHeader(convertStringToChar(label));
+	ImGui::ColorEdit3
 }
 
 void native_imgui::Text(String text) {
@@ -389,7 +419,6 @@ Color native_imgui::ColorPicker3(String label, Color color) {
 	float test[3] = { color.r, color.g, color.b };
 	ImGui::ColorPicker3(convertStringToChar(label), test);
 	return Color(test[0], test[1], test[2]);
-	
 }
 
 bool  native_imgui::ArrowButton(String label, int dir) {
@@ -419,11 +448,24 @@ bool native_imgui::ColorButton(String desc_id, Color vec) {
 	return handleButtonDic(desc_id, newState);
 }
 
+Color native_imgui::ColorPicker4(String label, Color color) {
+	float _col[4] = { color.r, color.g, color.b, color.a };
+	ImGui::ColorPicker3(convertStringToChar(label), _col);
+	return Color(_col[0], _col[1], _col[2], _col[3]);
+}
+
 Color native_imgui::ColorEdit3(String label, Color vec) {
 	float _vec[3] = { vec.r, vec.g, vec.b };
 	ImGui::ColorEdit3(convertStringToChar(label), _vec);
 
-	return Color(_vec[0], _vec[1], _vec[2]);
+	return Color(_vec[0], _vec[1], _vec[2], 1.0);
+}
+
+Color native_imgui::ColorEdit4(String label, Color vec) {
+	float _vec[4] = { vec.r, vec.g, vec.b, vec.a };
+	ImGui::ColorEdit4(convertStringToChar(label), _vec);
+
+	return Color(_vec[0], _vec[1], _vec[2], 1.0);
 }
 
 void native_imgui::RebuildFontAtlas() {
@@ -462,6 +504,4 @@ native_imgui::native_imgui() {
 
 	io.DisplaySize.x = GLOBAL_GET("display/window/size/width"); // set the current display width
 	io.DisplaySize.y = GLOBAL_GET("display/window/size/height"); // set current display height
-
- 
 }
