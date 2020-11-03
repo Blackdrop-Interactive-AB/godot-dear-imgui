@@ -158,6 +158,7 @@ public:
 	void OpenPopupContextItem(String str_id);
 	void OpenPopupOnItemClick(String str_id);
 	void PlotHistogram(String label, Vector<float> arr);
+	void PlotLines(String label, Vector<float> arr);
 	void Text(String text);
 	void BulletText(String text);
 	void End();

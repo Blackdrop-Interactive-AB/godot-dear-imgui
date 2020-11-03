@@ -157,7 +157,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_OpenPopupContextItem"), &native_imgui::OpenPopupContextItem);
 	ClassDB::bind_method(D_METHOD("ImGui_OpenPopupOnItemClick"), &native_imgui::OpenPopupOnItemClick);
 	ClassDB::bind_method(D_METHOD("ImGui_PlotHistogram"), &native_imgui::PlotHistogram);
-
+	ClassDB::bind_method(D_METHOD("ImGui_PlotLines"), &native_imgui::PlotLines);
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
@@ -692,6 +692,10 @@ void native_imgui::OpenPopupOnItemClick(String str_id) {
 
 void native_imgui::PlotHistogram(String label, Vector<float> arr) {
 	ImGui::PlotHistogram(convertStringToChar(label), (const float *)arr.ptr(), arr.size());
+}
+
+void native_imgui::PlotLines(String label, Vector<float> arr) {
+	ImGui::PlotLines(convertStringToChar(label), (const float *)arr.ptr(), arr.size());
 }
 
 void native_imgui::Text(String text) {
