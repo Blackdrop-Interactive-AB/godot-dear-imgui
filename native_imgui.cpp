@@ -34,17 +34,13 @@ inline Vector2 native_imgui::ImVec2ToVector2(const ImVec2 &vec) {
 }
 
 
-void native_imgui::_bind_methods() { 
+void native_imgui::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton", "label", "int dir"), &native_imgui::ArrowButton);
 	ClassDB::bind_method(D_METHOD("ImGui_Begin", "name", "open"), &native_imgui::Begin);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginChild", "ImGuiID", "size", "border"), &native_imgui::BeginChild);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginChildFrame", "ImGuiID", "size"), &native_imgui::BeginChildFrame);
-	ClassDB::bind_method(D_METHOD("ImGui_EndChildFrame"), &native_imgui::EndChildFrame);
-	ClassDB::bind_method(D_METHOD("ImGui_EndChild"), &native_imgui::EndChild);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginCombo", "label", "preview"), &native_imgui::BeginCombo);
-	ClassDB::bind_method(D_METHOD("ImGui_EndCombo"), &native_imgui::EndCombo);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopup", "str_id"), &native_imgui::BeginPopup);
-	ClassDB::bind_method(D_METHOD("ImGui_EndPopup"), &native_imgui::EndPopup);
-	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton", "label", "int dir"), &native_imgui::ArrowButton);
 	ClassDB::bind_method(D_METHOD("ImGui_Button", "text", "size"), &native_imgui::Button);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginGroup"), &native_imgui::BeginGroup);
 	ClassDB::bind_method(D_METHOD("ImGui_EndGroup"), &native_imgui::EndGroup);
@@ -54,9 +50,10 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupModal", "lable", "open"), &native_imgui::BeginPopupModal);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTabBar", "str_id"), &native_imgui::BeginTabBar);
 	ClassDB::bind_method(D_METHOD("ImGui_EndTabBar"), &native_imgui::EndTabBar);
-	ClassDB::bind_method(D_METHOD("BeginTabBarItem", "label", "open"), &native_imgui::BeginTabBarItem);
-	ClassDB::bind_method(D_METHOD("BeginTooltip"), &native_imgui::BeginTooltip);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginTabBarItem", "label", "open"), &native_imgui::BeginTabBarItem);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginTooltip"), &native_imgui::BeginTooltip);
 	ClassDB::bind_method(D_METHOD("ImGui_Bullet"), &native_imgui::Bullet);
+	ClassDB::bind_method(D_METHOD("ImGui_BulletText", "text"), &native_imgui::BulletText);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletTextV", &native_imgui::BulletTextV, MethodInfo("BulletTextV"));
 	ClassDB::bind_method(D_METHOD("ImGui_CalcListClipping", "item count", "item height"), &native_imgui::CalcListClipping);
 	ClassDB::bind_method(D_METHOD("ImGui_CalcTextSize", "text", "end char"), &native_imgui::CalcTextSize);
@@ -64,15 +61,32 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_CaptureMouseFromApp", "bool"), &native_imgui::CaptureMouseFromApp);
 	ClassDB::bind_method(D_METHOD("ImGui_CheckboxFlags", "label"), &native_imgui::CheckboxFlags);
 	ClassDB::bind_method(D_METHOD("ImGui_CollapsingHeader", "label"), &native_imgui::CollapsingHeader);
-	ClassDB::bind_method(D_METHOD("EndTabBarItem"), &native_imgui::EndTabBarItem);
 	ClassDB::bind_method(D_METHOD("ImGui_CheckBox", "label", "value"), &native_imgui::CheckBox);
 	ClassDB::bind_method(D_METHOD("ImGui_CloseCurrentPopup"), &native_imgui::CloseCurrentPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorButton", "desc_id", "color"), &native_imgui::ColorButton);
 	ClassDB::bind_method(D_METHOD("ImGui_CalcItemWidth"), &native_imgui::CalcItemWidth);
+	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker3", "label", "Vector3"), &native_imgui::ColorPicker3);
+	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit3", "label", "Vector3"), &native_imgui::ColorEdit3);
+	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker4", "label", "Vector4"), &native_imgui::ColorPicker3);
+	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit4", "label", "Vector4"), &native_imgui::ColorEdit3);
 	//ClassDB::bind_method(D_METHOD("ImGui_DragFloat"), &native_imgui::DragFloat); Seems like max args are 5.
+	/*
 
+	All other drag functions are missing due to max arg is 5.
+	Max arg seems to be 13 when you look at D_METHOD, but 5 when you look at create method bind in
+	ClassDB::bind_method.
+
+	Investigation needed.
+
+	*/
+	ClassDB::bind_method(D_METHOD("ImGui_Dummy"), &native_imgui::Dummy);
+	ClassDB::bind_method(D_METHOD("ImGui_EndChildFrame"), &native_imgui::EndChildFrame);
+	ClassDB::bind_method(D_METHOD("ImGui_EndChild"), &native_imgui::EndChild);
+	ClassDB::bind_method(D_METHOD("ImGui_EndCombo"), &native_imgui::EndCombo);
+	ClassDB::bind_method(D_METHOD("ImGui_EndPopup"), &native_imgui::EndPopup);
+	ClassDB::bind_method(D_METHOD("ImGui_End"), &native_imgui::End);
+	ClassDB::bind_method(D_METHOD("ImGui_EndFrame"), &native_imgui::EndFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_GetClipBoardtext"), &native_imgui::GetClipboardText);
-
 	ClassDB::bind_method(D_METHOD("ImGui_GetColumnIndex"), &native_imgui::GetColumnIndex);
 	ClassDB::bind_method(D_METHOD("ImGui_GetID"), &native_imgui::GetID);
 	ClassDB::bind_method(D_METHOD("ImGui_Indent"), &native_imgui::Indent);
@@ -81,19 +95,18 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat2", "label", "value", "format"), &native_imgui::InputFloat2);
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat3", "label", "value", "format"), &native_imgui::InputFloat3);
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat4", "label", "value", "format"), &native_imgui::InputFloat4);
-
 	ClassDB::bind_method(D_METHOD("ImGui_InputInt", "label", "value", "step", "fastStep"), &native_imgui::InputInt);
 	ClassDB::bind_method(D_METHOD("ImGui_InputInt2", "label", "value", "step", "fastStep"), &native_imgui::InputInt2);
 	ClassDB::bind_method(D_METHOD("ImGui_InputInt3", "label", "value", "step", "fastStep"), &native_imgui::InputInt3);
 	/*ClassDB::bind_method(D_METHOD("ImGui_InputInt4", "label", "value", "step", "fastStep", "format"), &native_imgui::InputInt4);*/
-
-	ClassDB::bind_method(D_METHOD("ImGui_Dummy"), &native_imgui::Dummy);
+	ClassDB::bind_method(D_METHOD("ImGui_InputScalar"), &native_imgui::InputScalar);
+	ClassDB::bind_method(D_METHOD("ImGui_InputText"), &native_imgui::InputText);
+	ClassDB::bind_method(D_METHOD("ImGui_InputTextMultiline"), &native_imgui::InputTextMultiline);
+	ClassDB::bind_method(D_METHOD("ImGui_InputTextWithHint"), &native_imgui::InputTextWithHint);
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
-	ClassDB::bind_method(D_METHOD("ImGui_BulletText", "text"), &native_imgui::BulletText);
-	ClassDB::bind_method(D_METHOD("ImGui_End"), &native_imgui::End);
+
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
-	ClassDB::bind_method(D_METHOD("ImGui_EndFrame"), &native_imgui::EndFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_NewFrame"), &native_imgui::NewFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginMenu"), &native_imgui::BeginMenu);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginMainMenuBar"), &native_imgui::BeginMainMenuBar);
@@ -101,10 +114,6 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_EndMenu"), &native_imgui::EndMenu);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMainMenuBar"), &native_imgui::EndMainMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_SameLine"), &native_imgui::SameLine);
-	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker3", "label", "Vector3"), &native_imgui::ColorPicker3);
-	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit3", "label", "Vector3"), &native_imgui::ColorEdit3);
-	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker4", "label", "Vector4"), &native_imgui::ColorPicker3);
-	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit4", "label", "Vector4"), &native_imgui::ColorEdit3);
 	
 }
 
@@ -360,6 +369,35 @@ double native_imgui::InputDouble(String label, double value, double step, double
 	return value;
 }
 
+float native_imgui::InputScalar(String label, unsigned int datatype,  int val, unsigned int step, unsigned int faststep) {
+	ImGui::InputScalar(convertStringToChar(label), datatype, (void *)&val, (const void *)&step, (const void *)&faststep);
+	return val;
+}
+
+String native_imgui::InputText(String label, String val, unsigned int size) {
+	input = val;
+
+	ImGui::InputText(convertStringToChar(label), (char*)convertStringToChar(input), 64);
+
+
+	return String(input);
+}
+
+String native_imgui::InputTextMultiline(String label, String val, unsigned int buf_size, Vector2 size) {
+	input = val;
+	ImGui::InputTextMultiline(convertStringToChar(label), (char *)convertStringToChar(input), 64, Vector2ToImVec(size));
+
+	return input;
+}
+
+String native_imgui::InputTextWithHint(String label, String hint, String val, unsigned int buf_size) {
+	input = val;
+
+	ImGui::InputTextWithHint(convertStringToChar(label), convertStringToChar(hint), (char *)convertStringToChar(input), 64);
+
+	return val;
+}
+
 void native_imgui::Text(String text) {
 	ImGui::Text(convertStringToChar(text));
 }
@@ -587,4 +625,6 @@ native_imgui::native_imgui() {
 
 	io.DisplaySize.x = GLOBAL_GET("display/window/size/width"); // set the current display width
 	io.DisplaySize.y = GLOBAL_GET("display/window/size/height"); // set current display height
+
+	input.resize(64); // Maximum size of input 
 }

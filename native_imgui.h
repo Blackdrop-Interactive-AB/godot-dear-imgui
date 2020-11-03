@@ -33,6 +33,8 @@ class native_imgui : public Node2D {
 	Dictionary buttonDict;
 	Dictionary floatDict;
 
+	String input;
+
 	/* Helper functions for conversion between libs */
 	bool handleButtonDic(String label, bool newState);
 	inline const char *convertStringToChar(String string);
@@ -106,6 +108,10 @@ public:
 	Vector2 InputInt2(String label, Vector2 value, int step, int step_fast);
 	Vector3 InputInt3(String label, Vector3 value, int step, int step_fast);
 	/*Vector4 InputInt4(String label, int value, Vector4 step, int step_fast); */
+	float InputScalar(String label, unsigned int datatype, int val, unsigned int step, unsigned int faststep); // This one might be something we have to live without
+	String InputText(String label, String val, unsigned int flags); // behaves weird with label and value swapping during frames. Same memory adress?
+	String InputTextMultiline(String label, String val, unsigned int buf_size, Vector2 size); // behaves weird with label and value swapping during frames. Same memory adress?
+	String InputTextWithHint(String label, String hint, String val, unsigned int buf_size);
 	void Text(String text);
 	void BulletText(String text);
 	void End();
