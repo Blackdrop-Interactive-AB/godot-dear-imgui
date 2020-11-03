@@ -102,12 +102,39 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_InputScalar"), &native_imgui::InputScalar);
 	ClassDB::bind_method(D_METHOD("ImGui_InputText"), &native_imgui::InputText);
 	ClassDB::bind_method(D_METHOD("ImGui_InputTextMultiline"), &native_imgui::InputTextMultiline);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemActivated"), &native_imgui::IsItemActivated);
 	ClassDB::bind_method(D_METHOD("ImGui_InputTextWithHint"), &native_imgui::InputTextWithHint);
 	ClassDB::bind_method(D_METHOD("ImGui_InvisibleButton"), &native_imgui::InvisibleButton);
 	ClassDB::bind_method(D_METHOD("ImGui_IsAnyItemActive"), &native_imgui::IsAnyItemActive);
 	ClassDB::bind_method(D_METHOD("ImGui_IsAnyItemFocused"), &native_imgui::IsAnyItemFocused);
 	ClassDB::bind_method(D_METHOD("ImGui_IsAnyItemHovered"), &native_imgui::IsAnyItemHovered);
 	ClassDB::bind_method(D_METHOD("ImGui_IsAnyMouseDown"), &native_imgui::IsAnyMouseDown);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemActivated"), &native_imgui::IsItemActivated);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemClicked"), &native_imgui::IsItemClicked);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemDeactivated"), &native_imgui::IsItemDeactivated);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemDeactivatedAfterChange"), &native_imgui::IsItemDeactivatedAfterChange);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemDeactivatedAfterEdit"), &native_imgui::IsItemDeactivatedAfterEdit);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemEdited"), &native_imgui::IsItemEdited);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemFocused"), &native_imgui::IsItemFocused);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemHovered"), &native_imgui::IsItemHovered);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemToggledOpen"), &native_imgui::IsItemToggledOpen);
+	ClassDB::bind_method(D_METHOD("ImGui_IsItemVisible"), &native_imgui::IsItemVisible);
+	ClassDB::bind_method(D_METHOD("ImGui_IsKeyDown", "key"), &native_imgui::IsKeyDown);
+	ClassDB::bind_method(D_METHOD("ImGui_IsKeyReleased", "key"), &native_imgui::IsKeyReleased);
+	ClassDB::bind_method(D_METHOD("ImGui_IsKeyPressed", "key"), &native_imgui::IsKeyPressed);
+	ClassDB::bind_method(D_METHOD("ImGui_IsMouseClicked", "button"), &native_imgui::IsMouseClicked);
+	ClassDB::bind_method(D_METHOD("ImGui_IsMouseDoubleClicked", "button"), &native_imgui::IsMouseDoubleClicked);
+	ClassDB::bind_method(D_METHOD("ImGui_IsMouseDown", "button"), &native_imgui::IsMouseDown);
+	ClassDB::bind_method(D_METHOD("ImGui_IsMouseDragging"), &native_imgui::IsMouseDragging);
+	ClassDB::bind_method(D_METHOD("ImGui_IsMouseHoveringRect"), &native_imgui::IsMouseHoveringRect);
+	ClassDB::bind_method(D_METHOD("ImGui_IsMousePosValid"), &native_imgui::IsMousePosValid);
+	ClassDB::bind_method(D_METHOD("ImGui_IsMouseReleased"), &native_imgui::IsMouseReleased);
+	ClassDB::bind_method(D_METHOD("ImGui_IsPopupOpen", "str_id"), &native_imgui::IsPopupOpen);
+	ClassDB::bind_method(D_METHOD("ImGui_IsRectVisible"), &native_imgui::IsRectVisible);
+	ClassDB::bind_method(D_METHOD("ImGui_IsWindowAppearing"), &native_imgui::IsWindowAppearing);
+	ClassDB::bind_method(D_METHOD("ImGui_IsWindowCollapsed"), &native_imgui::IsWindowCollapsed);
+	ClassDB::bind_method(D_METHOD("ImGui_IsWindowFocused"), &native_imgui::IsWindowFocused);
+	ClassDB::bind_method(D_METHOD("ImGui_IsWindowHovered"), &native_imgui::IsWindowHovered);
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
@@ -403,7 +430,7 @@ String native_imgui::InputTextWithHint(String label, String hint, String val, un
 }
 
 bool native_imgui::InvisibleButton(String str_id, Vector2 size) {
-	ImGui::InvisibleButton(convertStringToChar(str_id), Vector2ToImVec(size));
+	return ImGui::InvisibleButton(convertStringToChar(str_id), Vector2ToImVec(size));
 }
 
 bool native_imgui::IsAnyItemActive() {
@@ -419,7 +446,111 @@ bool native_imgui::IsAnyItemHovered() {
 }
 
 bool native_imgui::IsAnyMouseDown() {
-	return IsAnyMouseDown();
+	return ImGui::IsAnyMouseDown();
+}
+
+bool native_imgui::IsItemActivated() {
+	return ImGui::IsItemActivated();
+}
+
+bool native_imgui::IsItemClicked() {
+	return ImGui::IsItemClicked();
+}
+
+bool native_imgui::IsItemDeactivated() {
+	return ImGui::IsItemDeactivated();
+}
+
+bool native_imgui::IsItemDeactivatedAfterChange() {
+	return ImGui::IsItemDeactivatedAfterChange(); // OBSELETE
+}
+
+bool native_imgui::IsItemDeactivatedAfterEdit() {
+	return ImGui::IsItemDeactivatedAfterEdit();
+}
+
+bool native_imgui::IsItemEdited() {
+	return ImGui::IsItemEdited();
+}
+
+bool native_imgui::IsItemFocused() {
+	return ImGui::IsItemFocused();
+}
+
+bool native_imgui::IsItemHovered() {
+	return ImGui::IsItemHovered();
+}
+
+bool native_imgui::IsItemToggledOpen() {
+	return ImGui::IsItemToggledOpen();
+}
+
+bool native_imgui::IsItemVisible() {
+	return ImGui::IsItemVisible();
+}
+
+bool native_imgui::IsKeyDown(unsigned int key_index) {
+	return ImGui::IsKeyDown(key_index);
+}
+
+bool native_imgui::IsKeyReleased(unsigned int key_index) {
+	return ImGui::IsKeyReleased(key_index);
+}
+
+bool native_imgui::IsKeyPressed(unsigned int key_index) {
+	return ImGui::IsKeyPressed(key_index);
+}
+
+bool native_imgui::IsMouseClicked(unsigned int button) {
+	return ImGui::IsMouseClicked(button);
+}
+
+bool native_imgui::IsMouseDoubleClicked(unsigned int button) {
+	return ImGui::IsMouseDoubleClicked(button);
+}
+
+bool native_imgui::IsMouseDown(unsigned int button) {
+	return ImGui::IsMouseDown(button);
+}
+
+bool native_imgui::IsMouseDragging(unsigned int button) {
+	return ImGui::IsMouseDragging(button);
+}
+
+bool native_imgui::IsMouseHoveringRect(Vector2 min, Vector2 max, bool clip) {
+	return ImGui::IsMouseHoveringRect(Vector2ToImVec(min), Vector2ToImVec(max), clip);
+}
+
+bool native_imgui::IsMousePosValid(Vector2 pos) {
+	return ImGui::IsMousePosValid(&Vector2ToImVec(pos));
+}
+
+bool native_imgui::IsMouseReleased(unsigned int button) {
+	return ImGui::IsMouseReleased(button);
+}
+
+bool native_imgui::IsPopupOpen(String str_id) {
+	return ImGui::IsPopupOpen(convertStringToChar(str_id));
+}
+
+bool native_imgui::IsRectVisible(const Vector2& vec) {
+	return ImGui::IsRectVisible(Vector2ToImVec(vec));
+}
+
+bool native_imgui::IsWindowAppearing() {
+	return ImGui::IsWindowAppearing();
+}
+
+bool native_imgui::IsWindowCollapsed() {
+	return ImGui::IsWindowCollapsed();
+}
+
+bool native_imgui::IsWindowFocused() {
+	return ImGui::IsWindowFocused();
+}
+
+bool native_imgui::IsWindowHovered() {
+	return ImGui::IsWindowHovered();
 }
 
 void native_imgui::Text(String text) {
