@@ -102,7 +102,6 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_InputScalar"), &native_imgui::InputScalar);
 	ClassDB::bind_method(D_METHOD("ImGui_InputText"), &native_imgui::InputText);
 	ClassDB::bind_method(D_METHOD("ImGui_InputTextMultiline"), &native_imgui::InputTextMultiline);
-	ClassDB::bind_method(D_METHOD("ImGui_IsItemActivated"), &native_imgui::IsItemActivated);
 	ClassDB::bind_method(D_METHOD("ImGui_InputTextWithHint"), &native_imgui::InputTextWithHint);
 	ClassDB::bind_method(D_METHOD("ImGui_InvisibleButton"), &native_imgui::InvisibleButton);
 	ClassDB::bind_method(D_METHOD("ImGui_IsAnyItemActive"), &native_imgui::IsAnyItemActive);
@@ -135,6 +134,9 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_IsWindowCollapsed"), &native_imgui::IsWindowCollapsed);
 	ClassDB::bind_method(D_METHOD("ImGui_IsWindowFocused"), &native_imgui::IsWindowFocused);
 	ClassDB::bind_method(D_METHOD("ImGui_IsWindowHovered"), &native_imgui::IsWindowHovered);
+
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LabelText", &native_imgui::LabelText, MethodInfo("LabelText"));
+
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
@@ -551,6 +553,28 @@ bool native_imgui::IsWindowFocused() {
 
 bool native_imgui::IsWindowHovered() {
 	return ImGui::IsWindowHovered();
+}
+
+Variant native_imgui::LabelText(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	for (uint32_t i = 0; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::LabelText(convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
 }
 
 void native_imgui::Text(String text) {
