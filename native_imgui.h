@@ -159,6 +159,17 @@ public:
 	void OpenPopupOnItemClick(String str_id);
 	void PlotHistogram(String label, Vector<float> arr);
 	void PlotLines(String label, Vector<float> arr);
+	void PopAllowKeyboardFocus();
+	void PopButtonRepeat();
+	void PopClipRect();
+	void PopFont();
+	void PopID();
+	void PopItemWidth();
+	void PopStyleColor();
+	void PopStyleVar();
+	void PopTextWrapPos();
+	void ProgressBar(float fraction, Vector2 size);
+
 	void Text(String text);
 	void BulletText(String text);
 	void End();

@@ -158,6 +158,17 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_OpenPopupOnItemClick"), &native_imgui::OpenPopupOnItemClick);
 	ClassDB::bind_method(D_METHOD("ImGui_PlotHistogram"), &native_imgui::PlotHistogram);
 	ClassDB::bind_method(D_METHOD("ImGui_PlotLines"), &native_imgui::PlotLines);
+	ClassDB::bind_method(D_METHOD("ImGui_PopAllowKeyboardFocus"), &native_imgui::PopAllowKeyboardFocus);
+	ClassDB::bind_method(D_METHOD("ImGui_PopButtonRepeat"), &native_imgui::PopButtonRepeat);
+	ClassDB::bind_method(D_METHOD("ImGui_PopClipRect"), &native_imgui::PopClipRect);
+	ClassDB::bind_method(D_METHOD("ImGui_PopFont"), &native_imgui::PopFont);
+	ClassDB::bind_method(D_METHOD("ImGui_PopID"), &native_imgui::PopID);
+	ClassDB::bind_method(D_METHOD("ImGui_PopItemWidth"), &native_imgui::PopItemWidth);
+	ClassDB::bind_method(D_METHOD("ImGui_PopStyleColor"), &native_imgui::PopStyleColor);
+	ClassDB::bind_method(D_METHOD("ImGui_PopStyleVar"), &native_imgui::PopStyleVar);
+	ClassDB::bind_method(D_METHOD("ImGui_PopTextWrapPos"), &native_imgui::PopTextWrapPos);
+	ClassDB::bind_method(D_METHOD("ImGui_ProgressBar"), &native_imgui::ProgressBar);
+
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
@@ -696,6 +707,46 @@ void native_imgui::PlotHistogram(String label, Vector<float> arr) {
 
 void native_imgui::PlotLines(String label, Vector<float> arr) {
 	ImGui::PlotLines(convertStringToChar(label), (const float *)arr.ptr(), arr.size());
+}
+
+void native_imgui::PopAllowKeyboardFocus() {
+	ImGui::PopAllowKeyboardFocus();
+}
+
+void native_imgui::PopButtonRepeat() {
+	ImGui::PopButtonRepeat();
+}
+
+void native_imgui::PopClipRect() {
+	ImGui::PopClipRect();
+}
+
+void native_imgui::PopFont() {
+	ImGui::PopFont();
+}
+
+void native_imgui::PopID() {
+	ImGui::PopID();
+}
+
+void native_imgui::PopItemWidth() {
+	ImGui::PopItemWidth();
+}
+
+void native_imgui::PopStyleColor() {
+	ImGui::PopStyleColor();
+}
+
+void native_imgui::PopStyleVar() {
+	ImGui::PopStyleVar();
+}
+
+void native_imgui::PopTextWrapPos() {
+	ImGui::PopTextWrapPos();
+}
+
+void native_imgui::ProgressBar(float fraction, Vector2 size) {
+	ImGui::ProgressBar(fraction, Vector2ToImVec(size));
 }
 
 void native_imgui::Text(String text) {
