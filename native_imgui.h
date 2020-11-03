@@ -148,6 +148,10 @@ public:
 	void ListBox(String label, int currentItem, Array items);
 	void ListBoxFooter();
 	bool ListBoxHeader(String label, Vector2 size);
+	void LogButtons();
+	void LogFinish();
+	Variant LogText(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	void LogToClipboard();
 	void Text(String text);
 	void BulletText(String text);
 	void End();

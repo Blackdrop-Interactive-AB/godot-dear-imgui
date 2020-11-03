@@ -43,7 +43,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopup", "str_id"), &native_imgui::BeginPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_Button", "text", "size"), &native_imgui::Button);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginGroup"), &native_imgui::BeginGroup);
-	ClassDB::bind_method(D_METHOD("ImGui_EndGroup"), &native_imgui::EndGroup);
+
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextItem", "str_id"), &native_imgui::BeginPopupContextItem);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextVoid", "str_id"), &native_imgui::BeginPopupContexVoid);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextWindow", "str_id"), &native_imgui::BeginPopupContextWindow);
@@ -52,6 +52,8 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_EndTabBar"), &native_imgui::EndTabBar);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTabBarItem", "label", "open"), &native_imgui::BeginTabBarItem);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTooltip"), &native_imgui::BeginTooltip);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginMenu"), &native_imgui::BeginMenu);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginMainMenuBar"), &native_imgui::BeginMainMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_Bullet"), &native_imgui::Bullet);
 	ClassDB::bind_method(D_METHOD("ImGui_BulletText", "text"), &native_imgui::BulletText);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletTextV", &native_imgui::BulletTextV, MethodInfo("BulletTextV"));
@@ -86,6 +88,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_EndPopup"), &native_imgui::EndPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_End"), &native_imgui::End);
 	ClassDB::bind_method(D_METHOD("ImGui_EndFrame"), &native_imgui::EndFrame);
+	ClassDB::bind_method(D_METHOD("ImGui_EndGroup"), &native_imgui::EndGroup);
 	ClassDB::bind_method(D_METHOD("ImGui_GetClipBoardtext"), &native_imgui::GetClipboardText);
 	ClassDB::bind_method(D_METHOD("ImGui_GetColumnIndex"), &native_imgui::GetColumnIndex);
 	ClassDB::bind_method(D_METHOD("ImGui_GetID"), &native_imgui::GetID);
@@ -140,12 +143,15 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_ListBox"), &native_imgui::ListBox); // Really broken, might not be fixable
 	ClassDB::bind_method(D_METHOD("ImGui_ListBoxFooter"), &native_imgui::ListBoxFooter);
 	ClassDB::bind_method(D_METHOD("ImGui_ListBoxHeader"), &native_imgui::ListBoxHeader);
+	ClassDB::bind_method(D_METHOD("ImGui_LogButtons"), &native_imgui::LogButtons);
+	ClassDB::bind_method(D_METHOD("ImGui_LogFinish"), &native_imgui::LogFinish);
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LogText", &native_imgui::LogText, MethodInfo("LogText"));
+	ClassDB::bind_method(D_METHOD("ImGui_LogToClipboard"), &native_imgui::LogToClipboard);
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
 	ClassDB::bind_method(D_METHOD("ImGui_NewFrame"), &native_imgui::NewFrame);
-	ClassDB::bind_method(D_METHOD("ImGui_BeginMenu"), &native_imgui::BeginMenu);
-	ClassDB::bind_method(D_METHOD("ImGui_BeginMainMenuBar"), &native_imgui::BeginMainMenuBar);
+
 	ClassDB::bind_method(D_METHOD("ImGui_MenuItem", "label", "shortcut", "selected", "enabled"), &native_imgui::MenuItem);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMenu"), &native_imgui::EndMenu);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMainMenuBar"), &native_imgui::EndMainMenuBar);
@@ -630,6 +636,40 @@ void native_imgui::ListBoxFooter() {
 
 bool native_imgui::ListBoxHeader(String label, Vector2 size) {
 	return ImGui::ListBoxHeader(convertStringToChar(label), Vector2ToImVec(size));
+}
+
+void native_imgui::LogButtons() {
+	ImGui::LogButtons();
+}
+
+void native_imgui::LogFinish() {
+	ImGui::LogFinish();
+}
+
+Variant native_imgui::LogText(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	for (uint32_t i = 0; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::LogText(convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
+}
+
+void native_imgui::LogToClipboard() {
+	ImGui::LogToClipboard();
 }
 
 void native_imgui::Text(String text) {
