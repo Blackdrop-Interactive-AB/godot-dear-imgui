@@ -136,6 +136,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_IsWindowHovered"), &native_imgui::IsWindowHovered);
 
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LabelText", &native_imgui::LabelText, MethodInfo("LabelText"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LabelTextV", &native_imgui::LabelTextV, MethodInfo("LabelTextV"));
 
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
@@ -572,6 +573,35 @@ Variant native_imgui::LabelText(const Variant **p_args, int p_argcount, Variant:
 	//which kinda means we are praying that ImGui doens't do anything stupid
 
 	ImGui::LabelText(convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
+}
+
+Variant native_imgui::LabelTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	if (p_argcount < 0) {
+		r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+		r_error.argument = 0;
+		r_error.expected = Variant::STRING;
+		return Variant();
+	}
+
+	for (uint32_t i = 1; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::LabelTextV(convertStringToChar((String)*p_args[0]), convertStringToChar(arg), (char *)convertStringToChar(arg));
 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();

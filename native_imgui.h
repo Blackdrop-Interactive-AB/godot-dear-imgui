@@ -144,6 +144,7 @@ public:
 	bool IsWindowFocused();
 	bool IsWindowHovered();
 	Variant LabelText(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	Variant LabelTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	void Text(String text);
 	void BulletText(String text);
 	void End();
