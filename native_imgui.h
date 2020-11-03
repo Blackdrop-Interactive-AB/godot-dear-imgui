@@ -145,6 +145,9 @@ public:
 	bool IsWindowHovered();
 	Variant LabelText(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	Variant LabelTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	void ListBox(String label, int currentItem, Array items);
+	void ListBoxFooter();
+	bool ListBoxHeader(String label, Vector2 size);
 	void Text(String text);
 	void BulletText(String text);
 	void End();

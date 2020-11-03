@@ -137,7 +137,9 @@ void native_imgui::_bind_methods() {
 
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LabelText", &native_imgui::LabelText, MethodInfo("LabelText"));
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LabelTextV", &native_imgui::LabelTextV, MethodInfo("LabelTextV"));
-
+	ClassDB::bind_method(D_METHOD("ImGui_ListBox"), &native_imgui::ListBox); // Really broken, might not be fixable
+	ClassDB::bind_method(D_METHOD("ImGui_ListBoxFooter"), &native_imgui::ListBoxFooter);
+	ClassDB::bind_method(D_METHOD("ImGui_ListBoxHeader"), &native_imgui::ListBoxHeader);
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
@@ -605,6 +607,29 @@ Variant native_imgui::LabelTextV(const Variant **p_args, int p_argcount, Variant
 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();
+}
+
+void native_imgui::ListBox(String label, int currentItem, Array items) {
+
+	char * itemArr = memnew_arr(char, items.size() + 1);
+
+	for (uint32_t i = 0; i < items.size(); i++) {
+		itemArr[i] = (unsigned char)items[i];
+	}
+	itemArr[items.size() + 1] = '\0';
+	
+	char *test = (char *)convertStringToChar(String("Test string"));
+	char *testArr = test;
+	ImGui::ListBox(convertStringToChar(label), &currentItem, &testArr, 1);
+	 
+}
+
+void native_imgui::ListBoxFooter() {
+	ImGui::ListBoxFooter();
+}
+
+bool native_imgui::ListBoxHeader(String label, Vector2 size) {
+	return ImGui::ListBoxHeader(convertStringToChar(label), Vector2ToImVec(size));
 }
 
 void native_imgui::Text(String text) {
