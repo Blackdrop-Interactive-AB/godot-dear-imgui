@@ -33,6 +33,11 @@ inline Vector2 native_imgui::ImVec2ToVector2(const ImVec2 &vec) {
 	return Vector2(vec.x, vec.y);
 }
 
+float native_imgui::valuesGetter(void *data, int idx) {
+	float *_data = (float *)data;
+	return _data[idx];
+}
+
 
 void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton", "label", "int dir"), &native_imgui::ArrowButton);
@@ -147,6 +152,12 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_LogFinish"), &native_imgui::LogFinish);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LogText", &native_imgui::LogText, MethodInfo("LogText"));
 	ClassDB::bind_method(D_METHOD("ImGui_LogToClipboard"), &native_imgui::LogToClipboard);
+	ClassDB::bind_method(D_METHOD("ImGui_NextColumn"), &native_imgui::NextColumn);
+	ClassDB::bind_method(D_METHOD("ImGui_OpenPopup"), &native_imgui::OpenPopup);
+	ClassDB::bind_method(D_METHOD("ImGui_OpenPopupContextItem"), &native_imgui::OpenPopupContextItem);
+	ClassDB::bind_method(D_METHOD("ImGui_OpenPopupOnItemClick"), &native_imgui::OpenPopupOnItemClick);
+	ClassDB::bind_method(D_METHOD("ImGui_PlotHistogram"), &native_imgui::PlotHistogram);
+
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
@@ -616,18 +627,8 @@ Variant native_imgui::LabelTextV(const Variant **p_args, int p_argcount, Variant
 }
 
 void native_imgui::ListBox(String label, int currentItem, Array items) {
-
-	char * itemArr = memnew_arr(char, items.size() + 1);
-
-	for (uint32_t i = 0; i < items.size(); i++) {
-		itemArr[i] = (unsigned char)items[i];
-	}
-	itemArr[items.size() + 1] = '\0';
-	
-	char *test = (char *)convertStringToChar(String("Test string"));
-	char *testArr = test;
-	ImGui::ListBox(convertStringToChar(label), &currentItem, &testArr, 1);
-	 
+	//const char *ptr = (char *)items.ptr();
+	//ImGui::ListBox(convertStringToChar(label), &currentItem, &ptr, 1);
 }
 
 void native_imgui::ListBoxFooter() {
@@ -670,6 +671,27 @@ Variant native_imgui::LogText(const Variant **p_args, int p_argcount, Variant::C
 
 void native_imgui::LogToClipboard() {
 	ImGui::LogToClipboard();
+}
+
+void native_imgui::NextColumn() {
+	ImGui::NextColumn();
+}
+
+void native_imgui::OpenPopup(String str_id) {
+	ImGui::OpenPopup(convertStringToChar(str_id));
+}
+
+void native_imgui::OpenPopupContextItem(String str_id) {
+	ImGui::OpenPopupContextItem(convertStringToChar(str_id));
+}
+
+void native_imgui::OpenPopupOnItemClick(String str_id) {
+	ImGui::OpenPopupOnItemClick(convertStringToChar(str_id));
+}
+
+
+void native_imgui::PlotHistogram(String label, Vector<float> arr) {
+	ImGui::PlotHistogram(convertStringToChar(label), (const float *)arr.ptr(), arr.size());
 }
 
 void native_imgui::Text(String text) {

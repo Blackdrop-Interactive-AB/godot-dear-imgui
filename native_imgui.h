@@ -40,6 +40,7 @@ class native_imgui : public Node2D {
 	inline const char *convertStringToChar(String string);
 	inline ImVec2 Vector2ToImVec(const Vector2& vec);
 	inline Vector2 ImVec2ToVector2(const ImVec2 &vec);
+	float valuesGetter(void *data, int idx);
 
 protected:
 	static void _bind_methods();
@@ -152,6 +153,11 @@ public:
 	void LogFinish();
 	Variant LogText(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	void LogToClipboard();
+	void NextColumn();
+	void OpenPopup(String str_id);
+	void OpenPopupContextItem(String str_id);
+	void OpenPopupOnItemClick(String str_id);
+	void PlotHistogram(String label, Vector<float> arr);
 	void Text(String text);
 	void BulletText(String text);
 	void End();
