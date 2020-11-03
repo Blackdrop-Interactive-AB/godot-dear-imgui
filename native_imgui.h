@@ -112,6 +112,11 @@ public:
 	String InputText(String label, String val, unsigned int flags); // behaves weird with label and value swapping during frames. Same memory adress?
 	String InputTextMultiline(String label, String val, unsigned int buf_size, Vector2 size); // behaves weird with label and value swapping during frames. Same memory adress?
 	String InputTextWithHint(String label, String hint, String val, unsigned int buf_size);
+	bool InvisibleButton(String str_id, Vector2 size);
+	bool IsAnyItemActive();
+	bool IsAnyItemFocused();
+	bool IsAnyItemHovered();
+	bool IsAnyMouseDown();
 	void Text(String text);
 	void BulletText(String text);
 	void End();

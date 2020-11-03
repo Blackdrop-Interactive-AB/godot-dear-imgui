@@ -103,8 +103,12 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_InputText"), &native_imgui::InputText);
 	ClassDB::bind_method(D_METHOD("ImGui_InputTextMultiline"), &native_imgui::InputTextMultiline);
 	ClassDB::bind_method(D_METHOD("ImGui_InputTextWithHint"), &native_imgui::InputTextWithHint);
+	ClassDB::bind_method(D_METHOD("ImGui_InvisibleButton"), &native_imgui::InvisibleButton);
+	ClassDB::bind_method(D_METHOD("ImGui_IsAnyItemActive"), &native_imgui::IsAnyItemActive);
+	ClassDB::bind_method(D_METHOD("ImGui_IsAnyItemFocused"), &native_imgui::IsAnyItemFocused);
+	ClassDB::bind_method(D_METHOD("ImGui_IsAnyItemHovered"), &native_imgui::IsAnyItemHovered);
+	ClassDB::bind_method(D_METHOD("ImGui_IsAnyMouseDown"), &native_imgui::IsAnyMouseDown);
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
-
 	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
 	ClassDB::bind_method(D_METHOD("ImGui_NewFrame"), &native_imgui::NewFrame);
@@ -396,6 +400,26 @@ String native_imgui::InputTextWithHint(String label, String hint, String val, un
 	ImGui::InputTextWithHint(convertStringToChar(label), convertStringToChar(hint), (char *)convertStringToChar(input), 64);
 
 	return val;
+}
+
+bool native_imgui::InvisibleButton(String str_id, Vector2 size) {
+	ImGui::InvisibleButton(convertStringToChar(str_id), Vector2ToImVec(size));
+}
+
+bool native_imgui::IsAnyItemActive() {
+	return ImGui::IsAnyItemActive();
+}
+
+bool native_imgui::IsAnyItemFocused() {
+	return ImGui::IsAnyItemFocused();
+}
+
+bool native_imgui::IsAnyItemHovered() {
+	return ImGui::IsAnyItemHovered();
+}
+
+bool native_imgui::IsAnyMouseDown() {
+	return IsAnyMouseDown();
 }
 
 void native_imgui::Text(String text) {
