@@ -227,8 +227,17 @@ public:
 	Vector2 SliderInt2(String label, Vector2 val, int min, int max);
 	Vector3 SliderInt3(String label, Vector3 val, int min, int max);
 	Color SliderInt4(String label, Color val, int min, int max);
+	bool SmallButton(String label);
+	void Spacing();
+	void StyleColorsClassic();
+	void StyleColorsDark();
+	void StyleColorsLight();
+	Variant TextDisabled(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	Variant Text(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	Variant TextWrapped(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	Variant TextColored(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	void TreeAdvanceToLabelPos();
 
-	void Text(String text);
 	void BulletText(String text);
 	void End();
 	void Separator();

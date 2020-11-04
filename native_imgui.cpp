@@ -221,7 +221,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowFontScale", "scale"), &native_imgui::SetWindowFontScale);
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowPos", "pos", "cond"), &native_imgui::SetWindowPos);
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowSize", "size", "cond"), &native_imgui::SetWindowSize);
-	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
+
 	//ClassDB::bind_method(D_METHOD("ImGui_ShowFontSelector", "laber"), &native_imgui::ShowFontSelector);
 	ClassDB::bind_method(D_METHOD("ImGui_SliderAngle", "label", "rads"), &native_imgui::SliderAngle);
 	ClassDB::bind_method(D_METHOD("ImGui_SliderFloat", "label", "value", "min", "max"), &native_imgui::SliderFloat);
@@ -232,7 +232,20 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_SliderInt2", "label", "value", "min", "max"), &native_imgui::SliderInt2);
 	ClassDB::bind_method(D_METHOD("ImGui_SliderInt3", "label", "value", "min", "max"), &native_imgui::SliderInt3);
 	ClassDB::bind_method(D_METHOD("ImGui_SliderInt4", "label", "value", "min", "max"), &native_imgui::SliderInt4);
-	
+	ClassDB::bind_method(D_METHOD("ImGui_SmallButton", "label"), &native_imgui::SmallButton);
+	ClassDB::bind_method(D_METHOD("ImGui_Spacing"), &native_imgui::Spacing);
+	ClassDB::bind_method(D_METHOD("ImGui_StyleColorsClassic"), &native_imgui::StyleColorsClassic);
+	ClassDB::bind_method(D_METHOD("ImGui_StyleColorsDark"), &native_imgui::StyleColorsDark);
+	ClassDB::bind_method(D_METHOD("ImGui_StyleColorsLight"), &native_imgui::StyleColorsLight);
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextDisabled", &native_imgui::TextDisabled, MethodInfo("TextDisabled"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextDisabledV", &native_imgui::TextDisabled, MethodInfo("TextDisabled"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_Text", &native_imgui::Text, MethodInfo("Text"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextV", &native_imgui::Text, MethodInfo("Text"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextWrapped", &native_imgui::TextWrapped, MethodInfo("TextWrapped"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextWrappedV", &native_imgui::TextWrapped, MethodInfo("TextWrapped"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextColored", &native_imgui::TextColored, MethodInfo("TextColored"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextColoredV", &native_imgui::TextColored, MethodInfo("TextColored"));
+	ClassDB::bind_method(D_METHOD("ImGui_TreeAdvanceToLabelPos"), &native_imgui::TreeAdvanceToLabelPos);
 }
 
 void native_imgui::process_imgui() {
@@ -1089,9 +1102,129 @@ Color native_imgui::SliderInt4(String label, Color val, int min, int max) {
 	return Color(_arr[0], _arr[1], _arr[2]);
 }
 
+bool native_imgui::SmallButton(String label) {
+	return handleButtonDic(label, ImGui::SmallButton(convertStringToChar(label)));
+}
 
-void native_imgui::Text(String text) {
-	ImGui::Text(convertStringToChar(text));
+void native_imgui::Spacing() {
+	ImGui::Spacing();
+}
+
+void native_imgui::StyleColorsClassic() {
+	ImGui::StyleColorsClassic();
+}
+
+void native_imgui::StyleColorsDark() {
+	ImGui::StyleColorsDark();
+}
+
+void native_imgui::StyleColorsLight() {
+	ImGui::StyleColorsLight();
+}
+
+Variant native_imgui::TextDisabled(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	for (uint32_t i = 0; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::TextDisabled(convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
+}
+
+
+Variant native_imgui::Text(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	for (uint32_t i = 0; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::Text(convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
+}
+
+Variant native_imgui::TextWrapped(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	for (uint32_t i = 0; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::TextWrapped(convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
+}
+
+Variant native_imgui::TextColored(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+
+	if (!(p_argcount > 0) && p_args[0]->get_type() != Variant::COLOR) {
+		r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+		r_error.argument = 0;
+		r_error.expected = Variant::STRING;
+		return Variant();
+	}
+
+	ImColor _col(((Color)*p_args[0]).r, ((Color)*p_args[0]).g,
+				((Color)*p_args[0]).b,
+				((Color)*p_args[0]).a);
+
+	for (uint32_t i = 1; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::TextColored(_col, convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
+}
+
+void native_imgui::TreeAdvanceToLabelPos() {
+	ImGui::TreeAdvanceToLabelPos();
 }
 
 void native_imgui::BulletText(String text) {
