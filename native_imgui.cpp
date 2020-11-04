@@ -48,7 +48,6 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopup", "str_id"), &native_imgui::BeginPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_Button", "text", "size"), &native_imgui::Button);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginGroup"), &native_imgui::BeginGroup);
-
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextItem", "str_id"), &native_imgui::BeginPopupContextItem);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextVoid", "str_id"), &native_imgui::BeginPopupContexVoid);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextWindow", "str_id"), &native_imgui::BeginPopupContextWindow);
@@ -168,16 +167,63 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_PopStyleVar"), &native_imgui::PopStyleVar);
 	ClassDB::bind_method(D_METHOD("ImGui_PopTextWrapPos"), &native_imgui::PopTextWrapPos);
 	ClassDB::bind_method(D_METHOD("ImGui_ProgressBar"), &native_imgui::ProgressBar);
-
-	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
-	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
+	ClassDB::bind_method(D_METHOD("ImGui_PushAllowKeyboardFocus"), &native_imgui::PushAllowKeyboardFocus);
+	ClassDB::bind_method(D_METHOD("ImGui_PushButtonRepeat"), &native_imgui::PushButtonRepeat);
+	ClassDB::bind_method(D_METHOD("ImGui_PushClipRect"), &native_imgui::PushClipRect);
+	ClassDB::bind_method(D_METHOD("ImGui_PushFont"), &native_imgui::PushFont);
+	ClassDB::bind_method(D_METHOD("ImGui_PushID"), &native_imgui::PushID);
+	ClassDB::bind_method(D_METHOD("ImGui_PushItemWidth"), &native_imgui::PushItemWidth);
+	ClassDB::bind_method(D_METHOD("ImGui_PushStyleColor"), &native_imgui::PushStyleColor);
+	ClassDB::bind_method(D_METHOD("ImGui_PushStyleVar"), &native_imgui::PushStyleVar);
+	ClassDB::bind_method(D_METHOD("ImGui_PushTextWrapPos"), &native_imgui::PushTextWrapPos);
+	ClassDB::bind_method(D_METHOD("ImGui_RadioButton", "label", "state"), &native_imgui::RadioButton);
 	ClassDB::bind_method(D_METHOD("ImGui_Render"), &native_imgui::Render);
+	ClassDB::bind_method(D_METHOD("ImGui_Separator"), &native_imgui::Separator);
+	ClassDB::bind_method(D_METHOD("ImGui_SameLine"), &native_imgui::SameLine);
+	ClassDB::bind_method(D_METHOD("ImGui_Selectable"), &native_imgui::Selectable);
+	ClassDB::bind_method(D_METHOD("ImGui_SetClipboardText"), &native_imgui::SetClipboardText);
+	ClassDB::bind_method(D_METHOD("ImGui_SetColorEditOptions"), &native_imgui::SetColorEditOptions);
+	ClassDB::bind_method(D_METHOD("ImGui_SetColumnOffset", "column index", "offset_x"), &native_imgui::SetColumnOffset);
+	ClassDB::bind_method(D_METHOD("ImGui_SetColumnWidth"), &native_imgui::SetColumnWidth);
+	ClassDB::bind_method(D_METHOD("ImGui_SetCursorPos"), &native_imgui::SetCursorPos);
+	ClassDB::bind_method(D_METHOD("ImGui_SetCursorPosX"), &native_imgui::SetCursorPosX);
+	ClassDB::bind_method(D_METHOD("ImGui_SetCursorPosY"), &native_imgui::SetCursorPosY);
+	ClassDB::bind_method(D_METHOD("ImGui_SetCursorScreenPos"), &native_imgui::SetCursorScreenPos);
+	ClassDB::bind_method(D_METHOD("ImGui_SetItemAllowOverlap"), &native_imgui::SetItemAllowOverlap);
+	ClassDB::bind_method(D_METHOD("ImGui_SetItemDefaultFocus"), &native_imgui::SetItemDefaultFocus);
+	ClassDB::bind_method(D_METHOD("ImGui_SetKeyboardFocusHere"), &native_imgui::SetKeyboardFocusHere);
+	ClassDB::bind_method(D_METHOD("ImGui_SetMouseCursor", "cursor"), &native_imgui::SetMouseCursor);	
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextItemOpen", "bool is_open", "condition"), &native_imgui::SetNextItemOpen);
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextItemWidth", "width"), &native_imgui::SetNextItemWidth);
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextTreeNodeOpen", "open", "cond"), &native_imgui::SetNextTreeNodeOpen);
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextWindowBgAlpha", "alpha"), &native_imgui::SetNextWindowBgAlpha);
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextWindowCollapsed", "collapsed", "cond"), &native_imgui::SetNextWindowCollapsed);
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextWindowContentSize", "size"), &native_imgui::SetNextWindowContentSize);
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextWindowFocus"), &native_imgui::SetNextWindowFocus);
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextWindowPos", "pos", "cond", "pivot"), &native_imgui::SetNextWindowPos);
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextWindowSize", "size", "cond"), &native_imgui::SetNextWindowSize);
+	ClassDB::bind_method(D_METHOD("ImGui_SetNextWindowSizeConstraints", "min", "max"), &native_imgui::SetNextWindowSize);
+	ClassDB::bind_method(D_METHOD("ImGui_SetScrollFromPosX", "x"), &native_imgui::SetScrollFromPosX);
+	ClassDB::bind_method(D_METHOD("ImGui_SetScrollFromPosY", "y"), &native_imgui::SetScrollFromPosY);
+	ClassDB::bind_method(D_METHOD("ImGui_SetScrollHere", "center_ration"), &native_imgui::SetScrollHere);
+	ClassDB::bind_method(D_METHOD("ImGui_SetScrollHereX", "center_x_ration"), &native_imgui::SetScrollHereX);
+	ClassDB::bind_method(D_METHOD("ImGui_SetScrollHereY", "center_Y_ration"), &native_imgui::SetScrollHereY); 
+	ClassDB::bind_method(D_METHOD("ImGui_SetScrollX", "x"), &native_imgui::SetScrollX);
+	ClassDB::bind_method(D_METHOD("ImGui_SetScrollY", "y"), &native_imgui::SetScrollY);
+	ClassDB::bind_method(D_METHOD("ImGui_SetTabItemClosed", "label of tab"), &native_imgui::SetTabItemClosed);
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_SetTooltip", &native_imgui::SetTooltip, MethodInfo("SetTooltip"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_SetTooltipV", &native_imgui::SetTooltipV, MethodInfo("SetTooltipV"));
+	ClassDB::bind_method(D_METHOD("ImGui_SetWindowCollapsed", "collapsed", "cond"), &native_imgui::SetWindowCollapsed);
+	ClassDB::bind_method(D_METHOD("ImGui_SetWindowFocus"), &native_imgui::SetWindowFocus);
+	ClassDB::bind_method(D_METHOD("ImGui_SetWindowFontScale", "scale"), &native_imgui::SetWindowFontScale);
+	ClassDB::bind_method(D_METHOD("ImGui_SetWindowPos", "pos", "cond"), &native_imgui::SetWindowPos);
+	ClassDB::bind_method(D_METHOD("ImGui_SetWindowSize", "size", "cond"), &native_imgui::SetWindowSize);
+	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
 	ClassDB::bind_method(D_METHOD("ImGui_NewFrame"), &native_imgui::NewFrame);
-
 	ClassDB::bind_method(D_METHOD("ImGui_MenuItem", "label", "shortcut", "selected", "enabled"), &native_imgui::MenuItem);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMenu"), &native_imgui::EndMenu);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMainMenuBar"), &native_imgui::EndMainMenuBar);
-	ClassDB::bind_method(D_METHOD("ImGui_SameLine"), &native_imgui::SameLine);
+
 	
 }
 
@@ -747,6 +793,239 @@ void native_imgui::PopTextWrapPos() {
 
 void native_imgui::ProgressBar(float fraction, Vector2 size) {
 	ImGui::ProgressBar(fraction, Vector2ToImVec(size));
+}
+
+void native_imgui::PushAllowKeyboardFocus(bool allow_keyboard_focus) {
+	ImGui::PushAllowKeyboardFocus(allow_keyboard_focus);
+}
+
+void native_imgui::PushButtonRepeat(bool repeat) {
+	ImGui::PushButtonRepeat(repeat);
+}
+
+void native_imgui::PushClipRect(Vector2 max, Vector2 min, bool intersects_with_current_rect) {
+	ImGui::PushClipRect(Vector2ToImVec(max), Vector2ToImVec(min), intersects_with_current_rect);
+}
+
+void native_imgui::PushFont() {
+
+	//ImGui::PushFont()
+}
+
+void native_imgui::PushID(int int_id) {
+	ImGui::PushID(int_id);
+}
+
+void native_imgui::PushItemWidth(float item_width) {
+	ImGui::PushItemWidth(item_width);
+}
+
+void native_imgui::PushStyleColor(int idx, Color col) {
+
+	ImVec4 _vec(col.r, col.g, col.b, col.a);
+
+	ImGui::PushStyleColor(idx, _vec);
+}
+
+void native_imgui::PushStyleVar(int idx, Vector2 vec) {
+	ImGui::PushStyleVar(idx, Vector2ToImVec(vec));
+}
+
+void native_imgui::PushTextWrapPos(float wrap_local_pos_x) {
+	ImGui::PushTextWrapPos(wrap_local_pos_x);
+}
+
+bool native_imgui::RadioButton(String label, bool active) {
+	return handleButtonDic(label, ImGui::RadioButton(convertStringToChar(label),
+							active));
+}
+
+bool native_imgui::Selectable(String label, bool active) {
+	return handleButtonDic(label, ImGui::Selectable(convertStringToChar(label), &active));
+}
+
+void native_imgui::SetClipboardText(String text) {
+	ImGui::SetClipboardText(convertStringToChar(text));
+}
+
+void native_imgui::SetColorEditOptions(int flags) {
+	ImGui::SetColorEditOptions(flags);
+}
+
+void native_imgui::SetColumnOffset(int column_index, int offset) {
+	ImGui::SetColumnOffset(column_index, offset);
+}
+
+void native_imgui::SetColumnWidth(int column_index, float width) {
+	ImGui::SetColumnWidth(column_index, width);
+}
+
+void native_imgui::SetCursorPos(Vector2 pos) {
+	ImGui::SetCursorPos(Vector2ToImVec(pos));
+}
+
+void native_imgui::SetCursorPosX(float x) {
+	ImGui::SetCursorPosX(x);
+}
+
+void native_imgui::SetCursorPosY(float y) {
+	ImGui::SetCursorPosX(y);
+}
+
+void native_imgui::SetCursorScreenPos(Vector2 pos) {
+	ImGui::SetCursorScreenPos(Vector2ToImVec(pos));
+}
+
+void native_imgui::SetItemAllowOverlap() {
+	ImGui::SetItemAllowOverlap();
+}
+
+void native_imgui::SetItemDefaultFocus() {
+	ImGui::SetItemDefaultFocus();
+}
+
+void native_imgui::SetKeyboardFocusHere(int offset) {
+	ImGui::SetKeyboardFocusHere(offset);
+}
+
+void native_imgui::SetMouseCursor(int cursor) {
+	ImGui::SetMouseCursor(cursor);
+}
+
+void native_imgui::SetNextItemOpen(bool is_open, int condition) {
+	ImGui::SetNextItemOpen(is_open, condition);
+}
+
+void native_imgui::SetNextItemWidth(float width) {
+	ImGui::SetNextItemWidth(width);
+}
+
+void native_imgui::SetNextTreeNodeOpen(bool open, int condition) {
+	ImGui::SetNextTreeNodeOpen(open, condition);
+}
+
+void native_imgui::SetNextWindowBgAlpha(float alpha) {
+	ImGui::SetNextWindowBgAlpha(alpha);
+}
+
+void native_imgui::SetNextWindowCollapsed(bool collapsed, int cond) {
+	ImGui::SetNextWindowCollapsed(collapsed, cond);
+}
+
+void native_imgui::SetNextWindowContentSize(Vector2 size) {
+	ImGui::SetNextWindowContentSize(Vector2ToImVec(size));
+}
+
+void native_imgui::SetNextWindowFocus() {
+	ImGui::SetNextWindowFocus();
+}
+
+void native_imgui::SetNextWindowPos(Vector2 pos, int cond, Vector2 pivot) {
+	ImGui::SetNextWindowPos(Vector2ToImVec(pos), cond, Vector2ToImVec(pivot));
+}
+
+void native_imgui::SetNextWindowSize(Vector2 size, int cond) {
+	ImGui::SetNextWindowSize(Vector2ToImVec(size), cond);
+}
+
+void native_imgui::SetNextWindowSizeConstraints(Vector2 min, Vector2 max) {
+	ImGui::SetNextWindowSizeConstraints(Vector2ToImVec(min), Vector2ToImVec(max));
+}
+
+void native_imgui::SetScrollFromPosX(float x) {
+	ImGui::SetScrollFromPosX(x);
+}
+
+void native_imgui::SetScrollFromPosY(float y) {
+	ImGui::SetScrollFromPosY(y);
+}
+
+void native_imgui::SetScrollHere(float center_ratio) {
+	ImGui::SetScrollHere(center_ratio);
+}
+
+void native_imgui::SetScrollHereX(float center_x_ratio) {
+	ImGui::SetScrollHereX(center_x_ratio);
+}
+
+void native_imgui::SetScrollHereY(float center_y_ratio) {
+	ImGui::SetScrollHereX(center_y_ratio);
+}
+
+void native_imgui::SetScrollX(float x) {
+	ImGui::SetScrollX(x);
+}
+
+void native_imgui::SetScrollY(float y) {
+	ImGui::SetScrollY(y);
+}
+
+void native_imgui::SetTabItemClosed(String label) {
+	ImGui::SetTabItemClosed(convertStringToChar(label));
+}
+
+Variant native_imgui::SetTooltip(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	for (uint32_t i = 0; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+ 
+	ImGui::SetTooltip(convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
+}
+
+Variant native_imgui::SetTooltipV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	for (uint32_t i = 0; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::SetTooltipV(convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
+}
+
+void native_imgui::SetWindowCollapsed(bool collapsed, int cond) {
+	ImGui::SetWindowCollapsed(collapsed, cond);
+}
+
+void native_imgui::SetWindowFocus() {
+	ImGui::SetWindowFocus();
+}
+
+void native_imgui::SetWindowFontScale(float scale) {
+	ImGui::SetWindowFontScale(scale);
+}
+
+void native_imgui::SetWindowPos(Vector2 pos, int cond) {
+	ImGui::SetWindowPos(Vector2ToImVec(pos), cond);
+}
+
+void native_imgui::SetWindowSize(Vector2 size, int cond) {
+	ImGui::SetWindowSize(Vector2ToImVec(size), cond);
 }
 
 void native_imgui::Text(String text) {
