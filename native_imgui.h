@@ -237,6 +237,16 @@ public:
 	Variant TextWrapped(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	Variant TextColored(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	void TreeAdvanceToLabelPos();
+	void TreeNode(String label);
+	void TreeNodeEx(String label, int flags);
+	Variant TreeNodeExV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	Variant TreeNodeV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	void TreePop();
+	void TreePush();
+	void Unindent(float width);
+	void Value(String id, unsigned int value);
+	float VSliderFloat(String label, Vector2 size, float val, float min, float max);
+	int VSliderInt(String label, Vector2 size, int val, int min, int max);
 
 	void BulletText(String text);
 	void End();

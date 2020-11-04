@@ -221,7 +221,6 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowFontScale", "scale"), &native_imgui::SetWindowFontScale);
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowPos", "pos", "cond"), &native_imgui::SetWindowPos);
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowSize", "size", "cond"), &native_imgui::SetWindowSize);
-
 	//ClassDB::bind_method(D_METHOD("ImGui_ShowFontSelector", "laber"), &native_imgui::ShowFontSelector);
 	ClassDB::bind_method(D_METHOD("ImGui_SliderAngle", "label", "rads"), &native_imgui::SliderAngle);
 	ClassDB::bind_method(D_METHOD("ImGui_SliderFloat", "label", "value", "min", "max"), &native_imgui::SliderFloat);
@@ -246,6 +245,16 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextColored", &native_imgui::TextColored, MethodInfo("TextColored"));
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextColoredV", &native_imgui::TextColored, MethodInfo("TextColored"));
 	ClassDB::bind_method(D_METHOD("ImGui_TreeAdvanceToLabelPos"), &native_imgui::TreeAdvanceToLabelPos);
+	ClassDB::bind_method(D_METHOD("ImGui_TreeNode", "label"), &native_imgui::TreeNode);
+	ClassDB::bind_method(D_METHOD("ImGui_TreeNodeEx", "label", "flags"), &native_imgui::TreeNodeEx);
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TreeNodeExV", &native_imgui::TreeNodeExV, MethodInfo("TreeNodeExV"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TreeNodeV", &native_imgui::TreeNodeV, MethodInfo("TreeNodeV"));
+	ClassDB::bind_method(D_METHOD("ImGui_TreePop"), &native_imgui::TreePop);
+	ClassDB::bind_method(D_METHOD("ImGui_TreePush"), &native_imgui::TreePush);
+	ClassDB::bind_method(D_METHOD("ImGui_Unindent", "width"), &native_imgui::Unindent);
+	ClassDB::bind_method(D_METHOD("ImGui_Value", "id", "value"), &native_imgui::Value);	
+	ClassDB::bind_method(D_METHOD("ImGui_VSliderFloat", "label", "size" "value", "min", "max"), &native_imgui::VSliderFloat);
+	ClassDB::bind_method(D_METHOD("ImGui_VSliderInt", "label", "size", "value", "min", "max"), &native_imgui::VSliderInt); 
 }
 
 void native_imgui::process_imgui() {
@@ -1227,6 +1236,104 @@ void native_imgui::TreeAdvanceToLabelPos() {
 	ImGui::TreeAdvanceToLabelPos();
 }
 
+void native_imgui::TreeNode(String label) {
+	ImGui::TreeNode(convertStringToChar(label));
+}
+
+void native_imgui::TreeNodeEx(String label, int flags) {
+	ImGui::TreeNodeEx(convertStringToChar(label), flags);
+}
+
+Variant native_imgui::TreeNodeExV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+
+	if (!(p_argcount > 1) && p_args[0]->get_type() != Variant::STRING && p_args[0]->get_type() != Variant::INT) {
+		r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+		r_error.argument = 0;
+		r_error.expected = Variant::STRING;
+		return Variant();
+	}
+	 
+
+	for (uint32_t i = 2; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::TreeNodeExV(convertStringToChar((String)*p_args[0]), (int)*p_args[1],
+		convertStringToChar(arg), (char*)convertStringToChar(arg));
+	
+	r_error.error = Variant::CallError::CALL_OK;
+	return ImGui::TreeNodeExV(convertStringToChar((String)*p_args[0]), (int)*p_args[1],
+			convertStringToChar(arg), (char *)convertStringToChar(arg));
+}
+
+Variant native_imgui::TreeNodeV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+
+	if (!(p_argcount > 1) && p_args[0]->get_type() != Variant::STRING && p_args[0]->get_type() != Variant::INT) {
+		r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+		r_error.argument = 0;
+		r_error.expected = Variant::STRING;
+		return Variant();
+	}
+
+	for (uint32_t i = 2; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::TreeNodeV(convertStringToChar((String)*p_args[0]),
+			convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return ImGui::TreeNodeV(convertStringToChar((String)*p_args[0]),
+			convertStringToChar(arg), (char *)convertStringToChar(arg));
+}
+
+void native_imgui::TreePop() {
+	ImGui::TreePop();
+}
+
+void native_imgui::TreePush() {
+	ImGui::TreePush();
+}
+
+void native_imgui::Unindent(float width) {
+	ImGui::Unindent(width);
+}
+
+void native_imgui::Value(String prefix, unsigned int value) {
+	ImGui::Value(convertStringToChar(prefix), value);
+}
+
+float native_imgui::VSliderFloat(String label, Vector2 size, float val, float min, float max) {
+	return ImGui::VSliderFloat(convertStringToChar(label), Vector2ToImVec(size), &val, min, max);
+}
+
+int native_imgui::VSliderInt(String label, Vector2 size, int val, int min, int max) {
+	return ImGui::VSliderInt(convertStringToChar(label), Vector2ToImVec(size), &val, min, max);
+}
+ 
+ 
 void native_imgui::BulletText(String text) {
 	ImGui::BulletText(convertStringToChar(text));
 }
