@@ -53,7 +53,6 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupContextWindow", "str_id"), &native_imgui::BeginPopupContextWindow);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginPopupModal", "lable", "open"), &native_imgui::BeginPopupModal);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTabBar", "str_id"), &native_imgui::BeginTabBar);
-	ClassDB::bind_method(D_METHOD("ImGui_EndTabBar"), &native_imgui::EndTabBar);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTabBarItem", "label", "open"), &native_imgui::BeginTabBarItem);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTooltip"), &native_imgui::BeginTooltip);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginMenu"), &native_imgui::BeginMenu);
@@ -93,9 +92,12 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_End"), &native_imgui::End);
 	ClassDB::bind_method(D_METHOD("ImGui_EndFrame"), &native_imgui::EndFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_EndGroup"), &native_imgui::EndGroup);
+	ClassDB::bind_method(D_METHOD("ImGui_EndMenu"), &native_imgui::EndMenu);
+	ClassDB::bind_method(D_METHOD("ImGui_EndMainMenuBar"), &native_imgui::EndMainMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_GetClipBoardtext"), &native_imgui::GetClipboardText);
 	ClassDB::bind_method(D_METHOD("ImGui_GetColumnIndex"), &native_imgui::GetColumnIndex);
 	ClassDB::bind_method(D_METHOD("ImGui_GetID"), &native_imgui::GetID);
+	ClassDB::bind_method(D_METHOD("ImGui_EndTabBar"), &native_imgui::EndTabBar);
 	ClassDB::bind_method(D_METHOD("ImGui_Indent"), &native_imgui::Indent);
 	ClassDB::bind_method(D_METHOD("ImGui_InputDouble", "label", "value", "step", "fastStep", "format"), &native_imgui::InputDouble);
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat", "label", "value", "format"), &native_imgui::InputFloat);
@@ -141,7 +143,6 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_IsWindowCollapsed"), &native_imgui::IsWindowCollapsed);
 	ClassDB::bind_method(D_METHOD("ImGui_IsWindowFocused"), &native_imgui::IsWindowFocused);
 	ClassDB::bind_method(D_METHOD("ImGui_IsWindowHovered"), &native_imgui::IsWindowHovered);
-
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LabelText", &native_imgui::LabelText, MethodInfo("LabelText"));
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LabelTextV", &native_imgui::LabelTextV, MethodInfo("LabelTextV"));
 	ClassDB::bind_method(D_METHOD("ImGui_ListBox"), &native_imgui::ListBox); // Really broken, might not be fixable
@@ -151,6 +152,8 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_LogFinish"), &native_imgui::LogFinish);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LogText", &native_imgui::LogText, MethodInfo("LogText"));
 	ClassDB::bind_method(D_METHOD("ImGui_LogToClipboard"), &native_imgui::LogToClipboard);
+	ClassDB::bind_method(D_METHOD("ImGui_MenuItem", "label", "shortcut", "selected", "enabled"), &native_imgui::MenuItem);
+	ClassDB::bind_method(D_METHOD("ImGui_NewFrame"), &native_imgui::NewFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_NextColumn"), &native_imgui::NextColumn);
 	ClassDB::bind_method(D_METHOD("ImGui_OpenPopup"), &native_imgui::OpenPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_OpenPopupContextItem"), &native_imgui::OpenPopupContextItem);
@@ -219,11 +222,16 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowPos", "pos", "cond"), &native_imgui::SetWindowPos);
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowSize", "size", "cond"), &native_imgui::SetWindowSize);
 	ClassDB::bind_method(D_METHOD("ImGui_Text", "text"), &native_imgui::Text);
-	ClassDB::bind_method(D_METHOD("ImGui_NewFrame"), &native_imgui::NewFrame);
-	ClassDB::bind_method(D_METHOD("ImGui_MenuItem", "label", "shortcut", "selected", "enabled"), &native_imgui::MenuItem);
-	ClassDB::bind_method(D_METHOD("ImGui_EndMenu"), &native_imgui::EndMenu);
-	ClassDB::bind_method(D_METHOD("ImGui_EndMainMenuBar"), &native_imgui::EndMainMenuBar);
-
+	//ClassDB::bind_method(D_METHOD("ImGui_ShowFontSelector", "laber"), &native_imgui::ShowFontSelector);
+	ClassDB::bind_method(D_METHOD("ImGui_SliderAngle", "label", "rads"), &native_imgui::SliderAngle);
+	ClassDB::bind_method(D_METHOD("ImGui_SliderFloat", "label", "value", "min", "max"), &native_imgui::SliderFloat);
+	ClassDB::bind_method(D_METHOD("ImGui_SliderFloat2", "label", "value", "min", "max"), &native_imgui::SliderFloat2);
+	ClassDB::bind_method(D_METHOD("ImGui_SliderFloat3", "label", "value", "min", "max"), &native_imgui::SliderFloat3);
+	ClassDB::bind_method(D_METHOD("ImGui_SliderFloat4", "label", "value", "min", "max"), &native_imgui::SliderFloat4);
+	ClassDB::bind_method(D_METHOD("ImGui_SliderInt", "label", "value", "min", "max"), &native_imgui::SliderInt);
+	ClassDB::bind_method(D_METHOD("ImGui_SliderInt2", "label", "value", "min", "max"), &native_imgui::SliderInt2);
+	ClassDB::bind_method(D_METHOD("ImGui_SliderInt3", "label", "value", "min", "max"), &native_imgui::SliderInt3);
+	ClassDB::bind_method(D_METHOD("ImGui_SliderInt4", "label", "value", "min", "max"), &native_imgui::SliderInt4);
 	
 }
 
@@ -1027,6 +1035,60 @@ void native_imgui::SetWindowPos(Vector2 pos, int cond) {
 void native_imgui::SetWindowSize(Vector2 size, int cond) {
 	ImGui::SetWindowSize(Vector2ToImVec(size), cond);
 }
+
+void native_imgui::ShowFontSelector(String label) {
+	//ImGui::ShowFontSelector(convertStringToChar(label));
+}
+
+float native_imgui::SliderAngle(String label, float angle) {
+	ImGui::SliderAngle(convertStringToChar(label), &angle);
+	return angle;
+}
+
+float native_imgui::SliderFloat(String label, float value, float max, float min) {
+	return ImGui::SliderFloat(convertStringToChar(label), &value, min, max);
+}
+
+Vector2 native_imgui::SliderFloat2(String label, Vector2 values, float min, float max) {
+	float arr[2] = { values.x, values.y };
+	ImGui::SliderFloat2(convertStringToChar(label), arr, min, max);
+	return Vector2(arr[0], arr[1]);
+}
+
+Vector3 native_imgui::SliderFloat3(String label, Vector3 values, float min, float max) {
+	float arr[3] = { values.x, values.y, values.z };
+	ImGui::SliderFloat3(convertStringToChar(label), arr, min, max);
+	return Vector3(arr[0], arr[1], arr[2]);
+}
+
+Color native_imgui::SliderFloat4(String label, Color values, float min, float max) {
+	float arr[4] = { values.r, values.g, values.b, values.a };
+	ImGui::SliderFloat3(convertStringToChar(label), arr, min, max);
+	return Color(arr[0], arr[1], arr[2], arr[3]);
+}
+
+int native_imgui::SliderInt(String label, int val, int min, int max) {
+	return ImGui::SliderInt(convertStringToChar(label), &val, min, max);
+}
+
+Vector2 native_imgui::SliderInt2(String label, Vector2 val, int min, int max) {
+	int _arr[2] = {val.x, val.y};
+	ImGui::SliderInt2(convertStringToChar(label), _arr, min, max);
+	return Vector2(_arr[0], _arr[1]);
+}
+
+Vector3 native_imgui::SliderInt3(String label, Vector3 val, int min, int max) {
+	int _arr[3] = { val.x, val.y, val.z };
+	ImGui::SliderInt2(convertStringToChar(label), _arr, min, max);
+	return Vector3(_arr[0], _arr[1], _arr[2]);
+}
+
+Color native_imgui::SliderInt4(String label, Color val, int min, int max) {
+	int _arr[4] = { val.r, val.b, val.b, val.a };
+	ImGui::SliderInt2(convertStringToChar(label), _arr, min, max);
+	return Color(_arr[0], _arr[1], _arr[2]);
+}
+
 
 void native_imgui::Text(String text) {
 	ImGui::Text(convertStringToChar(text));

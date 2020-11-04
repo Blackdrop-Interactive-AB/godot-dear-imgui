@@ -38,7 +38,7 @@ class native_imgui : public Node2D {
 	/* Helper functions for conversion between libs */
 	bool handleButtonDic(String label, bool newState);
 	inline const char *convertStringToChar(String string);
-	inline ImVec2 Vector2ToImVec(const Vector2& vec);
+	inline ImVec2 Vector2ToImVec(const Vector2& vec); 
 	inline Vector2 ImVec2ToVector2(const ImVec2 &vec);
 	float valuesGetter(void *data, int idx);
 
@@ -217,6 +217,17 @@ public:
 	void SetWindowFontScale(float scale);
 	void SetWindowPos(Vector2 pos, int cond);
 	void SetWindowSize(Vector2 size, int cond);
+	void ShowFontSelector(String label);
+	float SliderAngle(String label, float angle);
+	float SliderFloat(String label, float value, float max, float min);
+	Vector2 SliderFloat2(String label, Vector2 values, float min, float max);
+	Vector3 SliderFloat3(String label, Vector3 values, float min, float max);
+	Color SliderFloat4(String label, Color values, float min, float max);
+	int SliderInt(String label, int val, int min, int max);
+	Vector2 SliderInt2(String label, Vector2 val, int min, int max);
+	Vector3 SliderInt3(String label, Vector3 val, int min, int max);
+	Color SliderInt4(String label, Color val, int min, int max);
+
 	void Text(String text);
 	void BulletText(String text);
 	void End();
