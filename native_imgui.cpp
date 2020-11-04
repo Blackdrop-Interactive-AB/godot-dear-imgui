@@ -33,6 +33,10 @@ inline Vector2 native_imgui::ImVec2ToVector2(const ImVec2 &vec) {
 	return Vector2(vec.x, vec.y);
 }
 
+inline Color native_imgui::ImVec4ToColor(const ImVec4 &vec) {
+	return Color(vec.x, vec.y, vec.z, vec.w);
+}
+
 float native_imgui::valuesGetter(void *data, int idx) {
 	float *_data = (float *)data;
 	return _data[idx];
@@ -83,7 +87,7 @@ void native_imgui::_bind_methods() {
 
 	Investigation needed.
 
-	*/
+	*/ 
 	ClassDB::bind_method(D_METHOD("ImGui_Dummy"), &native_imgui::Dummy);
 	ClassDB::bind_method(D_METHOD("ImGui_EndChildFrame"), &native_imgui::EndChildFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_EndChild"), &native_imgui::EndChild);
@@ -96,7 +100,52 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_EndMainMenuBar"), &native_imgui::EndMainMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_GetClipBoardtext"), &native_imgui::GetClipboardText);
 	ClassDB::bind_method(D_METHOD("ImGui_GetColumnIndex"), &native_imgui::GetColumnIndex);
+	ClassDB::bind_method(D_METHOD("ImGui_GetColumnOffset", "index"), &native_imgui::GetColumnOffset);
+	ClassDB::bind_method(D_METHOD("ImGui_GetColumnsCount", "index"), &native_imgui::GetColumnsCount);
+	ClassDB::bind_method(D_METHOD("ImGui_GetColumnWidth", "index"), &native_imgui::GetColumnWidth);
+	ClassDB::bind_method(D_METHOD("ImGui_GetContentRegionAvail"), &native_imgui::GetContentRegionAvail);
+	ClassDB::bind_method(D_METHOD("ImGui_GetContentRegionAvailWidth"), &native_imgui::GetContentRegionAvailWidth);
+	ClassDB::bind_method(D_METHOD("ImGui_GetContentRegionMax"), &native_imgui::GetContentRegionMax);
+	ClassDB::bind_method(D_METHOD("ImGui_GetCursorPos"), &native_imgui::GetCursorPos);
+	ClassDB::bind_method(D_METHOD("ImGui_GetCursorPosX"), &native_imgui::GetCursorPosX);
+	ClassDB::bind_method(D_METHOD("ImGui_GetCursorPosY"), &native_imgui::GetCursorPosY);
+	ClassDB::bind_method(D_METHOD("ImGui_GetCursorScreenPos"), &native_imgui::GetCursorScreenPos);
+	ClassDB::bind_method(D_METHOD("ImGui_GetCursorStartPos"), &native_imgui::GetCursorStartPos);
+	ClassDB::bind_method(D_METHOD("ImGui_GetFont"), &native_imgui::GetFont);
+	ClassDB::bind_method(D_METHOD("ImGui_GetFontSize"), &native_imgui::GetFontSize);
+	ClassDB::bind_method(D_METHOD("ImGui_GetFontTexUvWhitePixel"), &native_imgui::GetFontTexUvWhitePixel);
+	ClassDB::bind_method(D_METHOD("ImGui_GetFrameCount"), &native_imgui::GetFrameCount);
+	ClassDB::bind_method(D_METHOD("ImGui_GetFrameHeight"), &native_imgui::GetFrameHeight);
+	ClassDB::bind_method(D_METHOD("ImGui_GetFrameHeightWithSpacing"), &native_imgui::GetFrameHeightWithSpacing);
 	ClassDB::bind_method(D_METHOD("ImGui_GetID"), &native_imgui::GetID);
+	ClassDB::bind_method(D_METHOD("ImGui_GetItemRectMax"), &native_imgui::GetItemRectMax);
+	ClassDB::bind_method(D_METHOD("ImGui_GetItemRectMax"), &native_imgui::GetItemRectMin);
+	ClassDB::bind_method(D_METHOD("ImGui_GetItemRectMax"), &native_imgui::GetItemRectSize);
+	ClassDB::bind_method(D_METHOD("ImGui_GetKeyIndex"), &native_imgui::GetKeyIndex);
+	ClassDB::bind_method(D_METHOD("ImGui_GetKeyPressedAmount"), &native_imgui::GetKeyPressedAmount);
+	ClassDB::bind_method(D_METHOD("ImGui_GetMouseCursor"), &native_imgui::GetMouseCursor);
+	ClassDB::bind_method(D_METHOD("ImGui_GetMouseDragDelta"), &native_imgui::GetMouseDragDelta);
+	ClassDB::bind_method(D_METHOD("ImGui_GetMousePos"), &native_imgui::GetMousePos);
+	ClassDB::bind_method(D_METHOD("ImGui_GetMousePosOnOpeningCurrentPopup"),
+		&native_imgui::GetMousePosOnOpeningCurrentPopup);
+	ClassDB::bind_method(D_METHOD("ImGui_GetScrollMaxX"), &native_imgui::GetScrollMaxX);
+	ClassDB::bind_method(D_METHOD("ImGui_GetScrollMaxY"), &native_imgui::GetScrollMaxY);
+	ClassDB::bind_method(D_METHOD("ImGui_GetScrollX"), &native_imgui::GetScrollX);
+	ClassDB::bind_method(D_METHOD("ImGui_GetScrollY"), &native_imgui::GetScrollY);
+	ClassDB::bind_method(D_METHOD("ImGui_GetStyle"), &native_imgui::GetStyle);
+	ClassDB::bind_method(D_METHOD("ImGui_GetStyleColorName"), &native_imgui::GetStyleColorName);
+	ClassDB::bind_method(D_METHOD("ImGui_GetStyleColorVec4"), &native_imgui::GetStyleColorVec4);
+	ClassDB::bind_method(D_METHOD("ImGui_GetTextLineHeight"), &native_imgui::GetTextLineHeight);
+	ClassDB::bind_method(D_METHOD("ImGui_GetTextLineHeightWithSpacing"), &native_imgui::GetTextLineHeightWithSpacing);
+	ClassDB::bind_method(D_METHOD("ImGui_GetTime"), &native_imgui::GetTime);
+	ClassDB::bind_method(D_METHOD("ImGui_GetTreeNodeToLabelSpacing"), &native_imgui::GetTreeNodeToLabelSpacing);
+	ClassDB::bind_method(D_METHOD("ImGui_GetWindowContentRegionMax"), &native_imgui::GetWindowContentRegionMax);
+	ClassDB::bind_method(D_METHOD("ImGui_GetWindowContentRegionMin"), &native_imgui::GetWindowContentRegionMin);
+	ClassDB::bind_method(D_METHOD("ImGui_GetWindowContentRegionWidth"), &native_imgui::GetWindowContentRegionWidth);
+	ClassDB::bind_method(D_METHOD("ImGui_GetWindowWidth"), &native_imgui::GetWindowWidth);
+	ClassDB::bind_method(D_METHOD("ImGui_GetWindowHeight"), &native_imgui::GetWindowHeight);
+	ClassDB::bind_method(D_METHOD("ImGui_GetWindowPos"), &native_imgui::GetWindowPos);
+	ClassDB::bind_method(D_METHOD("ImGui_GetWindowSize"), &native_imgui::GetWindowSize); 
 	ClassDB::bind_method(D_METHOD("ImGui_EndTabBar"), &native_imgui::EndTabBar);
 	ClassDB::bind_method(D_METHOD("ImGui_Indent"), &native_imgui::Indent);
 	ClassDB::bind_method(D_METHOD("ImGui_InputDouble", "label", "value", "step", "fastStep", "format"), &native_imgui::InputDouble);
@@ -1458,6 +1507,184 @@ String native_imgui::GetClipboardText() {
 
 uint32_t native_imgui::GetColumnIndex() {
 	return ImGui::GetColumnIndex();
+}
+
+void native_imgui::GetColumnOffset(int index) {
+	ImGui::GetColumnOffset(index);
+}
+
+void native_imgui::GetColumnsCount() {
+	ImGui::GetColumnsCount();
+}
+
+void native_imgui::GetColumnWidth(int index) {
+	ImGui::GetColumnWidth(index);
+}
+
+Vector2 native_imgui::GetContentRegionAvail() {
+	return ImVec2ToVector2(ImGui::GetContentRegionAvail());
+}
+
+float native_imgui::GetContentRegionAvailWidth() {
+	return ImGui::GetContentRegionAvailWidth();
+}
+
+Vector2 native_imgui::GetContentRegionMax() {
+	return ImVec2ToVector2(ImGui::GetContentRegionMax());
+}
+
+Vector2 native_imgui::GetCursorPos() {
+	return ImVec2ToVector2(ImGui::GetCursorPos());
+}
+
+float native_imgui::GetCursorPosX() {
+	return ImGui::GetCursorPosX();
+}
+
+float native_imgui::GetCursorPosY() {
+	return ImGui::GetCursorPosY();
+}
+
+Vector2 native_imgui::GetCursorScreenPos() {
+	return ImVec2ToVector2(ImGui::GetCursorScreenPos());
+}
+
+Vector2 native_imgui::GetCursorStartPos() {
+	return ImVec2ToVector2(ImGui::GetCursorStartPos());
+}
+
+void native_imgui::GetFont() {
+	print_line("GET FONT NOT IMPLEMENTED");
+}
+
+float native_imgui::GetFontSize() {
+	return ImGui::GetFontSize();
+}
+
+Vector2 native_imgui::GetFontTexUvWhitePixel() {
+	return ImVec2ToVector2(ImGui::GetFontTexUvWhitePixel());
+}
+
+float native_imgui::GetFrameCount() {
+	return ImGui::GetFrameCount();
+}
+
+float native_imgui::GetFrameHeight() {
+	return ImGui::GetFrameHeight();
+}
+
+float native_imgui::GetFrameHeightWithSpacing() {
+	return ImGui::GetFrameHeightWithSpacing();
+}
+
+Vector2 native_imgui::GetItemRectMax() {
+	return ImVec2ToVector2(ImGui::GetItemRectMax());
+}
+
+Vector2 native_imgui::GetItemRectMin() {
+	return ImVec2ToVector2(ImGui::GetItemRectMin());
+}
+
+Vector2 native_imgui::GetItemRectSize() {
+	return ImVec2ToVector2(ImGui::GetItemRectSize());
+}
+
+int native_imgui::GetKeyIndex(int key) {
+	return ImGui::GetKeyIndex(key);
+}
+
+int native_imgui::GetKeyPressedAmount(int key, float repeat_delay, float rate) {
+	return ImGui::GetKeyPressedAmount(key, repeat_delay, rate);
+}
+
+int native_imgui::GetMouseCursor() {
+	return ImGui::GetMouseCursor();
+}
+
+Vector2 native_imgui::GetMouseDragDelta() {
+	return ImVec2ToVector2(ImGui::GetMouseDragDelta());
+}
+
+Vector2 native_imgui::GetMousePos() {
+	return ImVec2ToVector2(ImGui::GetMousePos());
+}
+
+Vector2 native_imgui::GetMousePosOnOpeningCurrentPopup() {
+	return ImVec2ToVector2(ImGui::GetMousePosOnOpeningCurrentPopup());
+}
+
+float native_imgui::GetScrollMaxX() {
+	return ImGui::GetScrollMaxX();
+}
+
+float native_imgui::GetScrollMaxY() {
+	return ImGui::GetScrollMaxY();
+}
+
+float native_imgui::GetScrollX() {
+	return ImGui::GetScrollX();
+}
+
+float native_imgui::GetScrollY() {
+	return ImGui::GetScrollY();
+}
+
+int native_imgui::GetStyle() {
+	print_line("GetStyle not implemented");
+	return 0;
+	 //ImGui::GetStyle();
+}
+
+String native_imgui::GetStyleColorName(int idx) {
+	return String(ImGui::GetStyleColorName(idx));
+}
+
+Color native_imgui::GetStyleColorVec4(int idx) {
+	return ImVec4ToColor(ImGui::GetStyleColorVec4(idx));
+}
+
+float native_imgui::GetTextLineHeight() {
+	return ImGui::GetTextLineHeight();
+}
+
+float native_imgui::GetTextLineHeightWithSpacing() {
+	return ImGui::GetTextLineHeightWithSpacing();
+}
+
+float native_imgui::GetTime() {
+	return ImGui::GetTime();
+}
+
+float native_imgui::GetTreeNodeToLabelSpacing() {
+	return ImGui::GetTreeNodeToLabelSpacing();
+}
+
+Vector2 native_imgui::GetWindowContentRegionMax() {
+	return ImVec2ToVector2(ImGui::GetWindowContentRegionMax());
+}
+
+Vector2 native_imgui::GetWindowContentRegionMin() {
+	return ImVec2ToVector2(ImGui::GetWindowContentRegionMin());
+}
+
+float native_imgui::GetWindowContentRegionWidth() {
+	return ImGui::GetWindowContentRegionWidth();
+}
+
+float native_imgui::GetWindowHeight() {
+	return ImGui::GetWindowHeight();
+}
+
+float native_imgui::GetWindowWidth() {
+	return ImGui::GetWindowWidth();
+}
+
+Vector2 native_imgui::GetWindowPos() {
+	return ImVec2ToVector2(ImGui::GetWindowPos());
+}
+
+Vector2 native_imgui::GetWindowSize() {
+	return ImVec2ToVector2(ImGui::GetWindowSize());
 }
 
 int native_imgui::GetID(String id) {
