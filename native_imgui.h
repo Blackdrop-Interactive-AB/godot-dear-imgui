@@ -19,7 +19,6 @@ class native_imgui : public Node2D {
 	uint32_t *fontTextureId = nullptr;
 	Image img;
 	ImageTexture imgtex;
-	RID newChild; // unused
 	
 	ArrayMesh mesh;
 	
@@ -32,11 +31,13 @@ class native_imgui : public Node2D {
 
 	Dictionary buttonDict;
 	Dictionary floatDict;
+	Dictionary Rect;
 
 	String input;
 
 	/* Helper functions for conversion between libs */
 	bool handleButtonDic(String label, bool newState);
+
 	inline const char *convertStringToChar(String string);
 	inline ImVec2 Vector2ToImVec(const Vector2& vec); 
 	inline Vector2 ImVec2ToVector2(const ImVec2 &vec);

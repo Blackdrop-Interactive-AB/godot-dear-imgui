@@ -328,12 +328,16 @@ Vector<Array> native_imgui::extract_imgui_data() {
 	ImDrawData *draw_dat = ImGui::GetDrawData();
  
 	draw_dat->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
-	
+	for (uint32_t i = 0; i < children.size(); i++)
+		VisualServer->free(children[i]);
+
+	children.clear();
+
 	Vector<Array> arrays;
 	// How many meshes
 	for (uint32_t i = 0; i < draw_dat->CmdListsCount; i++) {
 		ImDrawList * list = draw_dat->CmdLists[i];
-
+ 
 		Array temp;
 		temp.resize(ArrayMesh::ARRAY_MAX);
 		
@@ -344,9 +348,14 @@ Vector<Array> native_imgui::extract_imgui_data() {
 		Vector<int> indices;
 
 		for (uint32_t j = 0; j < list->CmdBuffer.Size; j++) {
+			RID child = VisualServer->canvas_item_create();
+			VisualServer->canvas_item_set_parent(child, get_canvas_item());
+			children.push_back(child);
 			// This is just temp fix, we need to smash this into a container along with the Array, probably a dict is needed
 			ImDrawCmd drawCmd = list->CmdBuffer[j];
-			VisualServer->canvas_item_set_custom_rect(get_canvas_item(), true, Rect2(drawCmd.ClipRect.x, drawCmd.ClipRect.y, drawCmd.ClipRect.z - drawCmd.ClipRect.x, drawCmd.ClipRect.w - drawCmd.ClipRect.y));
+			VisualServer->canvas_item_set_custom_rect(child, true, Rect2(drawCmd.ClipRect.x,
+				drawCmd.ClipRect.y, drawCmd.ClipRect.z - drawCmd.ClipRect.x,
+				drawCmd.ClipRect.w - drawCmd.ClipRect.y));
 		}
 
 		// Extract information regarding verticies
@@ -394,18 +403,58 @@ void native_imgui::draw() {
 	}
 	 
 	Vector<Array> arrays = extract_imgui_data();
+	
+
 	for (uint32_t i = 0; i < arrays.size(); i++) {
 		Vector<Color> temp = arrays[i][ArrayMesh::ARRAY_COLOR];
 		mesh.add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, arrays[i]);
 
 		// This does not clear the backbuffer
-		VisualServer->canvas_item_clear(get_canvas_item());
+		VisualServer->canvas_item_clear(children[i]);
 	  
-		VisualServer->canvas_item_set_clip(get_canvas_item(), true); 
+		VisualServer->canvas_item_set_clip(children[i], true); 
 
 		// This adds the canvas to the rendering queue.
-		VisualServer->canvas_item_add_mesh(get_canvas_item(), mesh.get_rid(), Transform2D(), Color(), imgtex.get_rid());
+		VisualServer->canvas_item_add_mesh(children[i], mesh.get_rid(), Transform2D(), Color(), imgtex.get_rid());
 	}
+}
+
+void native_imgui::RebuildFontAtlas() {
+}
+
+native_imgui::native_imgui() {
+	this->VisualServer = VisualServer::get_singleton();
+	context = ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO();
+	io.BackendFlags = 0;
+	//ImGui::SetCurrentContext(context);
+	//ImGui::StyleColorsDark();
+
+	io.Fonts->AddFontDefault();
+	io.MouseDrawCursor = false;
+
+	int width, height, bytesPerPixel;
+	unsigned char *pixels = NULL;
+	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
+
+	PoolByteArray textureDataRaw;
+
+	for (uint32_t i = 0; i < width * height * bytesPerPixel; i++) {
+		textureDataRaw.push_back(pixels[i]);
+	}
+
+	Image img(width, height, false, Image::Format::FORMAT_RGBA8, textureDataRaw);
+
+	imgtex.create_from_image(img.duplicate(), 0);
+
+	io.Fonts->TexID = ImTextureID(100);
+
+	io.Fonts->ClearTexData();
+
+	io.DisplaySize.x = GLOBAL_GET("display/window/size/width"); // set the current display width
+	io.DisplaySize.y = GLOBAL_GET("display/window/size/height"); // set current display height
+
+	input.resize(64); // Maximum size of input
 }
 
 void native_imgui::setvalue(String field, RID parent) {
@@ -1746,44 +1795,4 @@ Color native_imgui::ColorEdit4(String label, Color vec) {
 	ImGui::ColorEdit4(convertStringToChar(label), _vec);
 
 	return Color(_vec[0], _vec[1], _vec[2], 1.0);
-}
-
-void native_imgui::RebuildFontAtlas() {
-
-
-}
-
-native_imgui::native_imgui() {
-	this->VisualServer = VisualServer::get_singleton();
-	context = ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO();
-	ImGui::SetCurrentContext(context);
-	ImGui::StyleColorsDark();
-	io.Fonts->AddFontDefault();
-	io.MouseDrawCursor = true;
-	io.BackendFlags = 0; 
-
-	int width, height, bytesPerPixel;
-	unsigned char *pixels = NULL;
-	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
-
-	PoolByteArray textureDataRaw;
-
-	for (uint32_t i = 0; i < width * height * bytesPerPixel; i++) {
-		textureDataRaw.push_back(pixels[i]);
-	}
-
-	Image img(width, height, false, Image::Format::FORMAT_RGBA8, textureDataRaw); 
-
-	imgtex.create_from_image(img.duplicate(), 0);
-
-	io.Fonts->TexID = ImTextureID(100);
-
-	io.Fonts->ClearTexData();
-
-
-	io.DisplaySize.x = GLOBAL_GET("display/window/size/width"); // set the current display width
-	io.DisplaySize.y = GLOBAL_GET("display/window/size/height"); // set current display height
-
-	input.resize(64); // Maximum size of input 
 }
