@@ -8,7 +8,9 @@
 #include "core/reference.h"
 
 #include "../../servers/visual_server.h"
-
+#include "../../core/os/keyboard.h"
+#include "../../core/os/os.h"
+#include "../../core/os/input.h"
 #include "core/vector.h"
 #include "scene/2d/node_2d.h"
  
@@ -45,6 +47,7 @@ class native_imgui : public Node2D {
 	inline Vector2 ImVec2ToVector2(const ImVec2 &vec);
 	inline Color ImVec4ToColor(const ImVec4 &vec);
 	float valuesGetter(void *data, int idx);
+	unsigned int FixKey(KeyList kc);
 
 protected:
 	static void _bind_methods();

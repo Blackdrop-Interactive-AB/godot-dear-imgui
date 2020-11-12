@@ -1,7 +1,6 @@
 #include "native_imgui.h"
 #include "scene/resources/mesh.h"
-#include "../../core/os/os.h"
-#include "../../core/os/input.h"
+
 
 bool native_imgui::handleButtonDic(String label, bool newState) {
 	bool oldState;
@@ -41,6 +40,13 @@ float native_imgui::valuesGetter(void *data, int idx) {
 	float *_data = (float *)data;
 	return _data[idx];
 	get_viewport();
+}
+
+unsigned int native_imgui::FixKey(KeyList kc) {
+	if ((int)kc < 256)
+		return (int)kc;
+	else
+		return 256 + (kc & 0xFF);
 }
 
 
@@ -312,6 +318,12 @@ void native_imgui::process_imgui() {
 	ImGuiIO &io = ImGui::GetIO();
 	Input * input = Input::get_singleton();
 
+	io.KeysDown[FixKey(KeyList::KEY_CONTROL)] = input->is_key_pressed((int)KeyList::KEY_CONTROL);
+	io.KeysDown[FixKey(KeyList::KEY_ALT)] = input->is_key_pressed((int)KeyList::KEY_ALT);
+	io.KeysDown[FixKey(KeyList::KEY_BACKSPACE)] = input->is_key_pressed((int)KeyList::KEY_BACKSPACE); 
+	io.KeysDown[FixKey(KeyList::KEY_ENTER)] = input->is_key_pressed((int)KeyList::KEY_ENTER); 
+
+
 	Vector2 godot_mouse_pos = OS::get_singleton()->get_mouse_position();
 
 	ImVec2 mousePos(godot_mouse_pos.x, godot_mouse_pos.y);
@@ -335,9 +347,16 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 
 	if (_evt != nullptr && _evt->is_pressed() /* Pressed */) {
 		unsigned int code = (unsigned int)_evt->get_scancode();
-		io.AddInputCharacter(code);
+
+		if (code < 256) {
+			io.AddInputCharacter(code);
+		} else {
+			code = FixKey((KeyList)code);
+			io.KeysDown[code] = _evt->is_pressed();
+		}
+
 		get_tree()->set_input_as_handled();
-		print_line("I got input");
+		return true;
 	}
  
 	return false;
@@ -476,6 +495,30 @@ native_imgui::native_imgui() {
 
 	io.DisplaySize.x = GLOBAL_GET("display/window/size/width"); // set the current display width
 	io.DisplaySize.y = GLOBAL_GET("display/window/size/height"); // set current display height
+
+	io.KeyMap[(int)ImGuiKey_Tab] =			FixKey(KeyList::KEY_TAB);
+	io.KeyMap[(int)ImGuiKey_LeftArrow] =	FixKey(KeyList::KEY_LEFT);
+	io.KeyMap[(int)ImGuiKey_RightArrow] =	FixKey(KeyList::KEY_RIGHT);
+	io.KeyMap[(int)ImGuiKey_UpArrow] =		FixKey(KeyList::KEY_UP);
+	io.KeyMap[(int)ImGuiKey_DownArrow] =	FixKey(KeyList::KEY_DOWN);
+	io.KeyMap[(int)ImGuiKey_PageUp] =		FixKey(KeyList::KEY_PAGEUP);
+	io.KeyMap[(int)ImGuiKey_PageDown] =		FixKey(KeyList::KEY_PAGEDOWN);
+	io.KeyMap[(int)ImGuiKey_Home] =			FixKey(KeyList::KEY_HOME);
+	io.KeyMap[(int)ImGuiKey_End] =			FixKey(KeyList::KEY_END);
+	io.KeyMap[(int)ImGuiKey_Insert] =		FixKey(KeyList::KEY_INSERT);
+	io.KeyMap[(int)ImGuiKey_Delete] =		FixKey(KeyList::KEY_DELETE);
+	io.KeyMap[(int)ImGuiKey_Backspace] =	FixKey(KeyList::KEY_BACKSPACE);
+	io.KeyMap[(int)ImGuiKey_Space] =		FixKey(KeyList::KEY_SPACE);
+	io.KeyMap[(int)ImGuiKey_Enter] =		FixKey(KeyList::KEY_ENTER);
+	io.KeyMap[(int)ImGuiKey_Escape] =		FixKey(KeyList::KEY_ESCAPE);
+	io.KeyMap[(int)ImGuiKey_KeyPadEnter] =	FixKey(KeyList::KEY_KP_ENTER);
+	io.KeyMap[(int)ImGuiKey_A] =			FixKey(KeyList::KEY_A);
+	io.KeyMap[(int)ImGuiKey_C] =			FixKey(KeyList::KEY_C);
+	io.KeyMap[(int)ImGuiKey_V] =			FixKey(KeyList::KEY_V);
+	io.KeyMap[(int)ImGuiKey_X] =			FixKey(KeyList::KEY_X);
+	io.KeyMap[(int)ImGuiKey_Y] =			FixKey(KeyList::KEY_Y);
+	io.KeyMap[(int)ImGuiKey_Z] =			FixKey(KeyList::KEY_Z);
+
 
 	input.resize(64); // Maximum size of input
 } 
