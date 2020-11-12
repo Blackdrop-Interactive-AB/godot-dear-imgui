@@ -11,8 +11,10 @@
 
 #include "core/vector.h"
 #include "scene/2d/node_2d.h"
+ 
 
 class native_imgui : public Node2D {
+	// BIND_ENUM_CONSTANT
 	GDCLASS(native_imgui, Node2D);
 
 	int count;
@@ -51,7 +53,8 @@ protected:
 	void draw();
 
 
-public:
+public: 
+	virtual bool _input(const Ref<InputEvent> &evt);
 	void RebuildFontAtlas();
 	native_imgui();
 

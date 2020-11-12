@@ -1,7 +1,7 @@
 #include "native_imgui.h"
 #include "scene/resources/mesh.h"
 #include "../../core/os/os.h"
-
+#include "../../core/os/input.h"
 
 bool native_imgui::handleButtonDic(String label, bool newState) {
 	bool oldState;
@@ -40,10 +40,12 @@ inline Color native_imgui::ImVec4ToColor(const ImVec4 &vec) {
 float native_imgui::valuesGetter(void *data, int idx) {
 	float *_data = (float *)data;
 	return _data[idx];
+	get_viewport();
 }
 
 
 void native_imgui::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("input", "event"), &native_imgui::_input);
 	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton", "label", "int dir"), &native_imgui::ArrowButton);
 	ClassDB::bind_method(D_METHOD("ImGui_Begin", "name", "open"), &native_imgui::Begin);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginChild", "ImGuiID", "size", "border"), &native_imgui::BeginChild);
@@ -308,8 +310,10 @@ void native_imgui::_bind_methods() {
 
 void native_imgui::process_imgui() {
 	ImGuiIO &io = ImGui::GetIO();
+	Input * input = Input::get_singleton();
 
 	Vector2 godot_mouse_pos = OS::get_singleton()->get_mouse_position();
+
 	ImVec2 mousePos(godot_mouse_pos.x, godot_mouse_pos.y);
 
 	io.MousePos = mousePos;
@@ -322,13 +326,29 @@ void native_imgui::process_imgui() {
 	 
 	draw();
 }
+
+bool native_imgui::_input(const Ref<InputEvent> &evt) {
+	// This is a temp fix until we can get a proper callback
+	ImGuiIO &io = ImGui::GetIO();
+	const InputEventKey *_evt = dynamic_cast<const InputEventKey*>(evt.ptr());
+	InputEvent evttt;
+
+	if (_evt != nullptr && _evt->is_pressed() /* Pressed */) {
+		unsigned int code = (unsigned int)_evt->get_scancode();
+		io.AddInputCharacter(code);
+		get_tree()->set_input_as_handled();
+		print_line("I got input");
+	}
  
+	return false;
+}
+
 
 Vector<Array> native_imgui::extract_imgui_data() {
 	ImDrawData *draw_dat = ImGui::GetDrawData();
  
 	draw_dat->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
-	for (uint32_t i = 0; i < children.size(); i++)
+	for (uint32_t i = 0; i < children.size(); i++)// This is silly, I'm aware
 		VisualServer->free(children[i]);
 
 	children.clear();
@@ -348,10 +368,11 @@ Vector<Array> native_imgui::extract_imgui_data() {
 		Vector<int> indices;
 
 		for (uint32_t j = 0; j < list->CmdBuffer.Size; j++) {
+			// We want to touch this up, make so that it's not creating new kids every frame
 			RID child = VisualServer->canvas_item_create();
 			VisualServer->canvas_item_set_parent(child, get_canvas_item());
 			children.push_back(child);
-			// This is just temp fix, we need to smash this into a container along with the Array, probably a dict is needed
+
 			ImDrawCmd drawCmd = list->CmdBuffer[j];
 			VisualServer->canvas_item_set_custom_rect(child, true, Rect2(drawCmd.ClipRect.x,
 				drawCmd.ClipRect.y, drawCmd.ClipRect.z - drawCmd.ClipRect.x,
@@ -403,6 +424,7 @@ void native_imgui::draw() {
 	}
 	 
 	Vector<Array> arrays = extract_imgui_data();
+
 	
 
 	for (uint32_t i = 0; i < arrays.size(); i++) {
@@ -418,6 +440,7 @@ void native_imgui::draw() {
 		VisualServer->canvas_item_add_mesh(children[i], mesh.get_rid(), Transform2D(), Color(), imgtex.get_rid());
 	}
 }
+ 
 
 void native_imgui::RebuildFontAtlas() {
 }
@@ -455,7 +478,7 @@ native_imgui::native_imgui() {
 	io.DisplaySize.y = GLOBAL_GET("display/window/size/height"); // set current display height
 
 	input.resize(64); // Maximum size of input
-}
+} 
 
 void native_imgui::setvalue(String field, RID parent) {
 
@@ -613,12 +636,19 @@ float native_imgui::InputScalar(String label, unsigned int datatype,  int val, u
 }
 
 String native_imgui::InputText(String label, String val, unsigned int size) {
-	input = val;
+	char *test = memnew_arr(char, 64);
 
-	ImGui::InputText(convertStringToChar(label), (char*)convertStringToChar(input), 64);
+	for (uint32_t i = 0; i < val.size(); i++)
+		test[i] = val[i];
+
+	test[val.size()] = '\0';
+
+	ImGui::InputText(convertStringToChar(label), test, 64);
 
 
-	return String(input);
+	val = test;
+	memdelete_arr(test);
+	return  val;
 }
 
 String native_imgui::InputTextMultiline(String label, String val, unsigned int buf_size, Vector2 size) {
