@@ -56,7 +56,12 @@ protected:
 	void draw();
 
 
-public: 
+public:
+	enum test {
+		test2,
+		test3
+	};
+
 	virtual bool _input(const Ref<InputEvent> &evt);
 	void RebuildFontAtlas();
 	native_imgui();
@@ -76,8 +81,10 @@ public:
 	bool BeginPopupContextItem(String str_id);
 	bool BeginPopupContexVoid(String str_id);
 	bool BeginPopupContextWindow(String str_id);
+	bool BeginMenuBar();
 	void BeginGroup(); // Assertion failed: window->Flags & ImGuiWindowFlags_Popup
 	void EndGroup();
+	void EndMenuBar();
 	bool BeginPopupModal(String label, bool open); // problem med flags
 	bool BeginTabBar(String str_id); // Assertion failed: window->Flags & ImGuiWindowFlags_Popup
 	bool BeginTabBarItem(String label, bool open);
@@ -301,7 +308,7 @@ public:
 	float VSliderFloat(String label, Vector2 size, float val, float min, float max);
 	int VSliderInt(String label, Vector2 size, int val, int min, int max);
 
-	void BulletText(String text);
+	Variant BulletText(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	void End();
 	void Separator();
 	void Render();
@@ -312,10 +319,38 @@ public:
 	void EndMainMenuBar();
 	void EndMenu();
 	bool MenuItem(String label, String shortcut, bool  selected, bool enabled);
-	void SameLine();
+	void SameLine(float offset_from_start, float spacing);
 	//float DragFloat(String label, float value, float speed, float min, float max, String format, float power); // Too many args for bind_method
 	bool ArrowButton(String label, int dir);
 	void Bullet();
 };
+
+
+VARIANT_ENUM_CAST(ImGuiWindowFlags_);
+VARIANT_ENUM_CAST(ImGuiInputTextFlags_);
+VARIANT_ENUM_CAST(ImGuiTreeNodeFlags_);
+VARIANT_ENUM_CAST(ImGuiPopupFlags_);
+VARIANT_ENUM_CAST(ImGuiSelectableFlags_);
+VARIANT_ENUM_CAST(ImGuiComboFlags_);
+VARIANT_ENUM_CAST(ImGuiTabBarFlags_);
+VARIANT_ENUM_CAST(ImGuiTabItemFlags_);
+VARIANT_ENUM_CAST(ImGuiHoveredFlags_);
+VARIANT_ENUM_CAST(ImGuiFocusedFlags_);
+VARIANT_ENUM_CAST(ImGuiDragDropFlags_);
+VARIANT_ENUM_CAST(ImGuiDataType_);
+VARIANT_ENUM_CAST(ImGuiDir_);
+VARIANT_ENUM_CAST(ImGuiKey_)
+VARIANT_ENUM_CAST(ImGuiKeyModFlags_)
+VARIANT_ENUM_CAST(ImGuiNavInput_)
+VARIANT_ENUM_CAST(ImGuiConfigFlags_)
+VARIANT_ENUM_CAST(ImGuiBackendFlags_)
+VARIANT_ENUM_CAST(ImGuiCol_)
+VARIANT_ENUM_CAST(ImGuiStyleVar_)
+VARIANT_ENUM_CAST(ImGuiButtonFlags_)
+VARIANT_ENUM_CAST(ImGuiColorEditFlags_)
+VARIANT_ENUM_CAST(ImGuiSliderFlags_)
+VARIANT_ENUM_CAST(ImGuiMouseButton_)
+VARIANT_ENUM_CAST(ImGuiMouseCursor_)
+VARIANT_ENUM_CAST(ImGuiCond_)
 
 #endif

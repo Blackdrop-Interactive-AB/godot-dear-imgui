@@ -3,8 +3,7 @@
 
 
 bool native_imgui::handleButtonDic(String label, bool newState) {
-	bool oldState;
-
+	bool oldState; 
 	if (buttonDict.has(label)) {
 		oldState = buttonDict[label];
 
@@ -68,9 +67,10 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTabBarItem", "label", "open"), &native_imgui::BeginTabBarItem);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginTooltip"), &native_imgui::BeginTooltip);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginMenu"), &native_imgui::BeginMenu);
+	ClassDB::bind_method(D_METHOD("ImGui_BeginMenuBar"), &native_imgui::BeginMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginMainMenuBar"), &native_imgui::BeginMainMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_Bullet"), &native_imgui::Bullet);
-	ClassDB::bind_method(D_METHOD("ImGui_BulletText", "text"), &native_imgui::BulletText);
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletText", &native_imgui::BulletTextV, MethodInfo("BulletText"));
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletTextV", &native_imgui::BulletTextV, MethodInfo("BulletTextV"));
 	ClassDB::bind_method(D_METHOD("ImGui_CalcListClipping", "item count", "item height"), &native_imgui::CalcListClipping);
 	ClassDB::bind_method(D_METHOD("ImGui_CalcTextSize", "text", "end char"), &native_imgui::CalcTextSize);
@@ -78,7 +78,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_CaptureMouseFromApp", "bool"), &native_imgui::CaptureMouseFromApp);
 	ClassDB::bind_method(D_METHOD("ImGui_CheckboxFlags", "label"), &native_imgui::CheckboxFlags);
 	ClassDB::bind_method(D_METHOD("ImGui_CollapsingHeader", "label"), &native_imgui::CollapsingHeader);
-	ClassDB::bind_method(D_METHOD("ImGui_CheckBox", "label", "value"), &native_imgui::CheckBox);
+	ClassDB::bind_method(D_METHOD("ImGui_Checkbox", "label", "value"), &native_imgui::CheckBox);
 	ClassDB::bind_method(D_METHOD("ImGui_CloseCurrentPopup"), &native_imgui::CloseCurrentPopup);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorButton", "desc_id", "color"), &native_imgui::ColorButton);
 	ClassDB::bind_method(D_METHOD("ImGui_CalcItemWidth"), &native_imgui::CalcItemWidth);
@@ -95,7 +95,7 @@ void native_imgui::_bind_methods() {
 
 	Investigation needed.
 
-	*/ 
+	*/
 	ClassDB::bind_method(D_METHOD("ImGui_Dummy"), &native_imgui::Dummy);
 	ClassDB::bind_method(D_METHOD("ImGui_EndChildFrame"), &native_imgui::EndChildFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_EndChild"), &native_imgui::EndChild);
@@ -105,6 +105,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_EndFrame"), &native_imgui::EndFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_EndGroup"), &native_imgui::EndGroup);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMenu"), &native_imgui::EndMenu);
+	ClassDB::bind_method(D_METHOD("ImGui_EndMenuBar"), &native_imgui::EndMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_EndMainMenuBar"), &native_imgui::EndMainMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_GetClipBoardtext"), &native_imgui::GetClipboardText);
 	ClassDB::bind_method(D_METHOD("ImGui_GetColumnIndex"), &native_imgui::GetColumnIndex);
@@ -311,7 +312,397 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_Unindent", "width"), &native_imgui::Unindent);
 	ClassDB::bind_method(D_METHOD("ImGui_Value", "id", "value"), &native_imgui::Value);	
 	ClassDB::bind_method(D_METHOD("ImGui_VSliderFloat", "label", "size" "value", "min", "max"), &native_imgui::VSliderFloat);
-	ClassDB::bind_method(D_METHOD("ImGui_VSliderInt", "label", "size", "value", "min", "max"), &native_imgui::VSliderInt); 
+	ClassDB::bind_method(D_METHOD("ImGui_VSliderInt", "label", "size", "value", "min", "max"), &native_imgui::VSliderInt);
+
+
+	// ImGuiWindowFlags_
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoTitleBar)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoResize)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoMove)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoScrollbar)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoScrollWithMouse)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoCollapse)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_AlwaysAutoResize)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoBackground)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoSavedSettings)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoMouseInputs)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_MenuBar)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_HorizontalScrollbar)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoFocusOnAppearing)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoBringToFrontOnFocus)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_AlwaysVerticalScrollbar)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_AlwaysHorizontalScrollbar)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_AlwaysUseWindowPadding)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoNavInputs)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoNavFocus)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_UnsavedDocument)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoNav)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoDecoration)
+	BIND_ENUM_CONSTANT(ImGuiWindowFlags_NoInputs)
+
+	// ImGuiInputTextFlags_
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CharsDecimal)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CharsHexadecimal)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CharsUppercase)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CharsNoBlank)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_AutoSelectAll)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_EnterReturnsTrue)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CallbackCompletion)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CallbackHistory)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CallbackAlways)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CallbackCharFilter)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_AllowTabInput)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CtrlEnterForNewLine)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_NoHorizontalScroll)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_AlwaysInsertMode)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_ReadOnly)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_Password)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_NoUndoRedo)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CharsScientific)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CallbackResize)
+	BIND_ENUM_CONSTANT(ImGuiInputTextFlags_CallbackEdit)
+
+	//ImGuiTreeNodeFlags_
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_Selected)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_Framed)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_AllowItemOverlap)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_NoTreePushOnOpen)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_NoAutoOpenOnLog)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_DefaultOpen)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_OpenOnDoubleClick)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_OpenOnArrow)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_Leaf)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_Bullet)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_FramePadding)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_SpanAvailWidth)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_SpanFullWidth)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_NavLeftJumpsBackHere)
+	BIND_ENUM_CONSTANT(ImGuiTreeNodeFlags_CollapsingHeader)
+
+	// ImGuiPopupFlags_
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_MouseButtonLeft)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_MouseButtonRight)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_MouseButtonMiddle)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_MouseButtonMask_)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_MouseButtonDefault_)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_NoOpenOverExistingPopup)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_NoOpenOverItems)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_AnyPopupId)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_AnyPopupLevel)
+	BIND_ENUM_CONSTANT(ImGuiPopupFlags_AnyPopup)
+
+	// ImGuiSelectableFlags_
+	BIND_ENUM_CONSTANT(ImGuiSelectableFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiSelectableFlags_DontClosePopups)
+	BIND_ENUM_CONSTANT(ImGuiSelectableFlags_SpanAllColumns)
+	BIND_ENUM_CONSTANT(ImGuiSelectableFlags_AllowDoubleClick)
+	BIND_ENUM_CONSTANT(ImGuiSelectableFlags_Disabled)
+	BIND_ENUM_CONSTANT(ImGuiSelectableFlags_AllowItemOverlap)
+
+	// ImGuiComboFlags_
+	BIND_ENUM_CONSTANT(ImGuiComboFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiComboFlags_PopupAlignLeft)
+	BIND_ENUM_CONSTANT(ImGuiComboFlags_HeightSmall)
+	BIND_ENUM_CONSTANT(ImGuiComboFlags_HeightRegular)
+	BIND_ENUM_CONSTANT(ImGuiComboFlags_HeightLarge)
+	BIND_ENUM_CONSTANT(ImGuiComboFlags_HeightLargest)
+	BIND_ENUM_CONSTANT(ImGuiComboFlags_NoArrowButton)
+	BIND_ENUM_CONSTANT(ImGuiComboFlags_NoPreview)
+	BIND_ENUM_CONSTANT(ImGuiComboFlags_HeightMask_)
+
+	// ImGuiTabBarFlags_
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_Reorderable)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_AutoSelectNewTabs)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_TabListPopupButton)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_NoTabListScrollingButtons)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_NoTooltip)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_FittingPolicyResizeDown)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_FittingPolicyScroll)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_FittingPolicyMask_)
+	BIND_ENUM_CONSTANT(ImGuiTabBarFlags_FittingPolicyDefault_)
+
+	// ImGuiTabItemFlags_
+	BIND_ENUM_CONSTANT(ImGuiTabItemFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiTabItemFlags_UnsavedDocument)
+	BIND_ENUM_CONSTANT(ImGuiTabItemFlags_SetSelected)
+	BIND_ENUM_CONSTANT(ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)
+	BIND_ENUM_CONSTANT(ImGuiTabItemFlags_NoPushId)
+	BIND_ENUM_CONSTANT(ImGuiTabItemFlags_NoTooltip)
+	BIND_ENUM_CONSTANT(ImGuiTabItemFlags_NoReorder)
+	BIND_ENUM_CONSTANT(ImGuiTabItemFlags_Leading)
+	BIND_ENUM_CONSTANT(ImGuiTabItemFlags_Trailing)
+
+	// ImGuiFocusedFlags_
+	BIND_ENUM_CONSTANT(ImGuiFocusedFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiFocusedFlags_ChildWindows)
+	BIND_ENUM_CONSTANT(ImGuiFocusedFlags_RootWindow)
+	BIND_ENUM_CONSTANT(ImGuiFocusedFlags_AnyWindow)
+	BIND_ENUM_CONSTANT(ImGuiFocusedFlags_RootAndChildWindows)
+
+	// ImGuiHoveredFlags_
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_ChildWindows)
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_RootWindow)
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_AnyWindow)
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_AllowWhenBlockedByPopup)
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem)
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_AllowWhenOverlapped)
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_AllowWhenDisabled)
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_RectOnly)
+	BIND_ENUM_CONSTANT(ImGuiHoveredFlags_RootAndChildWindows)
+
+	// ImGuiDragDropFlags_
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_SourceNoPreviewTooltip)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_SourceNoDisableHover)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_SourceNoHoldToOpenOthers)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_SourceAllowNullID)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_SourceExtern)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_SourceAutoExpirePayload)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_AcceptBeforeDelivery)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_AcceptNoDrawDefaultRect)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_AcceptNoPreviewTooltip)
+	BIND_ENUM_CONSTANT(ImGuiDragDropFlags_AcceptPeekOnly)
+
+	// ImGuiDataType_
+	BIND_ENUM_CONSTANT(ImGuiDataType_S8)
+	BIND_ENUM_CONSTANT(ImGuiDataType_U8)
+	BIND_ENUM_CONSTANT(ImGuiDataType_S16)
+	BIND_ENUM_CONSTANT(ImGuiDataType_U16)
+	BIND_ENUM_CONSTANT(ImGuiDataType_S32)
+	BIND_ENUM_CONSTANT(ImGuiDataType_U32)
+	BIND_ENUM_CONSTANT(ImGuiDataType_S64)
+	BIND_ENUM_CONSTANT(ImGuiDataType_U64)
+	BIND_ENUM_CONSTANT(ImGuiDataType_Float)
+	BIND_ENUM_CONSTANT(ImGuiDataType_Double)
+	BIND_ENUM_CONSTANT(ImGuiDataType_COUNT)
+
+	// ImGuiDir_
+	BIND_ENUM_CONSTANT(ImGuiDir_None)
+	BIND_ENUM_CONSTANT(ImGuiDir_Left)
+	BIND_ENUM_CONSTANT(ImGuiDir_Right)
+	BIND_ENUM_CONSTANT(ImGuiDir_Up)
+	BIND_ENUM_CONSTANT(ImGuiDir_Down)
+	BIND_ENUM_CONSTANT(ImGuiDir_COUNT)
+
+	// ImGuiKey_
+	BIND_ENUM_CONSTANT(ImGuiKey_Tab)
+	BIND_ENUM_CONSTANT(ImGuiKey_LeftArrow)
+	BIND_ENUM_CONSTANT(ImGuiKey_RightArrow)
+	BIND_ENUM_CONSTANT(ImGuiKey_UpArrow)
+	BIND_ENUM_CONSTANT(ImGuiKey_DownArrow)
+	BIND_ENUM_CONSTANT(ImGuiKey_PageUp)
+	BIND_ENUM_CONSTANT(ImGuiKey_PageDown)
+	BIND_ENUM_CONSTANT(ImGuiKey_Home)
+	BIND_ENUM_CONSTANT(ImGuiKey_End)
+	BIND_ENUM_CONSTANT(ImGuiKey_Insert)
+	BIND_ENUM_CONSTANT(ImGuiKey_Delete)
+	BIND_ENUM_CONSTANT(ImGuiKey_Backspace)
+	BIND_ENUM_CONSTANT(ImGuiKey_Space)
+	BIND_ENUM_CONSTANT(ImGuiKey_Enter)
+	BIND_ENUM_CONSTANT(ImGuiKey_Escape)
+	BIND_ENUM_CONSTANT(ImGuiKey_KeyPadEnter)
+	BIND_ENUM_CONSTANT(ImGuiKey_A)
+	BIND_ENUM_CONSTANT(ImGuiKey_C)
+	BIND_ENUM_CONSTANT(ImGuiKey_V)
+	BIND_ENUM_CONSTANT(ImGuiKey_X)
+	BIND_ENUM_CONSTANT(ImGuiKey_Y)
+	BIND_ENUM_CONSTANT(ImGuiKey_Z)
+	BIND_ENUM_CONSTANT(ImGuiKey_COUNT)
+
+	// ImGuiKeyModFlags_
+	BIND_ENUM_CONSTANT(ImGuiKeyModFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiKeyModFlags_Ctrl)
+	BIND_ENUM_CONSTANT(ImGuiKeyModFlags_Shift)
+	BIND_ENUM_CONSTANT(ImGuiKeyModFlags_Alt)
+	BIND_ENUM_CONSTANT(ImGuiKeyModFlags_Super)
+
+	// ImGuiNavInput_
+	BIND_ENUM_CONSTANT(ImGuiNavInput_Activate)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_Cancel)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_Input)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_Menu)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_DpadLeft)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_DpadRight)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_DpadUp)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_DpadDown)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_LStickLeft)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_LStickRight)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_LStickUp)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_LStickDown)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_FocusPrev)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_FocusNext)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_TweakSlow)
+	BIND_ENUM_CONSTANT(ImGuiNavInput_TweakFast)
+
+	// ImGuiConfigFlags_
+	BIND_ENUM_CONSTANT(ImGuiConfigFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiConfigFlags_NavEnableKeyboard)
+	BIND_ENUM_CONSTANT(ImGuiConfigFlags_NavEnableGamepad)
+	BIND_ENUM_CONSTANT(ImGuiConfigFlags_NavEnableSetMousePos)
+	BIND_ENUM_CONSTANT(ImGuiConfigFlags_NavNoCaptureKeyboard)
+	BIND_ENUM_CONSTANT(ImGuiConfigFlags_NoMouse)
+	BIND_ENUM_CONSTANT(ImGuiConfigFlags_NoMouseCursorChange)
+	BIND_ENUM_CONSTANT(ImGuiConfigFlags_IsSRGB)
+	BIND_ENUM_CONSTANT(ImGuiConfigFlags_IsTouchScreen)
+
+	// ImGuiBackendFlags_
+	BIND_ENUM_CONSTANT(ImGuiBackendFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiBackendFlags_HasGamepad)
+	BIND_ENUM_CONSTANT(ImGuiBackendFlags_HasMouseCursors)
+	BIND_ENUM_CONSTANT(ImGuiBackendFlags_HasSetMousePos)
+	BIND_ENUM_CONSTANT(ImGuiBackendFlags_RendererHasVtxOffset)
+
+	// ImGuiCol_
+	BIND_ENUM_CONSTANT(ImGuiCol_Text)
+	BIND_ENUM_CONSTANT(ImGuiCol_TextDisabled)
+	BIND_ENUM_CONSTANT(ImGuiCol_WindowBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_ChildBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_PopupBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_Border)
+	BIND_ENUM_CONSTANT(ImGuiCol_BorderShadow)
+	BIND_ENUM_CONSTANT(ImGuiCol_FrameBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_FrameBgHovered)
+	BIND_ENUM_CONSTANT(ImGuiCol_FrameBgActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_TitleBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_TitleBgActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_TitleBgCollapsed)
+	BIND_ENUM_CONSTANT(ImGuiCol_MenuBarBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_ScrollbarBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_ScrollbarGrab)
+	BIND_ENUM_CONSTANT(ImGuiCol_ScrollbarGrabHovered)
+	BIND_ENUM_CONSTANT(ImGuiCol_ScrollbarGrabActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_CheckMark)
+	BIND_ENUM_CONSTANT(ImGuiCol_SliderGrab)
+	BIND_ENUM_CONSTANT(ImGuiCol_SliderGrabActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_Button)
+	BIND_ENUM_CONSTANT(ImGuiCol_ButtonHovered)
+	BIND_ENUM_CONSTANT(ImGuiCol_ButtonActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_Header)
+	BIND_ENUM_CONSTANT(ImGuiCol_HeaderHovered)
+	BIND_ENUM_CONSTANT(ImGuiCol_HeaderActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_Separator)
+	BIND_ENUM_CONSTANT(ImGuiCol_SeparatorHovered)
+	BIND_ENUM_CONSTANT(ImGuiCol_SeparatorActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_ResizeGrip)
+	BIND_ENUM_CONSTANT(ImGuiCol_ResizeGripHovered)
+	BIND_ENUM_CONSTANT(ImGuiCol_ResizeGripActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_Tab)
+	BIND_ENUM_CONSTANT(ImGuiCol_TabHovered)
+	BIND_ENUM_CONSTANT(ImGuiCol_TabActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_TabUnfocused)
+	BIND_ENUM_CONSTANT(ImGuiCol_TabUnfocusedActive)
+	BIND_ENUM_CONSTANT(ImGuiCol_PlotLines)
+	BIND_ENUM_CONSTANT(ImGuiCol_PlotLinesHovered)
+	BIND_ENUM_CONSTANT(ImGuiCol_PlotHistogram)
+	BIND_ENUM_CONSTANT(ImGuiCol_PlotHistogramHovered)
+	BIND_ENUM_CONSTANT(ImGuiCol_TextSelectedBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_DragDropTarget)
+	BIND_ENUM_CONSTANT(ImGuiCol_NavHighlight)
+	BIND_ENUM_CONSTANT(ImGuiCol_NavWindowingHighlight)
+	BIND_ENUM_CONSTANT(ImGuiCol_NavWindowingDimBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_ModalWindowDimBg)
+	BIND_ENUM_CONSTANT(ImGuiCol_COUNT)
+
+	// ImGuiStyleVar_
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_Alpha)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_WindowPadding)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_WindowRounding)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_WindowBorderSize)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_WindowMinSize)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_WindowTitleAlign)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_ChildRounding)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_ChildBorderSize)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_PopupRounding)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_PopupBorderSize)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_FramePadding)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_FrameRounding)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_FrameBorderSize)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_ItemSpacing)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_ItemInnerSpacing)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_IndentSpacing)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_ScrollbarSize)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_ScrollbarRounding)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_GrabMinSize)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_GrabRounding)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_TabRounding)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_ButtonTextAlign)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_SelectableTextAlign)
+	BIND_ENUM_CONSTANT(ImGuiStyleVar_COUNT)
+
+	// ImGuiButtonFlags_
+	BIND_ENUM_CONSTANT(ImGuiButtonFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiButtonFlags_MouseButtonLeft)
+	BIND_ENUM_CONSTANT(ImGuiButtonFlags_MouseButtonRight)
+	BIND_ENUM_CONSTANT(ImGuiButtonFlags_MouseButtonMiddle)
+
+	// ImGuiColorEditFlags_
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoAlpha)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoPicker)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoOptions)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoSmallPreview)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoInputs)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoTooltip)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoLabel)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoSidePreview)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoDragDrop)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_NoBorder)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_AlphaBar)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_AlphaPreview)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_AlphaPreviewHalf)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_HDR)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_DisplayRGB)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_DisplayHSV)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_DisplayHex)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_Uint8)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_Float)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_PickerHueBar)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_PickerHueWheel)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_InputRGB)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags_InputHSV)
+	BIND_ENUM_CONSTANT(ImGuiColorEditFlags__OptionsDefault)
+
+	// ImGuiSliderFlags_
+	BIND_ENUM_CONSTANT(ImGuiSliderFlags_None)
+	BIND_ENUM_CONSTANT(ImGuiSliderFlags_AlwaysClamp)
+	BIND_ENUM_CONSTANT(ImGuiSliderFlags_Logarithmic)
+	BIND_ENUM_CONSTANT(ImGuiSliderFlags_NoRoundToFormat)
+	BIND_ENUM_CONSTANT(ImGuiSliderFlags_NoInput)
+	BIND_ENUM_CONSTANT(ImGuiSliderFlags_InvalidMask_)
+
+	// ImGuiMouseButton_
+	BIND_ENUM_CONSTANT(ImGuiMouseButton_Left)
+	BIND_ENUM_CONSTANT(ImGuiMouseButton_Right)
+	BIND_ENUM_CONSTANT(ImGuiMouseButton_Middle)
+	BIND_ENUM_CONSTANT(ImGuiMouseButton_COUNT)
+
+	// ImGuiMouseCursor_
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_None)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_Arrow)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_TextInput)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_ResizeAll)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_ResizeNS)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_ResizeEW)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_ResizeNESW)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_ResizeNWSE)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_Hand)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_NotAllowed)
+	BIND_ENUM_CONSTANT(ImGuiMouseCursor_COUNT)
+
+	// ImGuiCond_
+	BIND_ENUM_CONSTANT(ImGuiCond_None)
+	BIND_ENUM_CONSTANT(ImGuiCond_Always)
+	BIND_ENUM_CONSTANT(ImGuiCond_Once)
+	BIND_ENUM_CONSTANT(ImGuiCond_FirstUseEver)
+	BIND_ENUM_CONSTANT(ImGuiCond_Appearing)
+
 }
 
 void native_imgui::process_imgui() {
@@ -575,12 +966,20 @@ bool native_imgui::BeginPopupContextWindow(String str_id) {
 	return ImGui::BeginPopupContextWindow(convertStringToChar(str_id));
 }
 
+bool native_imgui::BeginMenuBar() {
+	return ImGui::BeginMainMenuBar();
+}
+
 void  native_imgui::BeginGroup() {
 	ImGui::BeginGroup();
 }
 
 void native_imgui::EndGroup() {
 	ImGui::EndGroup();
+}
+
+void native_imgui::EndMenuBar() {
+	ImGui::EndMenuBar();
 }
 
 bool native_imgui::BeginPopupModal(String label, bool open) {
@@ -633,11 +1032,10 @@ Variant native_imgui::BulletTextV(const Variant **p_args, int p_argcount, Varian
 
 bool native_imgui::Button(String text, Vector2 size) {
 	bool newState = ImGui::Button(convertStringToChar(text), Vector2ToImVec(size));
-
+	
 	return handleButtonDic(text, newState);
-}
-
-Array native_imgui::CalcListClipping(uint32_t item_count, uint32_t item_height) {
+} 
+		Array native_imgui::CalcListClipping(uint32_t item_count, uint32_t item_height) {
 	int out_item_display_start, out_item_display_end;
 	ImGui::CalcListClipping(item_count, item_height, &out_item_display_start, &out_item_display_end);
 
@@ -1505,8 +1903,26 @@ int native_imgui::VSliderInt(String label, Vector2 size, int val, int min, int m
 }
  
  
-void native_imgui::BulletText(String text) {
-	ImGui::BulletText(convertStringToChar(text));
+Variant native_imgui::BulletText(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+	String arg;
+	for (uint32_t i = 0; i < p_argcount; i++) {
+		if (p_args[i]->get_type() != Variant::STRING) {
+			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+			r_error.argument = 0;
+			r_error.expected = Variant::STRING;
+			return Variant();
+		}
+		// We conver the variant into a string and concatianate it to a godot string
+		arg += (String)*p_args[i];
+	}
+
+	// We fool ImGui that we are variadic. We are converting a const char * to a char*
+	//which kinda means we are praying that ImGui doens't do anything stupid
+
+	ImGui::BulletText(convertStringToChar(arg), (char *)convertStringToChar(arg));
+
+	r_error.error = Variant::CallError::CALL_OK;
+	return Variant();
 }
 
 void native_imgui::End() {
@@ -1610,8 +2026,8 @@ int native_imgui::InputInt4(String label, Vector4 value, int step, int step_fast
 }
 */
 
-void native_imgui::SameLine() {
-	ImGui::SameLine();
+void native_imgui::SameLine(float offset_from_start, float spacing) {
+	ImGui::SameLine(offset_from_start, spacing);
 }
 
 float native_imgui::DragFloat(String label, float value, float speed, float min, float max, float power) {
