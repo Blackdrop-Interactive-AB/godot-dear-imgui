@@ -1,6 +1,6 @@
 #include "native_imgui.h"
 #include "scene/resources/mesh.h"
-
+#include "core/method_bind_ext.gen.inc"
 
 bool native_imgui::handleButtonDic(String label, bool newState) {
 	bool oldState; 
@@ -86,16 +86,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit3", "label", "Vector3"), &native_imgui::ColorEdit3);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorPicker4", "label", "Vector4"), &native_imgui::ColorPicker3);
 	ClassDB::bind_method(D_METHOD("ImGui_ColorEdit4", "label", "Vector4"), &native_imgui::ColorEdit3);
-	//ClassDB::bind_method(D_METHOD("ImGui_DragFloat"), &native_imgui::DragFloat); Seems like max args are 5.
-	/*
-
-	All other drag functions are missing due to max arg is 5.
-	Max arg seems to be 13 when you look at D_METHOD, but 5 when you look at create method bind in
-	ClassDB::bind_method.
-
-	Investigation needed.
-
-	*/
+	ClassDB::bind_method(D_METHOD("ImGui_DragFloat"), &native_imgui::DragFloat); //Seems like max args are 5.
 	ClassDB::bind_method(D_METHOD("ImGui_Dummy"), &native_imgui::Dummy);
 	ClassDB::bind_method(D_METHOD("ImGui_EndChildFrame"), &native_imgui::EndChildFrame);
 	ClassDB::bind_method(D_METHOD("ImGui_EndChild"), &native_imgui::EndChild);
