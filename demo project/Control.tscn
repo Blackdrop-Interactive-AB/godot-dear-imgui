@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://native_imgui.gd" type="Script" id=1]
+
+[node name="Control" type="Control"]
+margin_left = 275.0
+margin_top = 85.0
+margin_right = 315.0
+margin_bottom = 125.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="."]
+anchor_left = 0.025
+anchor_right = 0.025
+margin_left = 406.0
+margin_top = 105.0
+margin_right = 747.0
+margin_bottom = 315.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="native_imgui" type="native_imgui" parent="ColorPickerButton"]
+position = Vector2( -683, -189 )
+script = ExtResource( 1 )

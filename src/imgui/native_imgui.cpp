@@ -1798,12 +1798,12 @@ void native_imgui::TreeAdvanceToLabelPos() {
 	ImGui::TreeAdvanceToLabelPos();
 }
 
-void native_imgui::TreeNode(String label) {
-	ImGui::TreeNode(convertStringToChar(label));
+bool native_imgui::TreeNode(String label) {
+	return ImGui::TreeNode(convertStringToChar(label));
 }
 
-void native_imgui::TreeNodeEx(String label, int flags) {
-	ImGui::TreeNodeEx(convertStringToChar(label), flags);
+bool native_imgui::TreeNodeEx(String label, int flags) {
+	return ImGui::TreeNodeEx(convertStringToChar(label), flags);
 }
 
 Variant native_imgui::TreeNodeExV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
@@ -1888,11 +1888,13 @@ void native_imgui::Value(String prefix, unsigned int value) {
 }
 
 float native_imgui::VSliderFloat(String label, Vector2 size, float val, float min, float max, String format, int flags) {
-	return ImGui::VSliderFloat(convertStringToChar(label), Vector2ToImVec(size), &val, min, max, convertStringToChar(format), flags);
+	ImGui::VSliderFloat(convertStringToChar(label), Vector2ToImVec(size), &val, min, max, convertStringToChar(format), flags);
+	return val;
 }
 
 int native_imgui::VSliderInt(String label, Vector2 size, int val, int min, int max, String format, int flags) {
-	return ImGui::VSliderInt(convertStringToChar(label), Vector2ToImVec(size), &val, min, max, convertStringToChar(format), flags);
+	ImGui::VSliderInt(convertStringToChar(label), Vector2ToImVec(size), &val, min, max, convertStringToChar(format), flags);
+	return val;
 }
  
  

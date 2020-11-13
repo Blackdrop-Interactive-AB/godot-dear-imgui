@@ -297,8 +297,8 @@ public:
 	Variant TextWrapped(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	Variant TextColored(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	void TreeAdvanceToLabelPos();
-	void TreeNode(String label);
-	void TreeNodeEx(String label, int flags);
+	bool TreeNode(String label);
+	bool TreeNodeEx(String label, int flags);
 	Variant TreeNodeExV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	Variant TreeNodeV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	void TreePop();
