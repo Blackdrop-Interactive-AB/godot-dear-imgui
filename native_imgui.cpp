@@ -101,7 +101,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_GetClipBoardtext"), &native_imgui::GetClipboardText);
 	ClassDB::bind_method(D_METHOD("ImGui_GetColumnIndex"), &native_imgui::GetColumnIndex);
 	ClassDB::bind_method(D_METHOD("ImGui_GetColumnOffset", "index"), &native_imgui::GetColumnOffset, DEFVAL(-1));
-	ClassDB::bind_method(D_METHOD("ImGui_GetColumnsCount", "index"), &native_imgui::GetColumnsCount);
+	ClassDB::bind_method(D_METHOD("ImGui_GetColumnsCount"), &native_imgui::GetColumnsCount);
 	ClassDB::bind_method(D_METHOD("ImGui_GetColumnWidth", "index"), &native_imgui::GetColumnWidth, DEFVAL(-1));
 	ClassDB::bind_method(D_METHOD("ImGui_GetContentRegionAvail"), &native_imgui::GetContentRegionAvail);
 	ClassDB::bind_method(D_METHOD("ImGui_GetContentRegionAvailWidth"), &native_imgui::GetContentRegionAvailWidth);
@@ -119,8 +119,8 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_GetFrameHeightWithSpacing"), &native_imgui::GetFrameHeightWithSpacing);
 	ClassDB::bind_method(D_METHOD("ImGui_GetID"), &native_imgui::GetID);
 	ClassDB::bind_method(D_METHOD("ImGui_GetItemRectMax"), &native_imgui::GetItemRectMax);
-	ClassDB::bind_method(D_METHOD("ImGui_GetItemRectMax"), &native_imgui::GetItemRectMin);
-	ClassDB::bind_method(D_METHOD("ImGui_GetItemRectMax"), &native_imgui::GetItemRectSize);
+	ClassDB::bind_method(D_METHOD("ImGui_GetItemRectMin"), &native_imgui::GetItemRectMin);
+	ClassDB::bind_method(D_METHOD("ImGui_GetItemRectSize"), &native_imgui::GetItemRectSize);
 	ClassDB::bind_method(D_METHOD("ImGui_GetKeyIndex"), &native_imgui::GetKeyIndex);
 	ClassDB::bind_method(D_METHOD("ImGui_GetKeyPressedAmount"), &native_imgui::GetKeyPressedAmount);
 	ClassDB::bind_method(D_METHOD("ImGui_GetMouseCursor"), &native_imgui::GetMouseCursor);
