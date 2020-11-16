@@ -21,8 +21,21 @@ bool native_imgui::handleButtonDic(String label, bool newState) {
 	return buttonDict[label];
 }
 
+String native_imgui::makeUniqueString(String string, int size) {
+	char *temp = memnew_arr(char, string.size() + 1);
+
+	for (uint32_t i = 0; i < string.size(); i++)
+		temp[i] = string[i];
+
+	temp[string.size()] = '\0';
+	String retVal = temp;
+	memdelete_arr(temp);
+
+	return retVal;
+}
+
 inline const char *native_imgui::convertStringToChar(String string) {
-	return string.utf8().get_data();
+	return makeUniqueString(string).utf8().get_data();
 }
 
 inline ImVec2 native_imgui::Vector2ToImVec(const Vector2 &vec) {
@@ -725,13 +738,15 @@ void native_imgui::process_imgui() {
 
 bool native_imgui::_input(const Ref<InputEvent> &evt) {
 	// This is a temp fix until we can get a proper callback
+	ImGui::SetCurrentContext(context);
 	ImGuiIO &io = ImGui::GetIO();
 	const InputEventKey *_evt = dynamic_cast<const InputEventKey*>(evt.ptr());
 	InputEvent evttt;
 
+ 
 	if (_evt != nullptr && _evt->is_pressed() /* Pressed */) {
 		unsigned int code = (unsigned int)_evt->get_scancode();
-
+ 
 		if (code < 256) {
 			io.AddInputCharacter(code);
 		} else {
@@ -739,7 +754,8 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 			io.KeysDown[code] = _evt->is_pressed();
 		}
 
-		get_tree()->set_input_as_handled();
+		//get_tree()->set_input_as_handled();
+		
 		return true;
 	}
  
@@ -1075,21 +1091,28 @@ String native_imgui::InputText(String label, String val, int flags) {
 	for (uint32_t i = 0; i < val.size(); i++)
 		temp[i] = val[i];
 
-	temp[val.size()] = '\0';
-
+	temp[val.size()] = '\0'; 
 	ImGui::InputText(convertStringToChar(label), temp, 64, flags);
-
 
 	val = temp;
 	memdelete_arr(temp);
-	return  val;
+	return temp;
 }
 
 String native_imgui::InputTextMultiline(String label, String val, Vector2 size, int flags) {
-	input = val;
-	ImGui::InputTextMultiline(convertStringToChar(label), (char *)convertStringToChar(input), 64, Vector2ToImVec(size), flags);
+	char *temp = memnew_arr(char, 64);
+	
+	for (uint32_t i = 0; i < val.size(); i++)
+		temp[i] = val[i];
 
-	return input;
+	temp[val.size()] = '\0';
+ 
+
+
+
+	ImGui::InputTextMultiline(convertStringToChar(label), temp, 64, Vector2ToImVec(size), flags);
+	val = temp; 
+	return temp;
 }
 
 String native_imgui::InputTextWithHint(String label, String hint, String val, int flags) {
@@ -1240,8 +1263,13 @@ Variant native_imgui::LabelText(const Variant **p_args, int p_argcount, Variant:
 
 	// We fool ImGui that we are variadic. We are converting a const char * to a char*
 	//which kinda means we are praying that ImGui doens't do anything stupid
+	char *temp = memnew_arr(char, arg.size() + 1);
 
-	ImGui::LabelText(convertStringToChar(arg), (char *)convertStringToChar(arg));
+	memcpy(temp, (const char *)arg.utf8(), arg.size());
+
+	temp[arg.size() + 1] = '\0';
+
+	ImGui::LabelTextV(convertStringToChar((String)*p_args[0]), temp, temp);
 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();
@@ -1269,9 +1297,17 @@ Variant native_imgui::LabelTextV(const Variant **p_args, int p_argcount, Variant
 
 	// We fool ImGui that we are variadic. We are converting a const char * to a char*
 	//which kinda means we are praying that ImGui doens't do anything stupid
+	
+	char *temp = memnew_arr(char, arg.size() + 1); 
 
-	ImGui::LabelTextV(convertStringToChar((String)*p_args[0]), convertStringToChar(arg), (char *)convertStringToChar(arg));
+	memcpy(temp, (const char *)arg.utf8(), arg.size());
 
+	temp[arg.size() + 1] = '\0';
+ 
+	 
+	ImGui::LabelTextV(convertStringToChar((String)*p_args[0]), temp, temp);
+	memdelete_arr(temp);
+	 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();
 }
@@ -1889,12 +1925,12 @@ void native_imgui::Value(String prefix, unsigned int value) {
 }
 
 float native_imgui::VSliderFloat(String label, Vector2 size, float val, float min, float max, String format, int flags) {
-	ImGui::VSliderFloat(convertStringToChar(label), Vector2ToImVec(size), &val, min, max, convertStringToChar(format), flags);
+	ImGui::VSliderFloat(convertStringToChar(label), Vector2ToImVec(size), &val, min, max, (const char *) format.utf8(), flags);
 	return val;
 }
 
 int native_imgui::VSliderInt(String label, Vector2 size, int val, int min, int max, String format, int flags) {
-	ImGui::VSliderInt(convertStringToChar(label), Vector2ToImVec(size), &val, min, max, convertStringToChar(format), flags);
+	ImGui::VSliderInt(convertStringToChar(label), Vector2ToImVec(size), &val, min, max, (const char *) format.utf8(), flags);
 	return val;
 }
  

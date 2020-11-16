@@ -41,7 +41,7 @@ class native_imgui : public Node2D {
 
 	/* Helper functions for conversion between libs */
 	bool handleButtonDic(String label, bool newState);
-
+	String makeUniqueString(String string, int size = 1);
 	inline const char *convertStringToChar(String string);
 	inline ImVec2 Vector2ToImVec(const Vector2& vec); 
 	inline Vector2 ImVec2ToVector2(const ImVec2 &vec);
