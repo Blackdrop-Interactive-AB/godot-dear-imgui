@@ -24,7 +24,7 @@ See the demo project for the ImGui demo window.
 
 ## Issues
 Issues are presented in severity.
-* Two native_imgui nodes will result in two windows, one broken.
+* ~~Two native_imgui nodes will result in two windows, one broken.~~
 * New children are created in every frame. This is to create correct clipping rects, each child requires their own, and the amount of children is tied to how many draw commands ImGui wants, which in turn is dynamic.
 * We are creating new surfaces and deleting them every single frame. 
 * The binds for the Godot default functions such as _process or _input are used as passthrough, as I could not figure out how to make Godot call my versions implemented in C++. 
