@@ -23,7 +23,7 @@ class native_imgui : public Node2D {
 	uint32_t *fontTextureId = nullptr;
 	Image img;
 	ImageTexture imgtex;
-	
+	static uint32_t textureCount;
 	ArrayMesh mesh;
 	
 	List<RID> children;
@@ -61,7 +61,7 @@ public:
 		test2,
 		test3
 	};
-
+	
 	virtual bool _input(const Ref<InputEvent> &evt);
 	void RebuildFontAtlas();
 	native_imgui();

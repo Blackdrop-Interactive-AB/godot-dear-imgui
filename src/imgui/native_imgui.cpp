@@ -1,6 +1,8 @@
 #include "native_imgui.h"
 #include "scene/resources/mesh.h"
 #include "core/method_bind_ext.gen.inc"
+ 
+uint32_t native_imgui::textureCount;
 
 bool native_imgui::handleButtonDic(String label, bool newState) {
 	bool oldState; 
@@ -848,7 +850,9 @@ void native_imgui::RebuildFontAtlas() {
 
 native_imgui::native_imgui() {
 	this->VisualServer = VisualServer::get_singleton();
+	textureCount = 0;
 	context = ImGui::CreateContext();
+	ImGui::SetCurrentContext(context);
 	ImGuiIO &io = ImGui::GetIO();
 	io.BackendFlags = 0;
 	//ImGui::SetCurrentContext(context);
@@ -871,7 +875,7 @@ native_imgui::native_imgui() {
 
 	imgtex.create_from_image(img.duplicate(), 0);
 
-	io.Fonts->TexID = ImTextureID(100);
+	io.Fonts->TexID = ImTextureID(textureCount++);
 
 	io.Fonts->ClearTexData();
 
@@ -900,9 +904,6 @@ native_imgui::native_imgui() {
 	io.KeyMap[(int)ImGuiKey_X] =			FixKey(KeyList::KEY_X);
 	io.KeyMap[(int)ImGuiKey_Y] =			FixKey(KeyList::KEY_Y);
 	io.KeyMap[(int)ImGuiKey_Z] =			FixKey(KeyList::KEY_Z);
-
-
-	input.resize(64); // Maximum size of input
 } 
 
 void native_imgui::setvalue(String field, RID parent) {
@@ -1946,6 +1947,7 @@ void native_imgui::EndFrame() {
 }
 
 void native_imgui::NewFrame() {
+	ImGui::SetCurrentContext(context);
 	ImGui::NewFrame();
 }
 
