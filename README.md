@@ -11,8 +11,8 @@ Module is based on godot [3.2.3 stable](https://github.com/godotengine/godot/tre
 ## Instructions
 
 How [compile](https://docs.godotengine.org/en/stable/development/compiling/index.html) Godot for your plattform. 
-The addition you need to make is to create or own folder "custom_modules" inside the root Godot folder. Inside your new folder, custom_modules, create a folder named "imgui" and clone the repository here. 
-After this, you can compile Godot to your preferred platform.
+
+The addition you need to make is to place the ```src\imgui``` folder inside ```..\godot\modules\``` and then compile.
 
 ## Usage
 The intent behind this module is to bring ImGui to GDScript, ImGui's uses C++ namespaces::, this is not supported in GDScript and therefor _ is used instead. GDScript is agnostic to address. Meaning that we turn from address-based manipulation to updating values by copy-by-value. 
