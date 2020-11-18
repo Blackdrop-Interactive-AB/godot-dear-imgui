@@ -1,43 +1,29 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://native_imgui.gd" type="Script" id=1]
-[ext_resource path="res://native_imgui_1.gd" type="Script" id=2]
+[ext_resource path="res://1.gd" type="Script" id=1]
+[ext_resource path="res://2.gd" type="Script" id=2]
 
 [node name="Control" type="Control"]
-margin_left = 275.0
-margin_top = 85.0
-margin_right = 315.0
-margin_bottom = 125.0
+anchor_left = -0.314
+anchor_top = -0.216
+anchor_right = -0.314
+anchor_bottom = 0.116
+margin_left = -1082.58
+margin_top = 787.904
+margin_right = -1039.58
+margin_bottom = 353.788
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ColorPickerButton" type="ColorPickerButton" parent="."]
-anchor_left = 0.025
-anchor_right = 0.025
-margin_left = 406.0
-margin_top = 105.0
-margin_right = 747.0
-margin_bottom = 315.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="native_imgui" type="native_imgui" parent="ColorPickerButton"]
-position = Vector2( -683, -189 )
+[node name="native_imgui" type="native_imgui" parent="."]
 script = ExtResource( 1 )
 
-[node name="ColorPickerButton2" type="ColorPickerButton" parent="."]
-anchor_left = 0.025
-anchor_right = 0.025
-margin_left = -13.0
-margin_top = 187.0
-margin_right = 328.0
-margin_bottom = 397.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="ColorPicker" type="ColorPicker" parent="."]
+margin_left = 2138.23
+margin_top = 292.901
+margin_right = 2446.23
+margin_bottom = 754.901
 
-[node name="native_imgui" type="native_imgui" parent="ColorPickerButton2"]
-position = Vector2( -262.453, -271.638 )
+[node name="native_imgui" type="native_imgui" parent="ColorPicker"]
 script = ExtResource( 2 )
