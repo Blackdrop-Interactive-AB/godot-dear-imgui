@@ -719,20 +719,12 @@ void native_imgui::process_imgui() {
 	ImGuiIO &io = ImGui::GetIO();
 	Input * input = Input::get_singleton();
 
+
 	io.KeysDown[FixKey(KeyList::KEY_CONTROL)] = input->is_key_pressed((int)KeyList::KEY_CONTROL);
 	io.KeysDown[FixKey(KeyList::KEY_ALT)] = input->is_key_pressed((int)KeyList::KEY_ALT);
 	io.KeysDown[FixKey(KeyList::KEY_BACKSPACE)] = input->is_key_pressed((int)KeyList::KEY_BACKSPACE); 
 	io.KeysDown[FixKey(KeyList::KEY_ENTER)] = input->is_key_pressed((int)KeyList::KEY_ENTER); 
-	/*
-
-	Vector2 godot_mouse_pos = OS::get_singleton()->get_mouse_position();
-
-	ImVec2 mousePos(godot_mouse_pos.x, godot_mouse_pos.y);
-
-	io.MousePos = mousePos;
-	io.MouseDown[0] = OS::get_singleton()->get_mouse_button_state() == 1 ? true : false;
-	io.MouseDown[1] = OS::get_singleton()->get_mouse_button_state() == 2 ? true : false;
-	*/
+ 
 	// This says 0, I say doubt(X)
 	io.DeltaTime = 1.0 / 120.0;
 	get_process_delta_time();
@@ -961,7 +953,11 @@ native_imgui::native_imgui() {
 		
 		VisualServer::get_singleton()->connect("frame_pre_draw", this, "ImGui_EndFrame");
 		NewFrame();
+
+		
 	}
+	set_as_toplevel(true);
+	set_position(Vector2(0, 0));
 }
 native_imgui::~native_imgui() {
 	 
