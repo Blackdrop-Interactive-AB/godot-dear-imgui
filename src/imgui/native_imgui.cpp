@@ -717,17 +717,15 @@ void native_imgui::_bind_methods() {
 
 void native_imgui::process_imgui() {
 	ImGuiIO &io = ImGui::GetIO();
-	Input * input = Input::get_singleton();
 
-
+	Input *input = Input::get_singleton();
 	io.KeysDown[FixKey(KeyList::KEY_CONTROL)] = input->is_key_pressed((int)KeyList::KEY_CONTROL);
 	io.KeysDown[FixKey(KeyList::KEY_ALT)] = input->is_key_pressed((int)KeyList::KEY_ALT);
-	io.KeysDown[FixKey(KeyList::KEY_BACKSPACE)] = input->is_key_pressed((int)KeyList::KEY_BACKSPACE); 
+	io.KeysDown[FixKey(KeyList::KEY_BACKSPACE)] = input->is_key_pressed((int)KeyList::KEY_BACKSPACE);
 	io.KeysDown[FixKey(KeyList::KEY_ENTER)] = input->is_key_pressed((int)KeyList::KEY_ENTER); 
  
 	// This says 0, I say doubt(X)
-	io.DeltaTime = 1.0 / 120.0;
-	get_process_delta_time();
+	io.DeltaTime = get_process_delta_time();
 	 
 	draw();
 }
@@ -747,7 +745,8 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 			code = FixKey((KeyList)code);
 			io.KeysDown[code] = _keyevt->is_pressed();
 		}
-		 
+
+
 		consumed = io.WantCaptureMouse; 
 	 
 	}
