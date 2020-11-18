@@ -1138,6 +1138,7 @@ String native_imgui::InputText(String label, String val, int flags) {
 
 String native_imgui::InputTextMultiline(String label, String val, Vector2 size, int flags) {
 	char *temp = memnew_arr(char, 64);
+ 
 	
 	for (uint32_t i = 0; i < val.size(); i++)
 		temp[i] = val[i];
@@ -1145,11 +1146,12 @@ String native_imgui::InputTextMultiline(String label, String val, Vector2 size, 
 	temp[val.size()] = '\0';
  
 
-
-
-	ImGui::InputTextMultiline(convertStringToChar(label), temp, 64, Vector2ToImVec(size), flags);
-	val = temp; 
-	return temp;
+	
+	ImGui::InputTextMultiline(convertStringToChar(label), temp, 63, Vector2ToImVec(size), flags);
+	
+	val = temp;
+ 
+	return val;
 }
 
 String native_imgui::InputTextWithHint(String label, String hint, String val, int flags) {
