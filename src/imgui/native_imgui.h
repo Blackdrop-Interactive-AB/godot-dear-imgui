@@ -20,7 +20,7 @@ class native_imgui : public Node2D {
 	 
 	//uint32_t *fontTextureId = nullptr;
  
-	static ImageTexture* imgtex;
+	ImageTexture imgtex; // This can't be static, and thats fine. as texture count is static, it will behave like it
 	static uint32_t textureCount;
 	static VisualServer *VisualServer;
 	static ImGuiContext *context;

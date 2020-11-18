@@ -5,7 +5,7 @@
 uint32_t native_imgui::textureCount;
 ImGuiContext *native_imgui::context;
 VisualServer * native_imgui::VisualServer;
-ImageTexture* native_imgui::imgtex;
+//ImageTexture* native_imgui::imgtex;
 
 bool native_imgui::handleButtonDic(String label, bool newState) {
 	bool oldState; 
@@ -893,7 +893,7 @@ void native_imgui::draw() {
 		VisualServer->canvas_item_set_clip(children[i], true); 
 
 		// This adds the canvas to the rendering queue.
-		VisualServer->canvas_item_add_mesh(children[i], mesh.get_rid(), Transform2D(), Color(), imgtex->get_rid());
+		VisualServer->canvas_item_add_mesh(children[i], mesh.get_rid(), Transform2D(), Color(), imgtex.get_rid());
 	}
 }
  
@@ -927,10 +927,9 @@ native_imgui::native_imgui() {
 	
 		Image img(width, height, false, Image::Format::FORMAT_RGBA8, textureDataRaw);
 
-		textureCount = 0;
-		imgtex = new ImageTexture();
+		textureCount = 0; 
 	 
-		imgtex->create_from_image(img.duplicate(), 0);
+		imgtex.create_from_image(img.duplicate(), 0);
 
 		io.Fonts->TexID = ImTextureID(textureCount++);
 
@@ -974,7 +973,7 @@ native_imgui::native_imgui() {
 	set_position(Vector2(0, 0));
 }
 native_imgui::~native_imgui() {
-	 
+	
 }
  
 
