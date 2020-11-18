@@ -719,11 +719,26 @@ void native_imgui::process_imgui() {
 	ImGuiIO &io = ImGui::GetIO();
 
 	Input *input = Input::get_singleton();
-	io.KeysDown[FixKey(KeyList::KEY_CONTROL)] = input->is_key_pressed((int)KeyList::KEY_CONTROL);
-	io.KeysDown[FixKey(KeyList::KEY_ALT)] = input->is_key_pressed((int)KeyList::KEY_ALT);
+
+	io.KeysDown[FixKey(KeyList::KEY_TAB)] = input->is_key_pressed((int)KeyList::KEY_TAB);
+	io.KeysDown[FixKey(KeyList::KEY_LEFT)] = input->is_key_pressed((int)KeyList::KEY_LEFT);
+	io.KeysDown[FixKey(KeyList::KEY_RIGHT)] = input->is_key_pressed((int)KeyList::KEY_RIGHT);
+	io.KeysDown[FixKey(KeyList::KEY_UP)] = input->is_key_pressed((int)KeyList::KEY_UP);
+	io.KeysDown[FixKey(KeyList::KEY_DOWN)] = input->is_key_pressed((int)KeyList::KEY_DOWN);
+	io.KeysDown[FixKey(KeyList::KEY_PAGEUP)] = input->is_key_pressed((int)KeyList::KEY_PAGEUP);
+	io.KeysDown[FixKey(KeyList::KEY_PAGEDOWN)] = input->is_key_pressed((int)KeyList::KEY_PAGEDOWN);
+	io.KeysDown[FixKey(KeyList::KEY_HOME)] = input->is_key_pressed((int)KeyList::KEY_HOME);
+	io.KeysDown[FixKey(KeyList::KEY_END)] = input->is_key_pressed((int)KeyList::KEY_END);
+	io.KeysDown[FixKey(KeyList::KEY_INSERT)] = input->is_key_pressed((int)KeyList::KEY_INSERT);
+	io.KeysDown[FixKey(KeyList::KEY_DELETE)] = input->is_key_pressed((int)KeyList::KEY_DELETE);
 	io.KeysDown[FixKey(KeyList::KEY_BACKSPACE)] = input->is_key_pressed((int)KeyList::KEY_BACKSPACE);
-	io.KeysDown[FixKey(KeyList::KEY_ENTER)] = input->is_key_pressed((int)KeyList::KEY_ENTER); 
- 
+	io.KeysDown[FixKey(KeyList::KEY_SPACE)] = input->is_key_pressed((int)KeyList::KEY_SPACE);
+	io.KeysDown[FixKey(KeyList::KEY_ENTER)] = input->is_key_pressed((int)KeyList::KEY_ENTER);
+	io.KeysDown[FixKey(KeyList::KEY_ESCAPE)] = input->is_key_pressed((int)KeyList::KEY_ESCAPE);
+	io.KeysDown[FixKey(KeyList::KEY_KP_ENTER)] = input->is_key_pressed((int)KeyList::KEY_KP_ENTER);
+
+
+
 	// This says 0, I say doubt(X)
 	io.DeltaTime = get_process_delta_time();
 	 
@@ -1129,7 +1144,7 @@ String native_imgui::InputText(String label, String val, int flags) {
 		temp[i] = val[i];
 
 	temp[val.size()] = '\0'; 
-	ImGui::InputText(convertStringToChar(label), temp, 64, flags);
+	ImGui::InputText(convertStringToChar(label), temp, 63, flags);
 
 	val = temp;
 	memdelete_arr(temp);
@@ -1150,13 +1165,26 @@ String native_imgui::InputTextMultiline(String label, String val, Vector2 size, 
 	ImGui::InputTextMultiline(convertStringToChar(label), temp, 63, Vector2ToImVec(size), flags);
 	
 	val = temp;
- 
+	memdelete_arr(temp);
 	return val;
 }
 
 String native_imgui::InputTextWithHint(String label, String hint, String val, int flags) {
+	char *temp = memnew_arr(char, 64);
+
+	for (uint32_t i = 0; i < val.size(); i++)
+		temp[i] = val[i];
+
+	temp[val.size()] = '\0';
+ 
+
+
+
 	ImGui::InputTextWithHint(convertStringToChar(label),
-		convertStringToChar(hint), (char *)convertStringToChar(val), 64, flags);
+		convertStringToChar(hint), temp, 63, flags);
+	val = temp;
+
+	memdelete_arr(temp);
 
 	return val;
 }
