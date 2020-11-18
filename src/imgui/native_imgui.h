@@ -16,28 +16,25 @@
  
 
 class native_imgui : public Node2D {
-	// BIND_ENUM_CONSTANT
 	GDCLASS(native_imgui, Node2D);
-
-	int count;
-	uint32_t *fontTextureId = nullptr;
-	Image img;
-	ImageTexture imgtex;
+	 
+	//uint32_t *fontTextureId = nullptr;
+ 
+	static ImageTexture* imgtex;
 	static uint32_t textureCount;
-	ArrayMesh mesh;
+	static VisualServer *VisualServer;
+	static ImGuiContext *context;
+ 
 	
 	List<RID> children;
 	List<ArrayMesh*> meshes;
-	Dictionary loadedTextures;
+	ArrayMesh mesh;
 
-	VisualServer *VisualServer;
-	ImGuiContext *context;
 
 	Dictionary buttonDict;
 	Dictionary floatDict;
 	Dictionary Rect;
-
-	String input;
+	 
 
 	/* Helper functions for conversion between libs */
 	bool handleButtonDic(String label, bool newState);
@@ -48,25 +45,20 @@ class native_imgui : public Node2D {
 	inline Color ImVec4ToColor(const ImVec4 &vec);
 	float valuesGetter(void *data, int idx);
 	unsigned int FixKey(KeyList kc);
-
-protected:
-	static void _bind_methods();
+	 
 	virtual void process_imgui(); 
 	Vector<Array> extract_imgui_data();
 	void draw();
 
+	// Godot functions
+	static void _bind_methods();
 
-public:
-	enum test {
-		test2,
-		test3
-	};
-	
+public: 
 	virtual bool _input(const Ref<InputEvent> &evt);
 	void RebuildFontAtlas();
 	native_imgui();
-
-	void setvalue(String field, RID parent);
+	~native_imgui();
+	 
 
 	/*IMGUI WRAPPER */
 	void Begin(String name, bool open, int flags);
@@ -102,10 +94,8 @@ public:
 	void CalcItemWidth();
 	bool CheckBox(String label, bool val);
 	void CloseCurrentPopup();
-
 	bool ColorButton(String desc_id, Color vec, int flags, Vector2 size);
 	Color ColorPicker3(String label, Color color, int flags);
-
 	Color ColorPicker4(String label, Color color, int flags);
 	Color ColorEdit3(String label, Color vec, int flags);
 	Color ColorEdit4(String label, Color vec, int flags);
@@ -157,7 +147,6 @@ public:
 	float GetWindowWidth();
 	Vector2 GetWindowPos();
 	Vector2 GetWindowSize();
-
 	int GetID(String id);
 	void Indent(float indent_width);
 	double InputDouble(String label, double value, double step, double faststep, String format, int flags);
@@ -307,7 +296,6 @@ public:
 	void Value(String id, unsigned int value);
 	float VSliderFloat(String label, Vector2 size, float val, float min, float max, String format, int flags);
 	int VSliderInt(String label, Vector2 size, int val, int min, int max, String format, int flags);
-
 	Variant BulletText(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	void End();
 	void Separator();
@@ -325,7 +313,7 @@ public:
 	void Bullet();
 };
 
-
+// Making sure Godot can handle our binds for our enums
 VARIANT_ENUM_CAST(ImGuiWindowFlags_);
 VARIANT_ENUM_CAST(ImGuiInputTextFlags_);
 VARIANT_ENUM_CAST(ImGuiTreeNodeFlags_);

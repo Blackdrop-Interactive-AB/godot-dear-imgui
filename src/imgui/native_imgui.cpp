@@ -3,6 +3,9 @@
 #include "core/method_bind_ext.gen.inc"
  
 uint32_t native_imgui::textureCount;
+ImGuiContext *native_imgui::context;
+VisualServer * native_imgui::VisualServer;
+ImageTexture* native_imgui::imgtex;
 
 bool native_imgui::handleButtonDic(String label, bool newState) {
 	bool oldState; 
@@ -709,6 +712,7 @@ void native_imgui::_bind_methods() {
 	BIND_ENUM_CONSTANT(ImGuiCond_FirstUseEver)
 	BIND_ENUM_CONSTANT(ImGuiCond_Appearing)
 
+		
 }
 
 void native_imgui::process_imgui() {
@@ -719,7 +723,7 @@ void native_imgui::process_imgui() {
 	io.KeysDown[FixKey(KeyList::KEY_ALT)] = input->is_key_pressed((int)KeyList::KEY_ALT);
 	io.KeysDown[FixKey(KeyList::KEY_BACKSPACE)] = input->is_key_pressed((int)KeyList::KEY_BACKSPACE); 
 	io.KeysDown[FixKey(KeyList::KEY_ENTER)] = input->is_key_pressed((int)KeyList::KEY_ENTER); 
-
+	/*
 
 	Vector2 godot_mouse_pos = OS::get_singleton()->get_mouse_position();
 
@@ -728,7 +732,7 @@ void native_imgui::process_imgui() {
 	io.MousePos = mousePos;
 	io.MouseDown[0] = OS::get_singleton()->get_mouse_button_state() == 1 ? true : false;
 	io.MouseDown[1] = OS::get_singleton()->get_mouse_button_state() == 2 ? true : false;
-
+	*/
 	// This says 0, I say doubt(X)
 	io.DeltaTime = 1.0 / 120.0;
 	get_process_delta_time();
@@ -738,27 +742,54 @@ void native_imgui::process_imgui() {
 
 bool native_imgui::_input(const Ref<InputEvent> &evt) {
 	// This is a temp fix until we can get a proper callback
-	ImGui::SetCurrentContext(context);
+	bool consumed = false; 
 	ImGuiIO &io = ImGui::GetIO();
-	const InputEventKey *_evt = dynamic_cast<const InputEventKey*>(evt.ptr());
-	InputEvent evttt;
+	const InputEventKey *_keyevt = dynamic_cast<const InputEventKey *>(evt.ptr());
 
- 
-	if (_evt != nullptr && _evt->is_pressed() /* Pressed */) {
-		unsigned int code = (unsigned int)_evt->get_scancode();
- 
+	if (_keyevt != nullptr && _keyevt->is_pressed() /* Pressed */) {
+		unsigned int code = (unsigned int)_keyevt->get_scancode();
+
 		if (code < 256) {
 			io.AddInputCharacter(code);
 		} else {
 			code = FixKey((KeyList)code);
-			io.KeysDown[code] = _evt->is_pressed();
+			io.KeysDown[code] = _keyevt->is_pressed();
+		}
+		 
+		consumed = io.WantCaptureMouse; 
+	 
+	}
+
+	const InputEventMouseMotion *_mousemotionevt = dynamic_cast<const InputEventMouseMotion *>(evt.ptr());
+	if (_mousemotionevt != nullptr) {
+		Vector2 godot_mouse_pos = _mousemotionevt->get_position();
+
+		ImVec2 mousePos(godot_mouse_pos.x, godot_mouse_pos.y);
+		consumed = io.WantCaptureMouse; 
+		io.MousePos = mousePos;
+	}
+
+	const InputEventMouseButton *_mouseButtonPressed = dynamic_cast<const InputEventMouseButton *>(evt.ptr());
+
+	if (_mouseButtonPressed != nullptr) {
+
+		if (_mouseButtonPressed->is_pressed()) {
+			int _index = _mouseButtonPressed->get_button_index();
+
+			io.MouseDown[0] = _index == 1 ? true : false;
+			io.MouseDown[1] = _index == 2 ? true : false;
+		} else {
+			io.MouseDown[0] = false;
+			io.MouseDown[1] = false;
+
 		}
 
-		//get_tree()->set_input_as_handled();
-		
-		return true;
+		consumed = io.WantCaptureMouse;
 	}
- 
+
+	if (consumed)
+		get_tree()->set_input_as_handled();
+
 	return false;
 }
 
@@ -856,7 +887,7 @@ void native_imgui::draw() {
 		VisualServer->canvas_item_set_clip(children[i], true); 
 
 		// This adds the canvas to the rendering queue.
-		VisualServer->canvas_item_add_mesh(children[i], mesh.get_rid(), Transform2D(), Color(), imgtex.get_rid());
+		VisualServer->canvas_item_add_mesh(children[i], mesh.get_rid(), Transform2D(), Color(), imgtex->get_rid());
 	}
 }
  
@@ -865,69 +896,80 @@ void native_imgui::RebuildFontAtlas() {
 }
 
 native_imgui::native_imgui() {
-	this->VisualServer = VisualServer::get_singleton();
-	textureCount = 0;
-	context = ImGui::CreateContext();
-	ImGui::SetCurrentContext(context);
-	ImGuiIO &io = ImGui::GetIO();
-	io.BackendFlags = 0;
-	//ImGui::SetCurrentContext(context);
-	//ImGui::StyleColorsDark();
+	if (context == nullptr) {
+		context = ImGui::CreateContext();
+		ImGuiIO &io = ImGui::GetIO();
+		io.BackendFlags = 0;
+		//ImGui::SetCurrentContext(context);
+		//ImGui::StyleColorsDark();
 
-	io.Fonts->AddFontDefault();
-	io.MouseDrawCursor = false;
+		io.Fonts->AddFontDefault();
+		io.MouseDrawCursor = false;
 
-	int width, height, bytesPerPixel;
-	unsigned char *pixels = NULL;
-	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
+		this->VisualServer = VisualServer::get_singleton();
 
-	PoolByteArray textureDataRaw;
+		int width, height, bytesPerPixel;
+		unsigned char *pixels = NULL;
+		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytesPerPixel);
 
-	for (uint32_t i = 0; i < width * height * bytesPerPixel; i++) {
-		textureDataRaw.push_back(pixels[i]);
+		PoolByteArray textureDataRaw;
+
+		for (uint32_t i = 0; i < width * height * bytesPerPixel; i++) {
+			textureDataRaw.push_back(pixels[i]);
+		}
+
+	
+		Image img(width, height, false, Image::Format::FORMAT_RGBA8, textureDataRaw);
+
+		textureCount = 0;
+		imgtex = new ImageTexture();
+	 
+		imgtex->create_from_image(img.duplicate(), 0);
+
+		io.Fonts->TexID = ImTextureID(textureCount++);
+
+		io.Fonts->ClearTexData();
+
+		io.DisplaySize.x = GLOBAL_GET("display/window/size/width"); // set the current display width
+		io.DisplaySize.y = GLOBAL_GET("display/window/size/height"); // set current display height
+
+		
+
+		io.KeyMap[(int)ImGuiKey_Tab] = FixKey(KeyList::KEY_TAB);
+		io.KeyMap[(int)ImGuiKey_LeftArrow] = FixKey(KeyList::KEY_LEFT);
+		io.KeyMap[(int)ImGuiKey_RightArrow] = FixKey(KeyList::KEY_RIGHT);
+		io.KeyMap[(int)ImGuiKey_UpArrow] = FixKey(KeyList::KEY_UP);
+		io.KeyMap[(int)ImGuiKey_DownArrow] = FixKey(KeyList::KEY_DOWN);
+		io.KeyMap[(int)ImGuiKey_PageUp] = FixKey(KeyList::KEY_PAGEUP);
+		io.KeyMap[(int)ImGuiKey_PageDown] = FixKey(KeyList::KEY_PAGEDOWN);
+		io.KeyMap[(int)ImGuiKey_Home] = FixKey(KeyList::KEY_HOME);
+		io.KeyMap[(int)ImGuiKey_End] = FixKey(KeyList::KEY_END);
+		io.KeyMap[(int)ImGuiKey_Insert] = FixKey(KeyList::KEY_INSERT);
+		io.KeyMap[(int)ImGuiKey_Delete] = FixKey(KeyList::KEY_DELETE);
+		io.KeyMap[(int)ImGuiKey_Backspace] = FixKey(KeyList::KEY_BACKSPACE);
+		io.KeyMap[(int)ImGuiKey_Space] = FixKey(KeyList::KEY_SPACE);
+		io.KeyMap[(int)ImGuiKey_Enter] = FixKey(KeyList::KEY_ENTER);
+		io.KeyMap[(int)ImGuiKey_Escape] = FixKey(KeyList::KEY_ESCAPE);
+		io.KeyMap[(int)ImGuiKey_KeyPadEnter] = FixKey(KeyList::KEY_KP_ENTER);
+		io.KeyMap[(int)ImGuiKey_A] = FixKey(KeyList::KEY_A);
+		io.KeyMap[(int)ImGuiKey_C] = FixKey(KeyList::KEY_C);
+		io.KeyMap[(int)ImGuiKey_V] = FixKey(KeyList::KEY_V);
+		io.KeyMap[(int)ImGuiKey_X] = FixKey(KeyList::KEY_X);
+		io.KeyMap[(int)ImGuiKey_Y] = FixKey(KeyList::KEY_Y);
+		io.KeyMap[(int)ImGuiKey_Z] = FixKey(KeyList::KEY_Z);
+
+		
+		VisualServer::get_singleton()->connect("frame_pre_draw", this, "ImGui_EndFrame");
+		NewFrame();
 	}
-
-	Image img(width, height, false, Image::Format::FORMAT_RGBA8, textureDataRaw);
-
-	imgtex.create_from_image(img.duplicate(), 0);
-
-	io.Fonts->TexID = ImTextureID(textureCount++);
-
-	io.Fonts->ClearTexData();
-
-	io.DisplaySize.x = GLOBAL_GET("display/window/size/width"); // set the current display width
-	io.DisplaySize.y = GLOBAL_GET("display/window/size/height"); // set current display height
-
-	io.KeyMap[(int)ImGuiKey_Tab] =			FixKey(KeyList::KEY_TAB);
-	io.KeyMap[(int)ImGuiKey_LeftArrow] =	FixKey(KeyList::KEY_LEFT);
-	io.KeyMap[(int)ImGuiKey_RightArrow] =	FixKey(KeyList::KEY_RIGHT);
-	io.KeyMap[(int)ImGuiKey_UpArrow] =		FixKey(KeyList::KEY_UP);
-	io.KeyMap[(int)ImGuiKey_DownArrow] =	FixKey(KeyList::KEY_DOWN);
-	io.KeyMap[(int)ImGuiKey_PageUp] =		FixKey(KeyList::KEY_PAGEUP);
-	io.KeyMap[(int)ImGuiKey_PageDown] =		FixKey(KeyList::KEY_PAGEDOWN);
-	io.KeyMap[(int)ImGuiKey_Home] =			FixKey(KeyList::KEY_HOME);
-	io.KeyMap[(int)ImGuiKey_End] =			FixKey(KeyList::KEY_END);
-	io.KeyMap[(int)ImGuiKey_Insert] =		FixKey(KeyList::KEY_INSERT);
-	io.KeyMap[(int)ImGuiKey_Delete] =		FixKey(KeyList::KEY_DELETE);
-	io.KeyMap[(int)ImGuiKey_Backspace] =	FixKey(KeyList::KEY_BACKSPACE);
-	io.KeyMap[(int)ImGuiKey_Space] =		FixKey(KeyList::KEY_SPACE);
-	io.KeyMap[(int)ImGuiKey_Enter] =		FixKey(KeyList::KEY_ENTER);
-	io.KeyMap[(int)ImGuiKey_Escape] =		FixKey(KeyList::KEY_ESCAPE);
-	io.KeyMap[(int)ImGuiKey_KeyPadEnter] =	FixKey(KeyList::KEY_KP_ENTER);
-	io.KeyMap[(int)ImGuiKey_A] =			FixKey(KeyList::KEY_A);
-	io.KeyMap[(int)ImGuiKey_C] =			FixKey(KeyList::KEY_C);
-	io.KeyMap[(int)ImGuiKey_V] =			FixKey(KeyList::KEY_V);
-	io.KeyMap[(int)ImGuiKey_X] =			FixKey(KeyList::KEY_X);
-	io.KeyMap[(int)ImGuiKey_Y] =			FixKey(KeyList::KEY_Y);
-	io.KeyMap[(int)ImGuiKey_Z] =			FixKey(KeyList::KEY_Z);
-} 
-
-void native_imgui::setvalue(String field, RID parent) {
-
 }
+native_imgui::~native_imgui() {
+	 
+}
+ 
 
 void native_imgui::Begin(String name, bool open, int flags) {
-	ImGui::Begin(convertStringToChar(name), &open, flags); // ImGuiWindowFlags_Popup Bör tas bort 
+	ImGui::Begin(convertStringToChar(name), &open, flags);
 }
 
 bool native_imgui::BeginChild(unsigned int ImGuiID, Vector2 vec, bool border, int flags) {
@@ -1116,10 +1158,8 @@ String native_imgui::InputTextMultiline(String label, String val, Vector2 size, 
 }
 
 String native_imgui::InputTextWithHint(String label, String hint, String val, int flags) {
-	input = val;
-
 	ImGui::InputTextWithHint(convertStringToChar(label),
-		convertStringToChar(hint), (char *)convertStringToChar(input), 64, flags);
+		convertStringToChar(hint), (char *)convertStringToChar(val), 64, flags);
 
 	return val;
 }
@@ -1980,10 +2020,11 @@ void native_imgui::Render() {
 
 void native_imgui::EndFrame() {
 	ImGui::EndFrame();
+	Render();
+	ImGui::NewFrame();
 }
 
-void native_imgui::NewFrame() {
-	ImGui::SetCurrentContext(context);
+void native_imgui::NewFrame() { 
 	ImGui::NewFrame();
 }
 
