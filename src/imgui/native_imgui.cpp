@@ -808,12 +808,13 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 Vector<Array> native_imgui::extract_imgui_data() {
 	ImDrawData *draw_dat = ImGui::GetDrawData();
  
-	draw_dat->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
+  
 	for (uint32_t i = 0; i < children.size(); i++)// This is silly, I'm aware
 		VisualServer->free(children[i]);
 
 	children.clear();
 
+	draw_dat->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
 	Vector<Array> arrays;
 	// How many meshes
 	for (uint32_t i = 0; i < draw_dat->CmdListsCount; i++) {
@@ -1492,7 +1493,11 @@ void native_imgui::PopTextWrapPos() {
 }
 
 void native_imgui::ProgressBar(float fraction, Vector2 size, String overlay) {
-	ImGui::ProgressBar(fraction, Vector2ToImVec(size), convertStringToChar(overlay));
+	if (overlay == "")
+		ImGui::ProgressBar(fraction, Vector2ToImVec(size));
+	else {
+		ImGui::ProgressBar(fraction, Vector2ToImVec(size), convertStringToChar(overlay));
+	}
 }
 
 void native_imgui::PushAllowKeyboardFocus(bool allow_keyboard_focus) {
