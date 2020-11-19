@@ -5,6 +5,7 @@
 uint32_t native_imgui::textureCount;
 ImGuiContext *native_imgui::context;
 VisualServer * native_imgui::VisualServer;
+int native_imgui::mouseWheel;
 //ImageTexture* native_imgui::imgtex;
 
 bool native_imgui::handleButtonDic(String label, bool newState) {
@@ -719,7 +720,10 @@ void native_imgui::process_imgui() {
 	ImGuiIO &io = ImGui::GetIO();
 
 	Input *input = Input::get_singleton();
-
+	 
+	// Because reasons
+	io.MouseWheel = mouseWheel;
+	mouseWheel = 0;
 	io.KeysDown[FixKey(KeyList::KEY_TAB)] = input->is_key_pressed((int)KeyList::KEY_TAB);
 	io.KeysDown[FixKey(KeyList::KEY_LEFT)] = input->is_key_pressed((int)KeyList::KEY_LEFT);
 	io.KeysDown[FixKey(KeyList::KEY_RIGHT)] = input->is_key_pressed((int)KeyList::KEY_RIGHT);
@@ -738,9 +742,8 @@ void native_imgui::process_imgui() {
 	io.KeysDown[FixKey(KeyList::KEY_KP_ENTER)] = input->is_key_pressed((int)KeyList::KEY_KP_ENTER);
 
 
-
-	// This says 0, I say doubt(X)
-	io.DeltaTime = get_process_delta_time();
+	 
+	io.DeltaTime = get_process_delta_time() + 0.1e-10; // Sometimes it's too fast and ImGui freaks out
 	 
 	draw();
 }
@@ -762,7 +765,7 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 		}
 
 
-		consumed = io.WantCaptureMouse; 
+		consumed = io.WantCaptureKeyboard; 
 	 
 	}
 
@@ -784,6 +787,8 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 
 			io.MouseDown[0] = _index == 1 ? true : false;
 			io.MouseDown[1] = _index == 2 ? true : false;
+			mouseWheel = - (_index == 5) + (_index == 4);
+		 
 		} else {
 			io.MouseDown[0] = false;
 			io.MouseDown[1] = false;
@@ -964,6 +969,8 @@ native_imgui::native_imgui() {
 		io.KeyMap[(int)ImGuiKey_Z] = FixKey(KeyList::KEY_Z);
 
 		
+		VisualServer::get_singleton()->connect("frame_post_draw", this, "ImGui_NewFrame");
+
 		VisualServer::get_singleton()->connect("frame_pre_draw", this, "ImGui_EndFrame");
 		NewFrame();
 
@@ -2045,7 +2052,6 @@ void native_imgui::Render() {
 void native_imgui::EndFrame() {
 	ImGui::EndFrame();
 	Render();
-	ImGui::NewFrame();
 }
 
 void native_imgui::NewFrame() { 

@@ -19,7 +19,7 @@ class native_imgui : public Node2D {
 	GDCLASS(native_imgui, Node2D);
 	 
 	//uint32_t *fontTextureId = nullptr;
- 
+	static int mouseWheel;
 	ImageTexture imgtex; // This can't be static, and thats fine. as texture count is static, it will behave like it
 	static uint32_t textureCount;
 	static VisualServer *VisualServer;
