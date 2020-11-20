@@ -1,7 +1,8 @@
 #include "native_imgui.h"
 #include "scene/resources/mesh.h"
 #include "core/method_bind_ext.gen.inc"
- 
+#include "scene/main/viewport.h"
+#include "../../scene/resources/rectangle_shape_2d.h"
 uint32_t native_imgui::textureCount;
 ImGuiContext *native_imgui::context;
 VisualServer * native_imgui::VisualServer;
@@ -742,9 +743,11 @@ void native_imgui::process_imgui() {
 	io.KeysDown[FixKey(KeyList::KEY_KP_ENTER)] = input->is_key_pressed((int)KeyList::KEY_KP_ENTER);
 
 
-	 
-	io.DeltaTime = get_process_delta_time() + 0.1e-10; // Sometimes it's too fast and ImGui freaks out
-	 
+	if (get_process_delta_time() < 1e-10) {
+		io.DeltaTime = 0.0016;
+	} else {
+		io.DeltaTime = get_process_delta_time(); // Sometimes it's too fast and ImGui freaks out
+	} 
 	draw();
 }
 
@@ -806,19 +809,16 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 
 
 Vector<Array> native_imgui::extract_imgui_data() {
-	ImDrawData *draw_dat = ImGui::GetDrawData();
- 
-  
-	for (uint32_t i = 0; i < children.size(); i++)// This is silly, I'm aware
-		VisualServer->free(children[i]);
+	Vector<Array> arrays;
+	/*
 
 	children.clear();
 
-	draw_dat->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
 	Vector<Array> arrays;
 	// How many meshes
 	for (uint32_t i = 0; i < draw_dat->CmdListsCount; i++) {
-		ImDrawList * list = draw_dat->CmdLists[i];
+		// Detta kommer alltid vara 1, för vi har en context
+		ImDrawList * cmdList = draw_dat->CmdLists[i];
  
 		Array temp;
 		temp.resize(ArrayMesh::ARRAY_MAX);
@@ -828,79 +828,176 @@ Vector<Array> native_imgui::extract_imgui_data() {
 		Vector<Color> colors;
 		Vector<Vector2> uvs;
 		Vector<int> indices;
+		for (uint32_t j = 0; j < cmdList->VtxBuffer.size(); j++) {
+			// vertex pos
+			ImVec2 imVert = cmdList->VtxBuffer[j].pos;
+			Vector2 godotVert(imVert.x, imVert.y);
 
-		for (uint32_t j = 0; j < list->CmdBuffer.Size; j++) {
+			// vertex colour
+			ImU32 im_col = cmdList->VtxBuffer[j].col;
+			float R = (im_col & 0xFF) / 255.0; // Bit shift magic, ImGui thinks colours are 32bit integers 0-255, Godot think they are 8 bit floats 0-1
+			float G = ((im_col >> 8) & 0xFF) / 255.0;
+			float B = ((im_col >> 16) & 0xFF) / 255.0;
+			float A = ((im_col >> 24) & 0xFF) / 255.0;
+			Color godotCol(R, G, B, A);
+			// Vertex uv
+			ImVec2 imUv = cmdList->VtxBuffer[j].uv;
+			Vector2 godotUv(imUv.x, imUv.y);
+
+			uvs.push_back(godotUv);
+			vertices.push_back(godotVert);
+			colors.push_back(godotCol);
+		}
+		
+
+		for (uint32_t j = 0; j < cmdList->CmdBuffer.size(); j++) {
+			ImDrawCmd *cmd = &cmdList->CmdBuffer[j];
 			// We want to touch this up, make so that it's not creating new kids every frame
 			RID child = VisualServer->canvas_item_create();
 			VisualServer->canvas_item_set_parent(child, get_canvas_item());
 			children.push_back(child);
 
-			ImDrawCmd drawCmd = list->CmdBuffer[j];
-			VisualServer->canvas_item_set_custom_rect(child, true, Rect2(drawCmd.ClipRect.x,
-				drawCmd.ClipRect.y, drawCmd.ClipRect.z - drawCmd.ClipRect.x,
-				drawCmd.ClipRect.w - drawCmd.ClipRect.y));
+			ImVec2 pos = draw_dat->DisplayPos;
+
+			Rect2 clippingRect = Rect2(cmd->ClipRect.x,
+					cmd->ClipRect.y,
+					cmd->ClipRect.z - cmd->ClipRect.x,
+					cmd->ClipRect.w - cmd->ClipRect.y);
+
+			VisualServer->canvas_item_clear(child);
+
+			VisualServer->canvas_item_set_clip(child, true);
+
+			VisualServer->canvas_item_set_custom_rect(child, true, clippingRect);
+
+			for (uint32_t k = cmd->IdxOffset; k < cmd->IdxOffset + cmd->ElemCount; k++) {
+				indices.push_back(cmdList->IdxBuffer[k]);
+			}
+
+			
+			temp[(int)ArrayMesh::ArrayType::ARRAY_VERTEX] = vertices;
+			temp[(int)ArrayMesh::ArrayType::ARRAY_INDEX] = indices;
+			temp[(int)ArrayMesh::ArrayType::ARRAY_COLOR] = colors;
+			temp[(int)ArrayMesh::ArrayType::ARRAY_TEX_UV] = uvs;
+
+			 
+			//Vector<Color> temp = arrays[0][ArrayMesh::ARRAY_COLOR];
+			mesh.add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, temp);
+
+			// This adds the canvas to the rendering queue.
+			VisualServer->canvas_item_add_mesh(child, mesh.get_rid(), Transform2D(), Color(), imgtex.get_rid());
+			 
 		}
 
-		// Extract information regarding verticies
-		for (uint32_t j = 0; j < list->VtxBuffer.size(); j++) {
+
+		arrays.push_back(temp);
+		
+	}
+	*/
+	return arrays;
+}
+
+void native_imgui::draw() { 
+	ImDrawData *drawData = ImGui::GetDrawData();
+	
+	for (uint32_t i = 0; i < meshes.size(); i++) {
+		while (meshes[i]->get_surface_count() > 0) {
+			meshes[i]->surface_remove(0);
+		}
+	}
+
+
+	drawData->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
+
+	for (uint32_t i = 0; i < drawData->CmdListsCount; i++) {
+		 
+
+		// Per triangle data
+		Vector<Vector2> vertices;
+		Vector<Color> colors;
+		Vector<Vector2> uvs;
+
+
+
+		// Per drawcall data
+		Vector<int> indices;
+
+
+		ImDrawList *cmdList = drawData->CmdLists[i];
+
+		for (uint32_t j = 0; j < cmdList->VtxBuffer.size(); j++) {
 			// vertex pos
-			ImVec2 im_vert = list->VtxBuffer[j].pos;
-			Vector2 godot_vert(im_vert.x, im_vert.y);
+			ImVec2 imVert = cmdList->VtxBuffer[j].pos;
+			Vector2 godotVert(imVert.x, imVert.y);
 
 			// vertex colour
-			ImU32 im_col = list->VtxBuffer[j].col;
+			ImU32 im_col = cmdList->VtxBuffer[j].col;
 			float R = (im_col & 0xFF) / 255.0; // Bit shift magic, ImGui thinks colours are 32bit integers 0-255, Godot think they are 8 bit floats 0-1
 			float G = ((im_col >> 8) & 0xFF) / 255.0;
 			float B = ((im_col >> 16) & 0xFF) / 255.0;
 			float A = ((im_col >> 24) & 0xFF) / 255.0;
-			Color godot_col(R, G, B, A);
+			Color godotCol(R, G, B, A);
 			// Vertex uv
-			ImVec2 im_uv = list->VtxBuffer[j].uv;
-			Vector2 godot_uv(im_uv.x, im_uv.y);
+			ImVec2 imUv = cmdList->VtxBuffer[j].uv;
+			Vector2 godotUv(imUv.x, imUv.y);
 
-			uvs.push_back(godot_uv);
-			vertices.push_back(godot_vert);
-			colors.push_back(godot_col);
+			uvs.push_back(godotUv);
+			vertices.push_back(godotVert);
+			colors.push_back(godotCol);
 		}
 
-		for (uint32_t j = 0; j < list->IdxBuffer.size(); j++) {
-			indices.push_back(list->IdxBuffer[j]);
-		}
+		for (uint32_t j = 0; j < cmdList->CmdBuffer.size(); j++) {
+			for (int desiredSize = meshes.size(); desiredSize < cmdList->CmdBuffer.size(); desiredSize++) {
+				meshes.push_back(memnew(ArrayMesh));
+			} 
 
 
-		temp[(int)ArrayMesh::ArrayType::ARRAY_VERTEX] = vertices;
-		temp[(int)ArrayMesh::ArrayType::ARRAY_INDEX] = indices;
-		temp[(int)ArrayMesh::ArrayType::ARRAY_COLOR] = colors;
-		temp[(int)ArrayMesh::ArrayType::ARRAY_TEX_UV] = uvs;
-
-		arrays.push_back(temp);
-	}
-
-	return arrays;
-}
-
-void native_imgui::draw() {
-	// Ugly temp fix, otherwise previous meshes will live on into next frame
-	while (mesh.get_surface_count() > 0) {
-		mesh.surface_remove(0);
-	}
-	 
-	Vector<Array> arrays = extract_imgui_data();
-
+			for (int desiredSize = children.size(); desiredSize < cmdList->CmdBuffer.size(); desiredSize++) {
+				RID child = VisualServer->canvas_item_create();
+				VisualServer->canvas_item_set_parent(child, get_canvas_item());
+				children.push_back(child);
+			}
 	
+			ImDrawCmd *cmd = &cmdList->CmdBuffer[j];
+			/*
+			RID child = VisualServer->canvas_item_create();
+			VisualServer->canvas_item_set_parent(child, get_canvas_item());
+			children.push_back(child);
+			*/
+			ImVec2 pos = drawData->DisplayPos;
+	
+			Rect2 clippingRect = Rect2(cmdList->CmdBuffer[j].ClipRect.x,
+			cmdList->CmdBuffer[j].ClipRect.y,
+			cmdList->CmdBuffer[j].ClipRect.z - cmdList->CmdBuffer[j].ClipRect.x,
+			cmdList->CmdBuffer[j].ClipRect.w - cmdList->CmdBuffer[j].ClipRect.y);
 
-	for (uint32_t i = 0; i < arrays.size(); i++) {
-		Vector<Color> temp = arrays[i][ArrayMesh::ARRAY_COLOR];
-		mesh.add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, arrays[i]);
+			VisualServer->canvas_item_clear(children[j]);
+			VisualServer->canvas_item_set_custom_rect(children[j], true, clippingRect);
+			VisualServer->canvas_item_set_clip(children[j], true);
 
-		// This does not clear the backbuffer
-		VisualServer->canvas_item_clear(children[i]);
-	  
-		VisualServer->canvas_item_set_clip(children[i], true); 
+		
+	
+			for (int k = cmd->IdxOffset; k < cmd->ElemCount + cmd->IdxOffset; k++) {
+				indices.push_back(cmdList->IdxBuffer[k]);
+			}
 
-		// This adds the canvas to the rendering queue.
-		VisualServer->canvas_item_add_mesh(children[i], mesh.get_rid(), Transform2D(), Color(), imgtex.get_rid());
+			Array renderData;
+			renderData.resize(ArrayMesh::ARRAY_MAX);
+		
+			renderData[(int)ArrayMesh::ArrayType::ARRAY_VERTEX] = vertices;
+			renderData[(int)ArrayMesh::ArrayType::ARRAY_INDEX] = indices;
+			renderData[(int)ArrayMesh::ArrayType::ARRAY_COLOR] = colors;
+			renderData[(int)ArrayMesh::ArrayType::ARRAY_TEX_UV] = uvs;
+			 
+			meshes[j]->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, renderData);
+		
+			
+			VisualServer->canvas_item_add_mesh(children[j], meshes[j]->get_rid(), Transform2D(), Color(), imgtex.get_rid());
+			indices.clear();
+		}
+		
 	}
+
 }
  
 
@@ -941,9 +1038,11 @@ native_imgui::native_imgui() {
 
 		io.Fonts->ClearTexData();
 
-		io.DisplaySize.x = GLOBAL_GET("display/window/size/width"); // set the current display width
-		io.DisplaySize.y = GLOBAL_GET("display/window/size/height"); // set current display height
-
+		io.DisplaySize.x = OS::get_singleton()->get_window_size().x;
+		
+		io.DisplaySize.y = OS::get_singleton()->get_window_size().y;
+		 
+		
 		
 
 		io.KeyMap[(int)ImGuiKey_Tab] = FixKey(KeyList::KEY_TAB);
@@ -981,9 +1080,9 @@ native_imgui::native_imgui() {
 	set_position(Vector2(0, 0));
 }
 native_imgui::~native_imgui() {
-	
+	for (int i = 0; i < meshes.size(); i++)
+		memdelete(meshes[i]);
 }
- 
 
 void native_imgui::Begin(String name, bool open, int flags) {
 	ImGui::Begin(convertStringToChar(name), &open, flags);

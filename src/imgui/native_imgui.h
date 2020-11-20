@@ -13,8 +13,9 @@
 #include "../../core/os/input.h"
 #include "core/vector.h"
 #include "scene/2d/node_2d.h"
- 
 
+ 
+// _inpu
 class native_imgui : public Node2D {
 	GDCLASS(native_imgui, Node2D);
 	 
@@ -25,10 +26,8 @@ class native_imgui : public Node2D {
 	static VisualServer *VisualServer;
 	static ImGuiContext *context;
  
-	
-	List<RID> children;
-	List<ArrayMesh*> meshes;
-	ArrayMesh mesh;
+	List<RID> children; 
+	Vector<ArrayMesh*> meshes;
 
 
 	Dictionary buttonDict;
