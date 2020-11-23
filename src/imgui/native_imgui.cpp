@@ -900,24 +900,24 @@ Vector<Array> native_imgui::extract_imgui_data() {
 void native_imgui::draw() { 
 	ImDrawData *drawData = ImGui::GetDrawData();
 	
-	for (uint32_t i = 0; i < meshes.size(); i++) {
-		while (meshes[i]->get_surface_count() > 0) {
-			meshes[i]->surface_remove(0);
+	for (uint32_t i = 0; i < meshDict.size(); i++) {
+		for (uint32_t j = 0; j < meshDict[i].size(); j++) {
+			while (meshDict[i][j]->get_surface_count() > 0) {
+				meshDict[i][j]->surface_remove(0);
+			}
 		}
-	} 
+	}
 
 	drawData->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
 
-	int meshesNeeded = 0;
+	for (uint32_t i = childDict.size(); i < drawData->CmdListsCount; i++) { 
 
-	for (uint32_t i = 0; i < drawData->CmdListsCount; i++) {
-		meshesNeeded += drawData->CmdLists[i]->CmdBuffer.size();
+		 childDict.push_back(Vector<RID>());
+		 meshDict.push_back(Vector<ArrayMesh *>());
 	}
 
 
-	for (uint32_t i = 0; i < drawData->CmdListsCount; i++) {
-		 
-
+	for (uint32_t i = 0; i < drawData->CmdListsCount; i++) {  
 		// Per triangle data
 		Vector<Vector2> vertices;
 		Vector<Color> colors;
@@ -953,15 +953,15 @@ void native_imgui::draw() {
 		}
 
 		for (uint32_t j = 0; j < cmdList->CmdBuffer.size(); j++) {
-			for (int desiredSize = meshes.size(); desiredSize < meshesNeeded; desiredSize++) {
-				meshes.push_back(memnew(ArrayMesh));
-			} 
-			  
-			for (int desiredSize = children.size(); desiredSize < meshesNeeded; desiredSize++) {
+			for (uint32_t k = childDict[i].size(); k < cmdList->CmdBuffer.size(); k++) {
+
 				RID child = VisualServer->canvas_item_create();
-				VisualServer->canvas_item_set_parent(child, get_canvas_item());
-				children.push_back(child);
+				const_cast<Vector<RID> &>(childDict[i]).push_back(child);
+				const_cast<Vector<ArrayMesh *> &>(meshDict[i]).push_back(memnew(ArrayMesh));
+
+				VisualServer->canvas_item_set_parent(childDict[i][k], get_canvas_item());
 			}
+
 	
 			ImDrawCmd *cmd = &cmdList->CmdBuffer[j];
 	
@@ -972,9 +972,9 @@ void native_imgui::draw() {
 			cmdList->CmdBuffer[j].ClipRect.z - cmdList->CmdBuffer[j].ClipRect.x,
 			cmdList->CmdBuffer[j].ClipRect.w - cmdList->CmdBuffer[j].ClipRect.y);
 
-			VisualServer->canvas_item_clear(children[j + i * 2]);
-			VisualServer->canvas_item_set_custom_rect(children[j + i * 2], true, clippingRect);
-			VisualServer->canvas_item_set_clip(children[j + i * 2], true);
+			VisualServer->canvas_item_clear(childDict[i][j]);
+			VisualServer->canvas_item_set_custom_rect(childDict[i][j], true, clippingRect);
+			VisualServer->canvas_item_set_clip(childDict[i][j], true);
 
 		
 	
@@ -989,13 +989,12 @@ void native_imgui::draw() {
 			renderData[(int)ArrayMesh::ArrayType::ARRAY_INDEX] = indices;
 			renderData[(int)ArrayMesh::ArrayType::ARRAY_COLOR] = colors;
 			renderData[(int)ArrayMesh::ArrayType::ARRAY_TEX_UV] = uvs;
-
-			int temp = j + i * 2;
-
-			meshes[temp]->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, renderData);
+			 
+			meshDict[i][j]->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, renderData);
+			//meshes[index]->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, renderData);
 		
 			
-			VisualServer->canvas_item_add_mesh(children[j + i * 2], meshes[j + i * 2]->get_rid(), Transform2D(), Color(), imgtex.get_rid());
+			VisualServer->canvas_item_add_mesh(childDict[i][j], meshDict[i][j]->get_rid(), Transform2D(), Color(), imgtex.get_rid());
 			indices.clear();
 		}
 		
@@ -1083,8 +1082,11 @@ native_imgui::native_imgui() {
 	set_position(Vector2(0, 0));
 }
 native_imgui::~native_imgui() {
-	for (int i = 0; i < meshes.size(); i++)
-		memdelete(meshes[i]);
+	for (int i = 0; i < meshDict.size(); i++)
+		for (int j = 0; j < meshDict[i].size(); j++) {
+			Vector<ArrayMesh *> &dict = const_cast<Vector<ArrayMesh *> &>(meshDict[i]);
+			memdelete(dict[j]);
+		}
 }
 
 void native_imgui::Begin(String name, bool open, int flags) {

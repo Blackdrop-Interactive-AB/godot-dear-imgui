@@ -25,12 +25,9 @@ class native_imgui : public Node2D {
 	static uint32_t textureCount;
 	static VisualServer *VisualServer;
 	static ImGuiContext *context;
- 
-	List<RID> children; 
-	Vector<ArrayMesh*> meshes;
 
-	Dictionary meshDict;
-	Dictionary childDict;
+	Vector<Vector<ArrayMesh*>> meshDict;
+	Vector<Vector<RID>> childDict;
 	Dictionary buttonDict;
 	Dictionary floatDict;
 	Dictionary Rect;
