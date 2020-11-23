@@ -29,7 +29,8 @@ class native_imgui : public Node2D {
 	List<RID> children; 
 	Vector<ArrayMesh*> meshes;
 
-
+	Dictionary meshDict;
+	Dictionary childDict;
 	Dictionary buttonDict;
 	Dictionary floatDict;
 	Dictionary Rect;

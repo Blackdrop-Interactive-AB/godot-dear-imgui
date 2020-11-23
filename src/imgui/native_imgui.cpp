@@ -904,10 +904,16 @@ void native_imgui::draw() {
 		while (meshes[i]->get_surface_count() > 0) {
 			meshes[i]->surface_remove(0);
 		}
-	}
-
+	} 
 
 	drawData->ScaleClipRects(ImGui::GetIO().DisplayFramebufferScale);
+
+	int meshesNeeded = 0;
+
+	for (uint32_t i = 0; i < drawData->CmdListsCount; i++) {
+		meshesNeeded += drawData->CmdLists[i]->CmdBuffer.size();
+	}
+
 
 	for (uint32_t i = 0; i < drawData->CmdListsCount; i++) {
 		 
@@ -947,23 +953,18 @@ void native_imgui::draw() {
 		}
 
 		for (uint32_t j = 0; j < cmdList->CmdBuffer.size(); j++) {
-			for (int desiredSize = meshes.size(); desiredSize < cmdList->CmdBuffer.size(); desiredSize++) {
+			for (int desiredSize = meshes.size(); desiredSize < meshesNeeded; desiredSize++) {
 				meshes.push_back(memnew(ArrayMesh));
 			} 
-
-
-			for (int desiredSize = children.size(); desiredSize < cmdList->CmdBuffer.size(); desiredSize++) {
+			  
+			for (int desiredSize = children.size(); desiredSize < meshesNeeded; desiredSize++) {
 				RID child = VisualServer->canvas_item_create();
 				VisualServer->canvas_item_set_parent(child, get_canvas_item());
 				children.push_back(child);
 			}
 	
 			ImDrawCmd *cmd = &cmdList->CmdBuffer[j];
-			/*
-			RID child = VisualServer->canvas_item_create();
-			VisualServer->canvas_item_set_parent(child, get_canvas_item());
-			children.push_back(child);
-			*/
+	
 			ImVec2 pos = drawData->DisplayPos;
 	
 			Rect2 clippingRect = Rect2(cmdList->CmdBuffer[j].ClipRect.x,
@@ -971,9 +972,9 @@ void native_imgui::draw() {
 			cmdList->CmdBuffer[j].ClipRect.z - cmdList->CmdBuffer[j].ClipRect.x,
 			cmdList->CmdBuffer[j].ClipRect.w - cmdList->CmdBuffer[j].ClipRect.y);
 
-			VisualServer->canvas_item_clear(children[j]);
-			VisualServer->canvas_item_set_custom_rect(children[j], true, clippingRect);
-			VisualServer->canvas_item_set_clip(children[j], true);
+			VisualServer->canvas_item_clear(children[j + i * 2]);
+			VisualServer->canvas_item_set_custom_rect(children[j + i * 2], true, clippingRect);
+			VisualServer->canvas_item_set_clip(children[j + i * 2], true);
 
 		
 	
@@ -988,11 +989,13 @@ void native_imgui::draw() {
 			renderData[(int)ArrayMesh::ArrayType::ARRAY_INDEX] = indices;
 			renderData[(int)ArrayMesh::ArrayType::ARRAY_COLOR] = colors;
 			renderData[(int)ArrayMesh::ArrayType::ARRAY_TEX_UV] = uvs;
-			 
-			meshes[j]->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, renderData);
+
+			int temp = j + i * 2;
+
+			meshes[temp]->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, renderData);
 		
 			
-			VisualServer->canvas_item_add_mesh(children[j], meshes[j]->get_rid(), Transform2D(), Color(), imgtex.get_rid());
+			VisualServer->canvas_item_add_mesh(children[j + i * 2], meshes[j + i * 2]->get_rid(), Transform2D(), Color(), imgtex.get_rid());
 			indices.clear();
 		}
 		
