@@ -1,9 +1,9 @@
 # godot-dear-imgui
-Native imgui module for [Godot game engine](https://godotengine.org/)
+Native Dear ImGui module for [Godot game engine](https://godotengine.org/)
 
 Based on [pkdawson's](https://github.com/pkdawson/imgui-godot) C# plugin imgui-godot
 
-The module ships with ImGui, the module is implemented in such a fashion that you can drop in your preferred version of ImGui. The module does not touch any code inside either Godot or ImGui. 
+The module ships with Dear ImGui, the module is implemented in such a fashion that you can drop in your preferred version of ImGui. The module does not touch any code inside either Godot or Dear ImGui. 
 
 ## Requirements 
 Module is based on godot [3.2.3 stable](https://github.com/godotengine/godot/tree/3.2.3-stable).
