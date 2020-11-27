@@ -20,10 +20,10 @@ __meta__ = {
 script = ExtResource( 1 )
 
 [node name="ColorPicker" type="ColorPicker" parent="."]
-margin_left = 2138.23
-margin_top = 292.901
-margin_right = 2446.23
-margin_bottom = 754.901
+margin_left = 2158.23
+margin_top = 312.901
+margin_right = 2466.23
+margin_bottom = 774.901
 
 [node name="native_imgui" type="native_imgui" parent="ColorPicker"]
 script = ExtResource( 2 )

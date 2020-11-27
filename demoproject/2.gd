@@ -30,6 +30,7 @@ func _process(delta):
 	ImGui_BulletText("Nam at metus quis augue pretium vehicula ullamcorper id ante.")
 	ImGui_BulletText("Vestibulum in est magna. Duis semper libero nunc.")
 	
+
 	if (ImGui_TreeNode("This a tree node")):
 		ImGui_BulletText("This is a new node that you expanded.")
 		ImGui_BulletText("It just works..")
@@ -39,7 +40,6 @@ func _process(delta):
 		
 	ImGui_Separator()
 	ImGui_LabelText("This is is a label")
-	ImGui_LabelTextV("This is a labael which is variadic", "This is just some text loreipsum")
 	
 	temp = ImGui_InputFloat("This is input float test", temp, 0.1, 0.2, "%.3f")
 	get_parent().set_position(ImGui_InputFloat2("This sets the position of the parent", get_parent().get_position()))
