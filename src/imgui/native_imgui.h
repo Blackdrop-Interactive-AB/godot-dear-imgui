@@ -12,12 +12,12 @@
 #include "../../core/os/os.h"
 #include "../../core/os/input.h"
 #include "core/vector.h"
-#include "scene/2d/node_2d.h"
+#include "scene/gui/control.h"
 
  
 // _inpu
-class native_imgui : public Node2D {
-	GDCLASS(native_imgui, Node2D);
+class native_imgui : public Control {
+	GDCLASS(native_imgui, Control);
 	 
 	//uint32_t *fontTextureId = nullptr;
 	static int mouseWheel;
@@ -43,10 +43,10 @@ class native_imgui : public Node2D {
 	float valuesGetter(void *data, int idx);
 	unsigned int FixKey(KeyList kc);
 	 
-	virtual void process_imgui(); 
-	Vector<Array> extract_imgui_data();
+	virtual void process_imgui();  
 	void draw();
 
+protected: 
 	// Godot functions
 	static void _bind_methods();
 
@@ -79,8 +79,7 @@ public:
 	bool BeginTabBarItem(String label, bool open, int flags);
 	void EndTabBarItem();
 	void EndTabBar();
-	void BeginTooltip();
-	Variant native_imgui::BulletTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	void BeginTooltip(); 
 	bool Button(String text, Vector2 size);
 	Array CalcListClipping(uint32_t item_count, uint32_t item_height);
 	Vector2 CalcTextSize(String text, String end, bool hide_text, float wrap_width);
@@ -190,8 +189,7 @@ public:
 	bool IsWindowCollapsed();
 	bool IsWindowFocused();
 	bool IsWindowHovered();
-	Variant LabelText(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-	Variant LabelTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	Variant LabelText(const Variant **p_args, int p_argcount, Variant::CallError &r_error); 
 	void ListBox(String label, int currentItem, Array items);
 	void ListBoxFooter();
 	bool ListBoxHeader(String label, Vector2 size);
@@ -256,8 +254,7 @@ public:
 	void SetScrollX(float x);
 	void SetScrollY(float y);
 	void SetTabItemClosed(String label);
-	Variant SetTooltip(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-	Variant SetTooltipV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	Variant SetTooltip(const Variant **p_args, int p_argcount, Variant::CallError &r_error); 
 	void SetWindowCollapsed(bool collapsed, int cond);
 	void SetWindowFocus();
 	void SetWindowFontScale(float scale);
@@ -283,10 +280,7 @@ public:
 	Variant TextWrapped(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	Variant TextColored(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 	void TreeAdvanceToLabelPos();
-	bool TreeNode(String label);
-	bool TreeNodeEx(String label, int flags);
-	Variant TreeNodeExV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-	Variant TreeNodeV(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	bool TreeNode(String label); 
 	void TreePop();
 	void TreePush();
 	void Unindent(float width);

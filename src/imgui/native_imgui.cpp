@@ -68,7 +68,6 @@ unsigned int native_imgui::FixKey(KeyList kc) {
 		return 256 + (kc & 0xFF);
 }
 
-
 void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("input", "event"), &native_imgui::_input);
 	ClassDB::bind_method(D_METHOD("ImGui_ArrowButton", "label", "dir"), &native_imgui::ArrowButton, DEFVAL(ImGuiDir_Right));
@@ -90,8 +89,8 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_BeginMenuBar"), &native_imgui::BeginMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_BeginMainMenuBar"), &native_imgui::BeginMainMenuBar);
 	ClassDB::bind_method(D_METHOD("ImGui_Bullet"), &native_imgui::Bullet);
-	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletText", &native_imgui::BulletTextV, MethodInfo("BulletText"));
-	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletTextV", &native_imgui::BulletTextV, MethodInfo("BulletTextV"));
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletText", &native_imgui::BulletText, MethodInfo("BulletText"));
+	//ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_BulletTextV", &native_imgui::BulletTextV, MethodInfo("BulletTextV"));
 	ClassDB::bind_method(D_METHOD("ImGui_CalcListClipping", "item count", "item height"), &native_imgui::CalcListClipping);
 	ClassDB::bind_method(D_METHOD("ImGui_CalcTextSize", "text", "end char"), &native_imgui::CalcTextSize, DEFVAL(false), DEFVAL(-1.0));
 	ClassDB::bind_method(D_METHOD("ImGui_CaptureKeyboardFromApp", "bool"), &native_imgui::CaptureKeyboardFromApp, DEFVAL(true));
@@ -213,7 +212,6 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_IsWindowFocused"), &native_imgui::IsWindowFocused);
 	ClassDB::bind_method(D_METHOD("ImGui_IsWindowHovered"), &native_imgui::IsWindowHovered);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LabelText", &native_imgui::LabelText, MethodInfo("LabelText"));
-	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_LabelTextV", &native_imgui::LabelTextV, MethodInfo("LabelTextV"));
 	ClassDB::bind_method(D_METHOD("ImGui_ListBox"), &native_imgui::ListBox); // Really broken, might not be fixable
 	ClassDB::bind_method(D_METHOD("ImGui_ListBoxFooter"), &native_imgui::ListBoxFooter);
 	ClassDB::bind_method(D_METHOD("ImGui_ListBoxHeader"), &native_imgui::ListBoxHeader, DEFVAL(Vector2(0,0)));
@@ -284,7 +282,7 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_SetScrollY", "y"), &native_imgui::SetScrollY);
 	ClassDB::bind_method(D_METHOD("ImGui_SetTabItemClosed", "label of tab"), &native_imgui::SetTabItemClosed);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_SetTooltip", &native_imgui::SetTooltip, MethodInfo("SetTooltip"));
-	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_SetTooltipV", &native_imgui::SetTooltipV, MethodInfo("SetTooltipV"));
+	//ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_SetTooltipV", &native_imgui::SetTooltipV, MethodInfo("SetTooltipV"));
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowCollapsed", "collapsed", "cond"), &native_imgui::SetWindowCollapsed, DEFVAL(1));
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowFocus"), &native_imgui::SetWindowFocus);
 	ClassDB::bind_method(D_METHOD("ImGui_SetWindowFontScale", "scale"), &native_imgui::SetWindowFontScale);
@@ -315,9 +313,9 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TextColoredV", &native_imgui::TextColored, MethodInfo("TextColored"));
 	ClassDB::bind_method(D_METHOD("ImGui_TreeAdvanceToLabelPos"), &native_imgui::TreeAdvanceToLabelPos);
 	ClassDB::bind_method(D_METHOD("ImGui_TreeNode", "label"), &native_imgui::TreeNode);
-	ClassDB::bind_method(D_METHOD("ImGui_TreeNodeEx", "label", "flags"), &native_imgui::TreeNodeEx, DEFVAL(0));
-	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TreeNodeExV", &native_imgui::TreeNodeExV, MethodInfo("TreeNodeExV"));
-	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TreeNodeV", &native_imgui::TreeNodeV, MethodInfo("TreeNodeV"));
+	//ClassDB::bind_method(D_METHOD("ImGui_TreeNodeEx", "label", "flags"), &native_imgui::TreeNodeEx, DEFVAL(0));
+	//ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TreeNodeExV", &native_imgui::TreeNodeExV, MethodInfo("TreeNodeExV"));
+	//ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "ImGui_TreeNodeV", &native_imgui::TreeNodeV, MethodInfo("TreeNodeV"));
 	ClassDB::bind_method(D_METHOD("ImGui_TreePop"), &native_imgui::TreePop);
 	ClassDB::bind_method(D_METHOD("ImGui_TreePush"), &native_imgui::TreePush);
 	ClassDB::bind_method(D_METHOD("ImGui_Unindent", "width"), &native_imgui::Unindent, DEFVAL(0.0f));
@@ -755,7 +753,8 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 	// This is a temp fix until we can get a proper callback
 	bool consumed = false; 
 	ImGuiIO &io = ImGui::GetIO();
-	const InputEventKey *_keyevt = dynamic_cast<const InputEventKey *>(evt.ptr());
+
+	Ref<InputEventKey> _keyevt = evt;
 
 	if (_keyevt != nullptr && _keyevt->is_pressed() /* Pressed */) {
 		unsigned int code = (unsigned int)_keyevt->get_scancode();
@@ -772,21 +771,22 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 	 
 	}
 
-	const InputEventMouseMotion *_mousemotionevt = dynamic_cast<const InputEventMouseMotion *>(evt.ptr());
-	if (_mousemotionevt != nullptr) {
-		Vector2 godot_mouse_pos = _mousemotionevt->get_position();
+	Ref<InputEventMouseMotion> mm = evt;
+
+	if (mm.is_valid()) {
+		Vector2 godot_mouse_pos = mm->get_position();
 
 		ImVec2 mousePos(godot_mouse_pos.x, godot_mouse_pos.y);
 		consumed = io.WantCaptureMouse; 
 		io.MousePos = mousePos;
 	}
 
-	const InputEventMouseButton *_mouseButtonPressed = dynamic_cast<const InputEventMouseButton *>(evt.ptr());
+	Ref<InputEventMouseButton> mp = evt;
 
-	if (_mouseButtonPressed != nullptr) {
+	if (mp.is_valid()) {
 
-		if (_mouseButtonPressed->is_pressed()) {
-			int _index = _mouseButtonPressed->get_button_index();
+		if (mp->is_pressed()) {
+			int _index = mp->get_button_index();
 
 			io.MouseDown[0] = _index == 1 ? true : false;
 			io.MouseDown[1] = _index == 2 ? true : false;
@@ -807,95 +807,6 @@ bool native_imgui::_input(const Ref<InputEvent> &evt) {
 	return false;
 }
 
-
-Vector<Array> native_imgui::extract_imgui_data() {
-	Vector<Array> arrays;
-	/*
-
-	children.clear();
-
-	Vector<Array> arrays;
-	// How many meshes
-	for (uint32_t i = 0; i < draw_dat->CmdListsCount; i++) {
-		// Detta kommer alltid vara 1, för vi har en context
-		ImDrawList * cmdList = draw_dat->CmdLists[i];
- 
-		Array temp;
-		temp.resize(ArrayMesh::ARRAY_MAX);
-		
-
-		Vector<Vector2> vertices;
-		Vector<Color> colors;
-		Vector<Vector2> uvs;
-		Vector<int> indices;
-		for (uint32_t j = 0; j < cmdList->VtxBuffer.size(); j++) {
-			// vertex pos
-			ImVec2 imVert = cmdList->VtxBuffer[j].pos;
-			Vector2 godotVert(imVert.x, imVert.y);
-
-			// vertex colour
-			ImU32 im_col = cmdList->VtxBuffer[j].col;
-			float R = (im_col & 0xFF) / 255.0; // Bit shift magic, ImGui thinks colours are 32bit integers 0-255, Godot think they are 8 bit floats 0-1
-			float G = ((im_col >> 8) & 0xFF) / 255.0;
-			float B = ((im_col >> 16) & 0xFF) / 255.0;
-			float A = ((im_col >> 24) & 0xFF) / 255.0;
-			Color godotCol(R, G, B, A);
-			// Vertex uv
-			ImVec2 imUv = cmdList->VtxBuffer[j].uv;
-			Vector2 godotUv(imUv.x, imUv.y);
-
-			uvs.push_back(godotUv);
-			vertices.push_back(godotVert);
-			colors.push_back(godotCol);
-		}
-		
-
-		for (uint32_t j = 0; j < cmdList->CmdBuffer.size(); j++) {
-			ImDrawCmd *cmd = &cmdList->CmdBuffer[j];
-			// We want to touch this up, make so that it's not creating new kids every frame
-			RID child = VisualServer->canvas_item_create();
-			VisualServer->canvas_item_set_parent(child, get_canvas_item());
-			children.push_back(child);
-
-			ImVec2 pos = draw_dat->DisplayPos;
-
-			Rect2 clippingRect = Rect2(cmd->ClipRect.x,
-					cmd->ClipRect.y,
-					cmd->ClipRect.z - cmd->ClipRect.x,
-					cmd->ClipRect.w - cmd->ClipRect.y);
-
-			VisualServer->canvas_item_clear(child);
-
-			VisualServer->canvas_item_set_clip(child, true);
-
-			VisualServer->canvas_item_set_custom_rect(child, true, clippingRect);
-
-			for (uint32_t k = cmd->IdxOffset; k < cmd->IdxOffset + cmd->ElemCount; k++) {
-				indices.push_back(cmdList->IdxBuffer[k]);
-			}
-
-			
-			temp[(int)ArrayMesh::ArrayType::ARRAY_VERTEX] = vertices;
-			temp[(int)ArrayMesh::ArrayType::ARRAY_INDEX] = indices;
-			temp[(int)ArrayMesh::ArrayType::ARRAY_COLOR] = colors;
-			temp[(int)ArrayMesh::ArrayType::ARRAY_TEX_UV] = uvs;
-
-			 
-			//Vector<Color> temp = arrays[0][ArrayMesh::ARRAY_COLOR];
-			mesh.add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES, temp);
-
-			// This adds the canvas to the rendering queue.
-			VisualServer->canvas_item_add_mesh(child, mesh.get_rid(), Transform2D(), Color(), imgtex.get_rid());
-			 
-		}
-
-
-		arrays.push_back(temp);
-		
-	}
-	*/
-	return arrays;
-}
 
 void native_imgui::draw() { 
 	ImDrawData *drawData = ImGui::GetDrawData();
@@ -965,7 +876,7 @@ void native_imgui::draw() {
 	
 			ImDrawCmd *cmd = &cmdList->CmdBuffer[j];
 	
-			ImVec2 pos = drawData->DisplayPos;
+			//ImVec2 pos = drawData->DisplayPos; will be a thing when we have more viewports
 	
 			Rect2 clippingRect = Rect2(cmdList->CmdBuffer[j].ClipRect.x,
 			cmdList->CmdBuffer[j].ClipRect.y,
@@ -1180,27 +1091,6 @@ void native_imgui::BeginTooltip() {
 }
 
 
-Variant native_imgui::BulletTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
-	String arg;
-	for (uint32_t i = 0; i < p_argcount; i++) {
-		if (p_args[i]->get_type() != Variant::STRING) {
-			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-			r_error.argument = 0;
-			r_error.expected = Variant::STRING;
-			return Variant();
-		}
-		// We conver the variant into a string and concatianate it to a godot string
-		arg += (String)*p_args[i];
-	}
-
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
-	ImGui::BulletTextV(convertStringToChar(arg), (char*)convertStringToChar(arg));
-	
-	r_error.error = Variant::CallError::CALL_OK;
-	return Variant();
-}
-
 bool native_imgui::Button(String text, Vector2 size) {
 	bool newState = ImGui::Button(convertStringToChar(text), Vector2ToImVec(size));
 	
@@ -1393,7 +1283,9 @@ bool native_imgui::IsMouseHoveringRect(Vector2 min, Vector2 max, bool clip) {
 }
 
 bool native_imgui::IsMousePosValid(Vector2 pos) {
-	return ImGui::IsMousePosValid(&Vector2ToImVec(pos));
+	ImVec2 vec = Vector2ToImVec(pos); // GCC freaks out
+
+	return ImGui::IsMousePosValid(&vec);
 }
 
 bool native_imgui::IsMouseReleased(unsigned int button) {
@@ -1445,49 +1337,12 @@ Variant native_imgui::LabelText(const Variant **p_args, int p_argcount, Variant:
 
 	temp[arg.size() + 1] = '\0';
 
-	ImGui::LabelTextV(convertStringToChar((String)*p_args[0]), temp, temp);
+	ImGui::LabelText(convertStringToChar((String)*p_args[0]), temp);
 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();
 }
-
-Variant native_imgui::LabelTextV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
-	String arg;
-	if (p_argcount < 0) {
-		r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-		r_error.argument = 0;
-		r_error.expected = Variant::STRING;
-		return Variant();
-	}
-
-	for (uint32_t i = 1; i < p_argcount; i++) {
-		if (p_args[i]->get_type() != Variant::STRING) {
-			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-			r_error.argument = 0;
-			r_error.expected = Variant::STRING;
-			return Variant();
-		}
-		// We conver the variant into a string and concatianate it to a godot string
-		arg += (String)*p_args[i];
-	}
-
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
-	
-	char *temp = memnew_arr(char, arg.size() + 1); 
-
-	memcpy(temp, (const char *)arg.utf8(), arg.size());
-
-	temp[arg.size() + 1] = '\0';
  
-	 
-	ImGui::LabelTextV(convertStringToChar((String)*p_args[0]), temp, temp);
-	memdelete_arr(temp);
-	 
-	r_error.error = Variant::CallError::CALL_OK;
-	return Variant();
-}
-
 void native_imgui::ListBox(String label, int currentItem, Array items) {
 	//const char *ptr = (char *)items.ptr();
 	//ImGui::ListBox(convertStringToChar(label), &currentItem, &ptr, 1);
@@ -1789,34 +1644,12 @@ Variant native_imgui::SetTooltip(const Variant **p_args, int p_argcount, Variant
 	// We fool ImGui that we are variadic. We are converting a const char * to a char*
 	//which kinda means we are praying that ImGui doens't do anything stupid
  
-	ImGui::SetTooltip(convertStringToChar(arg), (char *)convertStringToChar(arg));
+	ImGui::SetTooltip(convertStringToChar(arg));
 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();
 }
-
-Variant native_imgui::SetTooltipV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
-	String arg;
-	for (uint32_t i = 0; i < p_argcount; i++) {
-		if (p_args[i]->get_type() != Variant::STRING) {
-			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-			r_error.argument = 0;
-			r_error.expected = Variant::STRING;
-			return Variant();
-		}
-		// We conver the variant into a string and concatianate it to a godot string
-		arg += (String)*p_args[i];
-	}
-
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
-
-	ImGui::SetTooltipV(convertStringToChar(arg), (char *)convertStringToChar(arg));
-
-	r_error.error = Variant::CallError::CALL_OK;
-	return Variant();
-}
-
+ 
 void native_imgui::SetWindowCollapsed(bool collapsed, int cond) {
 	ImGui::SetWindowCollapsed(collapsed, cond);
 }
@@ -1873,19 +1706,19 @@ int native_imgui::SliderInt(String label, int val, int min, int max, String form
 }
 
 Vector2 native_imgui::SliderInt2(String label, Vector2 val, int min, int max, String format, int flags) {
-	int _arr[2] = {val.x, val.y};
+	int _arr[2] = { (int)val.x, (int)val.y };
 	ImGui::SliderInt2(convertStringToChar(label), _arr, min, max, convertStringToChar(format), flags);
 	return Vector2(_arr[0], _arr[1]);
 }
 
 Vector3 native_imgui::SliderInt3(String label, Vector3 val, int min, int max, String format, int flags) {
-	int _arr[3] = { val.x, val.y, val.z };
+	int _arr[3] = { (int)val.x, (int)val.y, (int)val.z };
 	ImGui::SliderInt2(convertStringToChar(label), _arr, min, max, convertStringToChar(format), flags);
 	return Vector3(_arr[0], _arr[1], _arr[2]);
 }
 
 Color native_imgui::SliderInt4(String label, Color val, int min, int max, String format, int flags) {
-	int _arr[4] = { val.r, val.b, val.b, val.a };
+	int _arr[4] = { (int)val.r, (int)val.b, (int)val.b, (int)val.a };
 	ImGui::SliderInt2(convertStringToChar(label), _arr, min, max, convertStringToChar(format), flags);
 	return Color(_arr[0], _arr[1], _arr[2], _arr[3]);
 }
@@ -1946,8 +1779,6 @@ Variant native_imgui::Text(const Variant **p_args, int p_argcount, Variant::Call
 		arg += (String)*p_args[i];
 	}
 
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
 
 	ImGui::Text(convertStringToChar(arg), (char *)convertStringToChar(arg));
 
@@ -1967,10 +1798,7 @@ Variant native_imgui::TextWrapped(const Variant **p_args, int p_argcount, Varian
 		// We conver the variant into a string and concatianate it to a godot string
 		arg += (String)*p_args[i];
 	}
-
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
-
+	 
 	ImGui::TextWrapped(convertStringToChar(arg), (char *)convertStringToChar(arg));
 
 	r_error.error = Variant::CallError::CALL_OK;
@@ -2000,10 +1828,7 @@ Variant native_imgui::TextColored(const Variant **p_args, int p_argcount, Varian
 		}
 		// We conver the variant into a string and concatianate it to a godot string
 		arg += (String)*p_args[i];
-	}
-
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
+	} 
 
 	ImGui::TextColored(_col, convertStringToChar(arg));
 
@@ -2017,75 +1842,6 @@ void native_imgui::TreeAdvanceToLabelPos() {
 
 bool native_imgui::TreeNode(String label) {
 	return ImGui::TreeNode(convertStringToChar(label));
-}
-
-bool native_imgui::TreeNodeEx(String label, int flags) {
-	return ImGui::TreeNodeEx(convertStringToChar(label), flags);
-}
-
-Variant native_imgui::TreeNodeExV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
-	String arg;
-
-	if (!(p_argcount > 1) && p_args[0]->get_type() != Variant::STRING && p_args[0]->get_type() != Variant::INT) {
-		r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-		r_error.argument = 0;
-		r_error.expected = Variant::STRING;
-		return Variant();
-	}
-	 
-
-	for (uint32_t i = 2; i < p_argcount; i++) {
-		if (p_args[i]->get_type() != Variant::STRING) {
-			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-			r_error.argument = 0;
-			r_error.expected = Variant::STRING;
-			return Variant();
-		}
-		// We conver the variant into a string and concatianate it to a godot string
-		arg += (String)*p_args[i];
-	}
-
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
-
-	ImGui::TreeNodeExV(convertStringToChar((String)*p_args[0]), (int)*p_args[1],
-		convertStringToChar(arg), (char*)convertStringToChar(arg));
-	
-	r_error.error = Variant::CallError::CALL_OK;
-	return ImGui::TreeNodeExV(convertStringToChar((String)*p_args[0]), (int)*p_args[1],
-			convertStringToChar(arg), (char *)convertStringToChar(arg));
-}
-
-Variant native_imgui::TreeNodeV(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
-	String arg;
-
-	if (!(p_argcount > 1) && p_args[0]->get_type() != Variant::STRING && p_args[0]->get_type() != Variant::INT) {
-		r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-		r_error.argument = 0;
-		r_error.expected = Variant::STRING;
-		return Variant();
-	}
-
-	for (uint32_t i = 2; i < p_argcount; i++) {
-		if (p_args[i]->get_type() != Variant::STRING) {
-			r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-			r_error.argument = 0;
-			r_error.expected = Variant::STRING;
-			return Variant();
-		}
-		// We conver the variant into a string and concatianate it to a godot string
-		arg += (String)*p_args[i];
-	}
-
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
-
-	ImGui::TreeNodeV(convertStringToChar((String)*p_args[0]),
-			convertStringToChar(arg), (char *)convertStringToChar(arg));
-
-	r_error.error = Variant::CallError::CALL_OK;
-	return ImGui::TreeNodeV(convertStringToChar((String)*p_args[0]),
-			convertStringToChar(arg), (char *)convertStringToChar(arg));
 }
 
 void native_imgui::TreePop() {
@@ -2127,11 +1883,9 @@ Variant native_imgui::BulletText(const Variant **p_args, int p_argcount, Variant
 		// We conver the variant into a string and concatianate it to a godot string
 		arg += (String)*p_args[i];
 	}
+	 
 
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
-
-	ImGui::BulletText(convertStringToChar(arg), (char *)convertStringToChar(arg));
+	ImGui::BulletText(convertStringToChar(arg));
 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();
@@ -2221,13 +1975,13 @@ int native_imgui::InputInt(String label, int value, int step, int step_fast, int
 }
 
 Vector2 native_imgui::InputInt2(String label, Vector2 value, int flags) {
-	int _vec[2] = {value.x, value.y};
+	int _vec[2] = { (int)value.x, (int)value.y };
 	ImGui::InputInt2(convertStringToChar(label), _vec, flags);
 	return Vector2(_vec[0], _vec[1]);
 }
 
 Vector3 native_imgui::InputInt3(String label, Vector3 value, int flags) {
-	int _vec[3] = { value.x, value.y, value.z };
+	int _vec[3] = { (int)value.x, (int)value.y, (int)value.z };
 	ImGui::InputInt3(convertStringToChar(label), _vec, flags);
 	return Vector3(_vec[0], _vec[1], _vec[2]);
 }
