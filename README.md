@@ -1,4 +1,4 @@
-# godot-imgui
+# godot-dear-imgui
 Native imgui module for [Godot game engine](https://godotengine.org/)
 
 Based on [pkdawson's](https://github.com/pkdawson/imgui-godot) C# plugin imgui-godot
