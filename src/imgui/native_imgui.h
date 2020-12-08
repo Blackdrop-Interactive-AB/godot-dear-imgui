@@ -31,6 +31,7 @@ class native_imgui : public Control {
 	Dictionary buttonDict;
 	Dictionary floatDict;
 	Dictionary Rect;
+	Dictionary strings;
 	 
 
 	/* Helper functions for conversion between libs */

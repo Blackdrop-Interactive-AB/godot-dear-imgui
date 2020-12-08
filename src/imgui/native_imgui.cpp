@@ -1779,8 +1779,19 @@ Variant native_imgui::Text(const Variant **p_args, int p_argcount, Variant::Call
 		arg += (String)*p_args[i];
 	}
 
+	if (!strings.has(arg)) {
+		char *temp = new char[arg.length() + 1];
 
-	ImGui::Text(convertStringToChar(arg), (char *)convertStringToChar(arg));
+		for (uint32_t i = 0; i < arg.length(); i++)
+			temp[i] = arg[i];
+		temp[arg.length()] = '\0';
+
+		strings[arg] = temp;
+	}
+
+	const char *ptr_char = ((String)strings[arg]).utf8();
+
+	ImGui::Text(convertStringToChar(ptr_char));
 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();
