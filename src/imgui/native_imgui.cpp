@@ -3,11 +3,36 @@
 #include "core/method_bind_ext.gen.inc"
 #include "scene/main/viewport.h"
 #include "../../scene/resources/rectangle_shape_2d.h"
+
+
+uint32_t native_imgui::currPos;
+uint32_t native_imgui::limit;
+char *native_imgui::charbuff;
+std::vector<char *> native_imgui::strings;
+std::vector<int>	 native_imgui::posStrings;
+
 uint32_t native_imgui::textureCount;
 ImGuiContext *native_imgui::context;
 VisualServer * native_imgui::VisualServer;
 int native_imgui::mouseWheel;
 //ImageTexture* native_imgui::imgtex;
+
+char *native_imgui::handleInputString(String label, String val, int capacity) {
+	if (input.find(label) == input.end()) {
+
+		std::vector<char> temp;
+	
+		for (uint32_t i = 0; i < val.length(); i++) {
+			temp.push_back(val[i]);
+		}
+		temp.resize(capacity);
+		input[label] = temp;
+	}
+
+	std::vector<char> &temp = input[label];
+
+	return temp.data();
+}
 
 bool native_imgui::handleButtonDic(String label, bool newState) {
 	bool oldState; 
@@ -25,22 +50,29 @@ bool native_imgui::handleButtonDic(String label, bool newState) {
 
 	return buttonDict[label];
 }
+ 
 
-String native_imgui::makeUniqueString(String string, int size) {
-	char *temp = memnew_arr(char, string.size() + 1);
+const char *native_imgui::convertStringToChar(const String string) {
+	int pos = posStrings[currPos];
 
-	for (uint32_t i = 0; i < string.size(); i++)
-		temp[i] = string[i];
+	if (pos + string.length() > limit) {
+		currPos++;
+		strings.push_back(memnew_arr(char, limit));
+		posStrings.push_back(0);
+		pos = 0;
+	}
 
-	temp[string.size()] = '\0';
-	String retVal = temp;
-	memdelete_arr(temp);
+	char *head = strings[currPos];
+	head += pos;
 
-	return retVal;
-}
-
-inline const char *native_imgui::convertStringToChar(String string) {
-	return makeUniqueString(string).utf8().get_data();
+	for (uint32_t i = 0; i < string.length(); i++)
+		head[i] = string[i];
+	
+	pos += string.length();
+	// vad vi ger ut är inte rätt.
+	head[pos++] = '\0';
+	posStrings[currPos] = pos;
+	return head;
 }
 
 inline ImVec2 native_imgui::Vector2ToImVec(const Vector2 &vec) {
@@ -168,7 +200,10 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_EndTabBar"), &native_imgui::EndTabBar);
 	ClassDB::bind_method(D_METHOD("ImGui_Indent", "indent_width"), &native_imgui::Indent, DEFVAL(0.0));
 	ClassDB::bind_method(D_METHOD("ImGui_InputDouble", "label", "value", "step", "fastStep", "format", "flags"), &native_imgui::InputDouble, DEFVAL(0), DEFVAL(0), DEFVAL("%.6f"), DEFVAL(0));
-	ClassDB::bind_method(D_METHOD("ImGui_InputFloat", "label", "value", "format", "flags"), &native_imgui::InputFloat, DEFVAL(0), DEFVAL(0), DEFVAL("%.3f"), DEFVAL(0));
+
+																				 
+	ClassDB::bind_method(D_METHOD("ImGui_InputFloat", "label", "value", "format", "step", "faststep", "flags"),
+			&native_imgui::InputFloat);
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat2", "label", "value", "format", "flags"), &native_imgui::InputFloat2, DEFVAL("%.3f"), DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat3", "label", "value", "format", "flags"), &native_imgui::InputFloat3, DEFVAL("%.3f"), DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat4", "label", "value", "format", "flags"), &native_imgui::InputFloat4, DEFVAL("%.3f"), DEFVAL(0));
@@ -177,9 +212,9 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_InputInt3", "label", "value", "flags"), &native_imgui::InputInt3, DEFVAL(0));
 	//ClassDB::bind_method(D_METHOD("ImGui_InputInt4", "label", "value", "step", "fastStep", "format"), &native_imgui::InputInt4);
 	ClassDB::bind_method(D_METHOD("ImGui_InputScalar"), &native_imgui::InputScalar);
-	ClassDB::bind_method(D_METHOD("ImGui_InputText", "label", "val", "flags"), &native_imgui::InputText, DEFVAL(0));
-	ClassDB::bind_method(D_METHOD("ImGui_InputTextMultiline", "label", "val"), &native_imgui::InputTextMultiline, DEFVAL(Vector2(0,0)), DEFVAL(0));
-	ClassDB::bind_method(D_METHOD("ImGui_InputTextWithHint"), &native_imgui::InputTextWithHint, DEFVAL(0));
+	ClassDB::bind_method(D_METHOD("ImGui_InputText", "label", "val", "flags"), &native_imgui::InputText, DEFVAL(64), DEFVAL(0));
+	ClassDB::bind_method(D_METHOD("ImGui_InputTextMultiline", "label", "val", "size", "flags", "capacity"), &native_imgui::InputTextMultiline, DEFVAL(Vector2(64, 64)), DEFVAL(64), DEFVAL(0));
+	ClassDB::bind_method(D_METHOD("ImGui_InputTextWithHint", "label", "hint", "value", "capacity", "flags"), &native_imgui::InputTextWithHint, DEFVAL(64), DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("ImGui_InvisibleButton", "str_id", "vec size", "flags"), &native_imgui::InvisibleButton, DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("ImGui_IsAnyItemActive"), &native_imgui::IsAnyItemActive);
 	ClassDB::bind_method(D_METHOD("ImGui_IsAnyItemFocused"), &native_imgui::IsAnyItemFocused);
@@ -919,6 +954,8 @@ void native_imgui::RebuildFontAtlas() {
 
 native_imgui::native_imgui() {
 	if (context == nullptr) {
+
+
 		context = ImGui::CreateContext();
 		ImGuiIO &io = ImGui::GetIO();
 		io.BackendFlags = 0;
@@ -985,10 +1022,18 @@ native_imgui::native_imgui() {
 		VisualServer::get_singleton()->connect("frame_post_draw", this, "ImGui_NewFrame");
 
 		VisualServer::get_singleton()->connect("frame_pre_draw", this, "ImGui_EndFrame");
-		NewFrame();
 
+
+
+		NewFrame();
+		limit = 1024;
+
+		strings.push_back(memnew_arr(char, limit));
+		posStrings.push_back(0);
+		currPos = 0;
 		
 	}
+
 	set_as_toplevel(true);
 	set_position(Vector2(0, 0));
 }
@@ -998,6 +1043,11 @@ native_imgui::~native_imgui() {
 			Vector<ArrayMesh *> &dict = const_cast<Vector<ArrayMesh *> &>(meshDict[i]);
 			memdelete(dict[j]);
 		}
+
+
+	for (uint32_t i = 0; i < strings.size(); i++)
+		memdelete_arr(strings[i]);
+	strings.clear();
 }
 
 void native_imgui::Begin(String name, bool open, int flags) {
@@ -1091,10 +1141,8 @@ void native_imgui::BeginTooltip() {
 }
 
 
-bool native_imgui::Button(String text, Vector2 size) {
-	bool newState = ImGui::Button(convertStringToChar(text), Vector2ToImVec(size));
-	
-	return handleButtonDic(text, newState);
+bool native_imgui::Button(String text, Vector2 size) { 
+	return ImGui::Button(convertStringToChar(text), Vector2ToImVec(size));
 }
 
 Array native_imgui::CalcListClipping(uint32_t item_count, uint32_t item_height) {
@@ -1121,7 +1169,7 @@ void native_imgui::CaptureMouseFromApp(bool capture) {
 }
 
 bool native_imgui::CheckboxFlags(String label, uint32_t flags, uint32_t flags_value) {
-	return handleButtonDic(label, ImGui::CheckboxFlags(convertStringToChar(label), &flags, flags_value));
+	return ImGui::CheckboxFlags(convertStringToChar(label), &flags, flags_value);
 }
 
 bool native_imgui::CollapsingHeader(String label, int flags) {
@@ -1138,56 +1186,29 @@ float native_imgui::InputScalar(String label, unsigned int datatype,  int val, u
 	return val;
 }
 
-String native_imgui::InputText(String label, String val, int flags) {
-	char *temp = memnew_arr(char, 64);
+String native_imgui::InputText(String label, String val, int capacity, int flags) {
+	char *temp = handleInputString(label, val, capacity);
 
-	for (uint32_t i = 0; i < val.size(); i++)
-		temp[i] = val[i];
+	ImGui::InputText(convertStringToChar(label), temp, capacity, flags);
 
-	temp[val.size()] = '\0'; 
-	ImGui::InputText(convertStringToChar(label), temp, 63, flags);
-
-	val = temp;
-	memdelete_arr(temp);
-	return temp;
+	return String((const char *)temp);
 }
 
-String native_imgui::InputTextMultiline(String label, String val, Vector2 size, int flags) {
-	char *temp = memnew_arr(char, 64);
+String native_imgui::InputTextMultiline(String label, String val, Vector2 size, int capacity, int flags) {	
+	char *temp = handleInputString(label, val, capacity);
  
-	
-	for (uint32_t i = 0; i < val.size(); i++)
-		temp[i] = val[i];
+	ImGui::InputTextMultiline(convertStringToChar(label), temp, capacity, Vector2ToImVec(size), flags);
 
-	temp[val.size()] = '\0';
- 
-
-	
-	ImGui::InputTextMultiline(convertStringToChar(label), temp, 63, Vector2ToImVec(size), flags);
-	
-	val = temp;
-	memdelete_arr(temp);
-	return val;
+	return String((const char *) temp);
 }
 
-String native_imgui::InputTextWithHint(String label, String hint, String val, int flags) {
-	char *temp = memnew_arr(char, 64);
-
-	for (uint32_t i = 0; i < val.size(); i++)
-		temp[i] = val[i];
-
-	temp[val.size()] = '\0';
- 
-
-
+String native_imgui::InputTextWithHint(String label, String hint, String val, int capacity, int flags) {
+	char *temp = handleInputString(label, val, capacity);
 
 	ImGui::InputTextWithHint(convertStringToChar(label),
-		convertStringToChar(hint), temp, 63, flags);
-	val = temp;
-
-	memdelete_arr(temp);
-
-	return val;
+		convertStringToChar(hint), temp, capacity, flags);
+	
+	return String((const char *)temp);
 }
 
 bool native_imgui::InvisibleButton(String str_id, Vector2 size, int flags) {
@@ -1329,15 +1350,9 @@ Variant native_imgui::LabelText(const Variant **p_args, int p_argcount, Variant:
 		arg += (String)*p_args[i];
 	}
 
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
-	char *temp = memnew_arr(char, arg.size() + 1);
 
-	memcpy(temp, (const char *)arg.utf8(), arg.size());
 
-	temp[arg.size() + 1] = '\0';
-
-	ImGui::LabelText(convertStringToChar((String)*p_args[0]), temp);
+	ImGui::LabelText(convertStringToChar((String)*p_args[0]), convertStringToChar(arg));
 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();
@@ -1377,8 +1392,6 @@ Variant native_imgui::LogText(const Variant **p_args, int p_argcount, Variant::C
 		arg += (String)*p_args[i];
 	}
 
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
 
 	ImGui::LogText(convertStringToChar(arg), (char *)convertStringToChar(arg));
 
@@ -1500,12 +1513,11 @@ void native_imgui::PushTextWrapPos(float wrap_local_pos_x) {
 }
 
 bool native_imgui::RadioButton(String label, bool active) {
-	return handleButtonDic(label, ImGui::RadioButton(convertStringToChar(label),
-							active));
+	return ImGui::RadioButton(convertStringToChar(label), active);
 }
 
 bool native_imgui::Selectable(String label, bool active, int flags, Vector2 size) {
-	return handleButtonDic(label, ImGui::Selectable(convertStringToChar(label), &active, flags, Vector2ToImVec(size)));
+	return  ImGui::Selectable(convertStringToChar(label), &active, flags, Vector2ToImVec(size));
 }
 
 void native_imgui::SetClipboardText(String text) {
@@ -1640,9 +1652,6 @@ Variant native_imgui::SetTooltip(const Variant **p_args, int p_argcount, Variant
 		// We conver the variant into a string and concatianate it to a godot string
 		arg += (String)*p_args[i];
 	}
-
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
  
 	ImGui::SetTooltip(convertStringToChar(arg));
 
@@ -1724,7 +1733,7 @@ Color native_imgui::SliderInt4(String label, Color val, int min, int max, String
 }
 
 bool native_imgui::SmallButton(String label) {
-	return handleButtonDic(label, ImGui::SmallButton(convertStringToChar(label)));
+	return ImGui::SmallButton(convertStringToChar(label));
 }
 
 void native_imgui::Spacing() {
@@ -1756,9 +1765,6 @@ Variant native_imgui::TextDisabled(const Variant **p_args, int p_argcount, Varia
 		arg += (String)*p_args[i];
 	}
 
-	// We fool ImGui that we are variadic. We are converting a const char * to a char*
-	//which kinda means we are praying that ImGui doens't do anything stupid
-
 	ImGui::TextDisabled(convertStringToChar(arg), (char *)convertStringToChar(arg));
 
 	r_error.error = Variant::CallError::CALL_OK;
@@ -1779,19 +1785,9 @@ Variant native_imgui::Text(const Variant **p_args, int p_argcount, Variant::Call
 		arg += (String)*p_args[i];
 	}
 
-	if (!strings.has(arg)) {
-		char *temp = new char[arg.length() + 1];
 
-		for (uint32_t i = 0; i < arg.length(); i++)
-			temp[i] = arg[i];
-		temp[arg.length()] = '\0';
 
-		strings[arg] = temp;
-	}
-
-	const char *ptr_char = ((String)strings[arg]).utf8();
-
-	ImGui::Text(convertStringToChar(ptr_char));
+	ImGui::Text(convertStringToChar(arg));
 
 	r_error.error = Variant::CallError::CALL_OK;
 	return Variant();
@@ -1926,6 +1922,13 @@ void native_imgui::Render() {
 void native_imgui::EndFrame() {
 	ImGui::EndFrame();
 	Render();
+	currPos = 0;
+	for (auto &it : posStrings)
+		it = 0;
+
+	for (auto &it : strings)
+		for (uint32_t i = 0; i < limit; i++)
+			it[i] = '\0';
 }
 
 void native_imgui::NewFrame() { 
@@ -1954,17 +1957,32 @@ bool native_imgui::MenuItem(String label, String shortcut, bool selected, bool e
 			selected,
 			enabled);
 
-	return handleButtonDic(label, newState);
+	return newState;
 }
 
-float native_imgui::InputFloat(String label, float value, float step, float fastStep, String format, int flags) {
-	ImGui::InputFloat(convertStringToChar(label), &value, step, fastStep, convertStringToChar(format));
+float native_imgui::InputFloat(String label, float value, String format, float step, float fastStep, int flags) {
+
+	const char *_label = convertStringToChar(label);
+	const char *_format = convertStringToChar(format);
+
+
+
+	ImGui::InputFloat(_label, &value, step, fastStep, _format, flags);
+
+
+
 	return value;
 }
 
 Vector2 native_imgui::InputFloat2(String label, Vector2 value, String format, int flags) {
 	float _vec[2] = { value.x, value.y };
-	ImGui::InputFloat2(convertStringToChar(label), _vec, convertStringToChar(format), flags);
+
+	
+	const char *_label = convertStringToChar(label);
+	const char *_format = convertStringToChar(format);
+
+
+	ImGui::InputFloat2(_label, _vec, _format, flags);
 	return Vector2(_vec[0], _vec[1]);
 }
 
@@ -2241,7 +2259,7 @@ void native_imgui::CloseCurrentPopup() {
 bool native_imgui::ColorButton(String desc_id, Color vec, int flags, Vector2 size) {
 	ImVec4 _vec(vec.r, vec.g, vec.b, 1.0);
 	bool newState = ImGui::ColorButton(convertStringToChar(desc_id), _vec);
-	return handleButtonDic(desc_id, newState);
+	return newState;
 }
 
 Color native_imgui::ColorPicker4(String label, Color color, int flags) {

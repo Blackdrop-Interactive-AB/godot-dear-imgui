@@ -14,11 +14,14 @@
 #include "core/vector.h"
 #include "scene/gui/control.h"
 
- 
+#include <vector>
+#include <map>
+#include <string>
+
 // _inpu
 class native_imgui : public Control {
 	GDCLASS(native_imgui, Control);
-	 
+	
 	//uint32_t *fontTextureId = nullptr;
 	static int mouseWheel;
 	ImageTexture imgtex; // This can't be static, and thats fine. as texture count is static, it will behave like it
@@ -26,18 +29,25 @@ class native_imgui : public Control {
 	static VisualServer *VisualServer;
 	static ImGuiContext *context;
 
+	static uint32_t currPos;
+	static uint32_t limit;
+	static char *charbuff;
+	static std::vector<char *> strings;
+	static std::vector<int> posStrings;
 	Vector<Vector<ArrayMesh*>> meshDict;
 	Vector<Vector<RID>> childDict;
 	Dictionary buttonDict;
 	Dictionary floatDict;
-	Dictionary Rect;
-	Dictionary strings;
+	Dictionary Rect; 
+
+	std::map<String, std::vector<char>> input; 
+	
 	 
 
 	/* Helper functions for conversion between libs */
-	bool handleButtonDic(String label, bool newState);
-	String makeUniqueString(String string, int size = 1);
-	inline const char *convertStringToChar(String string);
+	char * handleInputString(String label, String val, int capacity); 
+	bool handleButtonDic(String label, bool newState); 
+	const char *convertStringToChar(const String string);
 	inline ImVec2 Vector2ToImVec(const Vector2& vec); 
 	inline Vector2 ImVec2ToVector2(const ImVec2 &vec);
 	inline Color ImVec4ToColor(const ImVec4 &vec);
@@ -147,7 +157,7 @@ public:
 	int GetID(String id);
 	void Indent(float indent_width);
 	double InputDouble(String label, double value, double step, double faststep, String format, int flags);
-	float InputFloat(String label, float value, float step, float faststep, String format, int flags);
+	float InputFloat(String label, float value, String format, float step, float faststep, int flags);
 	Vector2 InputFloat2(String label, Vector2 value, String format, int flags);
 	Vector3 InputFloat3(String label, Vector3 value, String format, int flags);
 	Color InputFloat4(String label, Color, String format, int flags);
@@ -156,9 +166,10 @@ public:
 	Vector3 InputInt3(String label, Vector3 value, int flags);
 	/*Vector4 InputInt4(String label, int value, Vector4 step, int step_fast); */
 	float InputScalar(String label, unsigned int datatype, int val, unsigned int step, unsigned int faststep); // This one might be something we have to live without
-	String InputText(String label, String val, int flags); // behaves weird with label and value swapping during frames. Same memory adress?
-	String InputTextMultiline(String label, String val, Vector2 size, int flags); // behaves weird with label and value swapping during frames. Same memory adress?
-	String InputTextWithHint(String label, String hint, String val, int flags);
+
+	String InputText(String label, String val, int capacity, int flags);
+	String InputTextMultiline(String label, String val, Vector2 size, int capacity, int flags); // behaves weird with label and value swapping during frames. Same memory adress?
+	String InputTextWithHint(String label, String hint, String val, int capacity, int flags);
 	bool InvisibleButton(String str_id, Vector2 size, int flags);
 	bool IsAnyItemActive();
 	bool IsAnyItemFocused();
