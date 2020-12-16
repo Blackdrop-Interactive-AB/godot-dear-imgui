@@ -157,7 +157,7 @@ public:
 	int GetID(String id);
 	void Indent(float indent_width);
 	double InputDouble(String label, double value, double step, double faststep, String format, int flags);
-	float InputFloat(String label, float value, String format, float step, float faststep, int flags);
+	float InputFloat(String label, float value, float step, float faststep, String format, int flags);
 	Vector2 InputFloat2(String label, Vector2 value, String format, int flags);
 	Vector3 InputFloat3(String label, Vector3 value, String format, int flags);
 	Color InputFloat4(String label, Color, String format, int flags);

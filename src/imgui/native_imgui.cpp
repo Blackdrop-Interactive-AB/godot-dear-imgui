@@ -201,9 +201,9 @@ void native_imgui::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("ImGui_Indent", "indent_width"), &native_imgui::Indent, DEFVAL(0.0));
 	ClassDB::bind_method(D_METHOD("ImGui_InputDouble", "label", "value", "step", "fastStep", "format", "flags"), &native_imgui::InputDouble, DEFVAL(0), DEFVAL(0), DEFVAL("%.6f"), DEFVAL(0));
 
-																				 
-	ClassDB::bind_method(D_METHOD("ImGui_InputFloat", "label", "value", "format", "step", "faststep", "flags"),
-			&native_imgui::InputFloat);
+									 
+	ClassDB::bind_method(D_METHOD("ImGui_InputFloat", "label", "value", "step", "faststep", "format", "flags"),
+			&native_imgui::InputFloat, DEFVAL(0.0), DEFVAL(0.0), DEFVAL("%.3f"), DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat2", "label", "value", "format", "flags"), &native_imgui::InputFloat2, DEFVAL("%.3f"), DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat3", "label", "value", "format", "flags"), &native_imgui::InputFloat3, DEFVAL("%.3f"), DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("ImGui_InputFloat4", "label", "value", "format", "flags"), &native_imgui::InputFloat4, DEFVAL("%.3f"), DEFVAL(0));
@@ -1960,17 +1960,8 @@ bool native_imgui::MenuItem(String label, String shortcut, bool selected, bool e
 	return newState;
 }
 
-float native_imgui::InputFloat(String label, float value, String format, float step, float fastStep, int flags) {
-
-	const char *_label = convertStringToChar(label);
-	const char *_format = convertStringToChar(format);
-
-
-
-	ImGui::InputFloat(_label, &value, step, fastStep, _format, flags);
-
-
-
+float native_imgui::InputFloat(String label, float value, float step, float fastStep, String format, int flags) {
+	ImGui::InputFloat(convertStringToChar(label), &value, step, fastStep, convertStringToChar(format), flags);
 	return value;
 }
 
