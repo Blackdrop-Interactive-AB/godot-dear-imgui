@@ -1,5 +1,5 @@
 # godot-dear-imgui
-Native Dear ImGui module for [Godot game engine](https://godotengine.org/)
+Native Dear [ImGui](https://github.com/ocornut/imgui) module for [Godot game engine](https://godotengine.org/)
 
 Based on [pkdawson's](https://github.com/pkdawson/imgui-godot) C# plugin imgui-godot
 

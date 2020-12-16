@@ -957,8 +957,15 @@ native_imgui::native_imgui() {
 
 
 		context = ImGui::CreateContext();
+
+
 		ImGuiIO &io = ImGui::GetIO();
 		io.BackendFlags = 0;
+
+#ifdef JAVASCRIPT_ENABLED
+		io.IniFilename = NULL; 
+#endif
+
 		//ImGui::SetCurrentContext(context);
 		//ImGui::StyleColorsDark();
 
